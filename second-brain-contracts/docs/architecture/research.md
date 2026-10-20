@@ -1,0 +1,22 @@
+# Research and evidence log
+
+Official specifications and upstream tool documentation inspected 2026-10-20. Only public standards/tool pages were requested; no personal inventory content or local documents were uploaded. Firecrawl tools were unavailable, so web retrieval was used. The developer-documentation skill's version/evidence discipline and the Architecture Stress Tester review method were applied.
+
+| Source | Observation used | Limit / resulting recommendation |
+|---|---|---|
+| [JSON Schema 2020-12 release notes](https://json-schema.org/draft/2020-12/release-notes) | Updated recursion/tuple keywords, unevaluated vocabulary and format annotation/assertion distinction | Use explicit validator profile; avoid advanced keywords until generator proof |
+| [OpenAPI 3.1.2](https://spec.openapis.org/oas/v3.1.2.html) | 3.1 Schema Objects build on JSON Schema; external references and dialects matter | 3.1 is sufficient for optional HTTP binding. This is not a claim it is the newest OpenAPI version; newer links exist, adoption needs tooling evidence |
+| [MCP inspected current specification](https://modelcontextprotocol.io/specification/2026-07-28), [transports](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports), [authorization](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization) | `latest` resolved to dated 2026-07-28; standard transport bindings and version-specific lifecycle differ from earlier revision | Pin tested SDK/client/profile at Q10; no assumption earlier initialization/cancel mapping remains valid |
+| [JSON-RPC 2.0](https://www.jsonrpc.org/specification) | Defines envelopes, IDs, notifications and errors | Does not supply application authorization or a job engine |
+| [datamodel-code-generator repository](https://github.com/datamodel-code-generator/datamodel-code-generator), [CLI](https://datamodel-code-generator.koxudaxi.dev/cli-reference/), [0.86.0 release](https://github.com/datamodel-code-generator/datamodel-code-generator/releases/tag/0.86.0) | JSON Schema → Pydantic v2, refs/unions and generation flags; release changes can affect semantics | Candidate version is proposed, not locally run. Current main docs may contain features newer than that release; explicit flags and M2 gate |
+| [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript) | CLI generation, local refs, unions; static constraints and newer-draft keyword limits documented | Pin 16.0.0 initially; ignore claims specific to unreleased main, notably advanced unevaluated/format options. No full 2020-12 fidelity claim |
+| [jsonschema validation](https://python-jsonschema.readthedocs.io/en/stable/validate/) | Draft-specific validator and explicit format checking | Used installed 4.26.0 for examples only |
+| [Ajv dialect support](https://ajv.js.org/json-schema.html), [formats](https://ajv.js.org/guide/formats.html) | Draft2020-specific entry point; formats package | M2 parity gate; no Ajv run claimed in this delivery |
+| [Pydantic strict mode](https://pydantic.dev/docs/validation/latest/concepts/strict_mode/) | Strict behavior depends on type and Python/JSON input mode | Canonical schema validation and round-trip checks required; models are not wire authority |
+| [Redocly CLI](https://github.com/Redocly/redocly-cli) | Lint/bundle/docs toolchain; current runtime requirements | Optional HTTP dev dependency only; no installation or lint run now |
+| [oasdiff](https://github.com/oasdiff/oasdiff) | HTTP breaking-change analysis | Useful HTTP gate, not proof of arbitrary JSON Schema equivalence |
+| [AsyncAPI 3.0](https://www.asyncapi.com/docs/reference/specification/v3.0.0) | Message/channel API modeling | Defer until external messaging exists |
+| [gRPC concepts](https://grpc.io/docs/what-is-grpc/core-concepts/) | Typed service RPC, streams and deadlines | Defer Protobuf/service layer absent concrete consumer |
+| [Smithy 2.0](https://smithy.io/2.0/index.html) | Service model/code generation approach | Another authoring layer is not justified for current contract choices |
+
+Some initial documentation URLs failed or redirected; the working authoritative links above were used. No inference of supported Windows/macOS/Linux behavior is based on an actual generator run: those platforms are required targets, with proof assigned to M2/M3. Tool versions are proposed constraints/snapshots rather than “latest is best.” No dependency was installed just to produce architecture documents.

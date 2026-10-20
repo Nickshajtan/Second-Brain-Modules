@@ -1,0 +1,36 @@
+{
+  "openapi": "3.1.2",
+  "info": {
+    "title": "Illustrative Second Brain HTTP binding",
+    "version": "0.1.0",
+    "description": "EXAMPLE ONLY. JSON syntax is valid YAML 1.2. No server is implemented. Authorization and domain semantics remain in the application."
+  },
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "servers": [{"url": "https://example.invalid"}],
+  "security": [{"scopedBearer": []}],
+  "paths": {
+    "/v1/nodes/{node_id}": {
+      "get": {
+        "operationId": "sb.knowledge.node.get",
+        "summary": "Read an authorized committed node",
+        "description": "Uses authenticated context and sb.knowledge.read. Unauthorized existence is concealed as 404; returns current committed revision. Binding version v1 is distinct from schema version 0.1.0.",
+        "parameters": [{"name": "node_id", "in": "path", "required": true, "schema": {"$ref": "./node.schema.json#/$defs/entity_id"}}],
+        "responses": {
+          "200": {
+            "description": "Authorized node; example schema reference is canonical for this illustration only",
+            "content": {"application/json": {"schema": {"$ref": "./node.schema.json"}}}
+          },
+          "401": {"description": "Authentication required; sanitized binding error (common production Error schema not yet created)"},
+          "404": {"description": "Absent or concealed resource; sanitized error"},
+          "429": {"description": "Request limit exceeded; bounded retry policy"},
+          "500": {"description": "Sanitized internal/integrity error with correlation ID"}
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "scopedBearer": {"type": "http", "scheme": "bearer", "description": "Illustrative credential binding. Token scheme alone does not grant resource access; no concrete identity provider selected."}
+    }
+  }
+}
