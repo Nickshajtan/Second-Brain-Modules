@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/second-brain/examples/0.1.0/cluster.schema.json",
+  "title": "ExampleCluster",
+  "description": "ILLUSTRATIVE ONLY. Membership is separately owned. Session expiry, owners and access are semantic checks. An omitted or null description means no description.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "schema_version", "revision", "created_at", "updated_at", "name", "class", "owner_principal_id", "sensitivity"],
+  "properties": {
+    "id": {"$ref": "node.schema.json#/$defs/entity_id"},
+    "schema_version": {"type": "string", "const": "0.1.0"},
+    "revision": {"$ref": "node.schema.json#/$defs/revision"},
+    "created_at": {"$ref": "node.schema.json#/$defs/timestamp"},
+    "updated_at": {"$ref": "node.schema.json#/$defs/timestamp"},
+    "name": {"type": "string", "minLength": 1, "maxLength": 240},
+    "class": {"type": "string", "enum": ["shared_stable", "shared_stack", "private_memory", "session", "additional"]},
+    "owner_principal_id": {"$ref": "node.schema.json#/$defs/entity_id"},
+    "sensitivity": {"$ref": "node.schema.json#/$defs/sensitivity"},
+    "expires_at": {"$ref": "node.schema.json#/$defs/timestamp"},
+    "description": {"type": ["string", "null"], "maxLength": 2000}
+  }
+}
