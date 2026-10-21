@@ -12,5 +12,6 @@ Recorded 2026-10-20. “Task-mandated” records an explicit requirement from th
 | [006](ADR-006-state-ownership.md) | Canonical knowledge separate from runtime/index state | Task-mandated; local recovery/storage choices proposed, M3 gate |
 | [007](ADR-007-deployment-model.md) | Modular monolith first | Task-mandated; extraction triggers proposed |
 | [008](ADR-008-monorepo-consumption.md) | Whole-repository reuse with isolated host state | Accepted direction from hardening task |
+| [009](ADR-009-phase-1-domain-baseline.md) | Owner-confirmed domain baseline; independent Relations and passive Core scope | Partially supersedes ADR-006 embedded-edge ownership; implementation choices remain open |
 
 Changes supersede an ADR with a new record instead of silently editing a released decision. Review outstanding details in the [question register](../open-questions.md).

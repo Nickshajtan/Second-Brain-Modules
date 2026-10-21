@@ -51,6 +51,9 @@ are required; consuming schema JSON or TS declarations does not import future ru
 
 ## Architecture and consumption
 
+- [Current Phase 1 domain and reuse assessment](docs/research/README.md), including the
+  [historical-spec reconciliation register](docs/architecture/reconciliation-register.md).
+  Use this baseline for the latest domain decisions; older specifications below retain historical assumptions.
 - [Monorepo boundaries and workspace isolation](docs/architecture/monorepo-architecture.md).
 - [Versioning, upgrades and submodule example](docs/architecture/versioning-and-consumption.md).
 - [Contracts](docs/architecture/contracts-spec.md), [integration](docs/architecture/integration-protocols-spec.md),
