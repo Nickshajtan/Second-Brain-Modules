@@ -7,6 +7,7 @@ never the structural authority.
 import hashlib
 import importlib
 import json
+import math
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -31,11 +32,19 @@ def _nonfinite(value):
     raise ValueError(f"Non-JSON numeric constant: {value}")
 
 
+def _finite_float(value):
+    parsed = float(value)
+    if not math.isfinite(parsed):
+        raise ValueError(f"Non-finite JSON number: {value}")
+    return parsed
+
+
 def load_json(path):
     return json.loads(
         Path(path).read_text(encoding="utf-8"),
         object_pairs_hook=_unique,
         parse_constant=_nonfinite,
+        parse_float=_finite_float,
     )
 
 

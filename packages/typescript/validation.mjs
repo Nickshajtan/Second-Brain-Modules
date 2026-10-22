@@ -43,8 +43,8 @@ export async function loadContracts(root, version = '1.0.0') {
       if (payload?.schema_version !== undefined && payload.schema_version !== version) {
         throw Object.assign(new Error('Unsupported payload contract version'), {code: 'UNSUPPORTED_VERSION'});
       }
+      if (!Object.hasOwn(validators, family)) throw Error(`Unknown contract family: ${family}`);
       const validator = validators[family];
-      if (!validator) throw Error(`Unknown contract family: ${family}`);
       if (!validator(payload)) {
         throw Object.assign(new Error('Canonical contract validation failed'), {
           code: 'VALIDATION_FAILED', errors: validator.errors,

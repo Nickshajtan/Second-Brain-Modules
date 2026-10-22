@@ -3,7 +3,8 @@
 Reusable modular-monolith foundation for multiple isolated Second Brain installations.
 This repository is the single code/submodule boundary. Each consumer owns its vault,
 workspace identity, configuration, knowledge Git history, runtime stores and secrets.
-No knowledge CRUD, graph engine, agent runtime or server is implemented here.
+The [M1 Python Core](docs/core/m1.md) implements private-Cluster Node/Relation creation,
+atomic Git batches and committed reads. No graph engine, agent runtime or server is implemented.
 
 The [production contract baseline](docs/contracts/README.md) now supplies eight canonical
 Draft 2020-12 resources, generated Python/TypeScript models and 34 typed operation requests.
@@ -11,6 +12,8 @@ Version 1.0.0 is an unreleased contract baseline; illustrative 0.1.0 examples re
 
 ## What works today
 
+- Instance-bound Core with explicit trusted grants, immutable initial revisions,
+  committed Git reads, conditional ref publication and durable retry receipts.
 - Offline Draft 2020-12 schema and local-reference checks.
 - Valid/invalid fabricated fixtures, semantic OpenAPI example validation and local documentation-link checks.
 - OOP validation API and thin CLI, unit tests, Ruff lint/format checks.

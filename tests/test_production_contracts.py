@@ -145,6 +145,37 @@ def test_strict_ingress_does_not_trust_generated_coercion(contracts, tmp_path):
         contracts.validate("knowledge", {"schema_version": "2.0.0"})
 
 
+@pytest.mark.parametrize("raw", ["1e999", "-1e999", '{"nested":[1e999]}'])
+def test_strict_json_loader_rejects_exponent_overflow(tmp_path, raw):
+    path = tmp_path / "number.json"
+    path.write_text(raw, encoding="utf-8")
+    with pytest.raises(ValueError, match="Non-finite JSON number"):
+        load_json(path)
+
+
+def test_strict_json_loader_preserves_finite_numbers(tmp_path):
+    path = tmp_path / "number.json"
+    path.write_text("[1e308, -1e308, 1.25, 9007199254740991]", encoding="utf-8")
+    assert load_json(path) == [1e308, -1e308, 1.25, 9007199254740991]
+
+
+def test_ajv_rejects_unknown_prototype_family_names():
+    script = """
+import assert from 'node:assert/strict';
+import {loadContracts} from './packages/typescript/validation.mjs';
+const contracts = await loadContracts(process.cwd());
+for (const family of ['toString', 'constructor', 'hasOwnProperty', '__proto__', 'missing']) {
+  assert.throws(() => contracts.validate(family, {malformed: true}),
+    {message: `Unknown contract family: ${family}`});
+}
+assert.throws(() => contracts.validate('knowledge', {malformed: true}),
+  {code: 'VALIDATION_FAILED'});
+"""
+    subprocess.run(
+        [shutil.which("node"), "--input-type=module", "-e", script], cwd=ROOT, check=True
+    )
+
+
 def test_two_clean_generations_are_equal_and_match_committed(tmp_path):
     first, second = tmp_path / "first", tmp_path / "second"
     before = files(ROOT)
