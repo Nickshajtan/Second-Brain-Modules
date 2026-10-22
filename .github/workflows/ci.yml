@@ -53,3 +53,7 @@ jobs:
         run: npm run typecheck
       - name: Generated artifact byte and file-set drift
         run: python -m tools.generate_contracts --check
+      - name: Build isolated contract distribution
+        run: python -m tools.build_contracts
+      - name: Verify distribution integrity
+        run: python -m tools.build_contracts --check dist/contracts-1.0.0

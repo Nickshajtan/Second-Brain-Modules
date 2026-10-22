@@ -68,6 +68,9 @@ Collection has one Cluster and independent structural revision; it does not crea
 
 ## Generation and validation
 
+See the [build and distribution lifecycle](distribution.md) for artifact ownership,
+isolated bundles, runtime dependencies and the future migration to dist-free Git.
+
 ```text
 python -m tools.generate_contracts
 python -m tools.generate_contracts --check

@@ -14,6 +14,6 @@
   "package.json": "54c39a9d3760798e70d0521e4420a1755ce26840e22d8124b4a3cb5c5c09d33a",
   "pyproject.toml": "b210cafe93f300fcce7b8b7c091b85ae1bad7a00621d8b17db6550a2436aa478",
   "requirements-dev.lock": "358f6381281fe90f16c7dd5723fb5cdc9e750f0b536fc72ae0bfaaecf0de193c",
-  "tools/generate_contracts.py": "4b074f09671ce301bb747fb5f478de0f16fb067de82bf341c45c5e7b0c85124e",
+  "tools/generate_contracts.py": "4e98400c945fa4a1d8348054829e2ba81a77f4b1c8b32d8ecb515af7e434f513",
   "tools/generate_typescript.mjs": "5188531403494c122eb6b3d64fccb31ce1b99cde966c442cab30961940d08db2"
 }
