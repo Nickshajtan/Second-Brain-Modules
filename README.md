@@ -51,7 +51,10 @@ are required; consuming schema JSON or TS declarations does not import future ru
 
 ## Architecture and consumption
 
-- [Current Phase 1 domain and reuse assessment](docs/research/README.md), including the
+- [Latest: Phase 1.1 lean architecture decision](docs/research/phase-1-1/architecture-decision.md),
+  [Obsidian fit](docs/research/phase-1-1/obsidian-fit.md) and
+  [remaining Owner decisions](docs/research/phase-1-1/open-decisions.md).
+- [Phase 1 domain and reuse baseline](docs/research/README.md), including the
   [historical-spec reconciliation register](docs/architecture/reconciliation-register.md).
   Use this baseline for the latest domain decisions; older specifications below retain historical assumptions.
 - [Monorepo boundaries and workspace isolation](docs/architecture/monorepo-architecture.md).

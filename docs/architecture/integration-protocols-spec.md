@@ -2,6 +2,8 @@
 
 Status: proposed. This document defines adapter obligations, not running endpoints. Shared business rules B01–B13 are in [core contracts](contracts-spec.md). Version research and source links are in [research notes](research.md).
 
+**Phase 1.1 exposure correction:** the Owner requires authenticated MCP as the exclusive agent ingress, backed by deployment isolation without agent filesystem/Git/index/secret access. Python/CLI remain internal or trusted human/service interfaces, not alternate agent adapters. Earlier CLI-first/MCP-later sequencing and agent projection options below are historical. See [current boundary and checklist](../research/phase-1-1/architecture-decision.md#c-authorization-and-mcp); transport-independent domain enforcement remains required.
+
 ## 1. Application boundary
 
 An application operation receives typed input and a **verified** request context, then returns typed output or a domain error. Context contains workspace, authenticated principal, delegation/session, correlation ID, deadline, and cancellation handle. Context is created by a trusted local bootstrap or authenticated adapter, never accepted as an arbitrary caller-supplied principal object. Application authorization is mandatory even for Python direct calls.

@@ -2,6 +2,8 @@
 
 Status: confirmed semantics from brief §2, with explicitly proposed persistence details. No production schemas. [Glossary](glossary.md) defines terms; [catalogue](operations-catalog.md) defines operations; [provenance](../architecture/decision-provenance.md) separates authority levels.
 
+Phase 1.1 precedence: the Owner now requires agents to use **authenticated MCP exclusively**, with physical deployment isolation and no access to canonical files, Git history, secrets or private indexes. Scoped filesystem projections are no longer an allowed agent interface. The [lean assessment](../research/phase-1-1/architecture-decision.md) replaces the four-PoC gate and proposes a simpler committed-state strategy; its storage/approval defaults are analyst recommendations, not changes to the invariants below.
+
 ## Boundary and authorities
 
 Core is a passive deterministic authorized store. It owns knowledge/state operations, search/query/graph access, governance enforcement and committed events. Harnesses own planning, context compilation, token budgets, summarization, evaluation, network fetching and scheduled refresh. Cleanup/freshness schedulers invoke bounded Core operations as authenticated services. No LLM, generic workflow engine, universal loader, microservices or mandatory HTTP dependency belongs in the baseline.

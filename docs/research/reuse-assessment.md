@@ -1,5 +1,7 @@
 # Reuse and build-versus-buy assessment
 
+Phase 1 evidence retained. [Phase 1.1](phase-1-1/architecture-decision.md#d-basic-memory-decision) now recommends excluding Basic Memory from initial dependencies and retaining it only as a future optional adapter; custom explicit authorization precedes optional PyCasbin. No platform PoC or new market comparison is required for that scope decision.
+
 Research performed 2026-10-21–22; no candidate installed, executed, benchmarked or security-certified. Local baseline `b835974491890e7bad8a2193643f5217686e5cdf`. Source snapshots, release observations and retrieval limitations are recorded in [upstream evidence](upstream-evidence.md). [Architecture comparison](architecture-options.md) applies the same U1–U7 cases to competing foundations.
 
 ## Evidence and scoring method

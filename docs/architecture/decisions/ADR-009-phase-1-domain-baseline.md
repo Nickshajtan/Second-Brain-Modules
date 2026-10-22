@@ -19,3 +19,7 @@ Do not rewrite old ADRs, regenerate illustrative embedded-edge models as if they
 ## Open and reversible choices
 
 No durable backend, Relation-note representation, publication snapshot identity or reuse option is accepted by this ADR. D01–D10 and the four [PoCs](../../research/poc-plan.md) gate implementation. Markdown artifacts do not authorize runtime scaffolding.
+
+### Phase 1.1 annotation — 2026-10-22
+
+The Owner's subsequent lean-validation task **supersedes the four-PoC gate above** and requires authenticated MCP-only agent access plus physical deployment isolation. See the [current assessment](../../research/phase-1-1/architecture-decision.md) and [reconciliation](../../research/phase-1-1/simplification-register.md). Single-ref storage and Node-only approval/current-graph semantics are new analyst recommendations awaiting adoption; they do not silently amend this ADR's business decisions.

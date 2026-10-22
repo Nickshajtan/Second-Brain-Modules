@@ -1,5 +1,7 @@
 # Material open decisions
 
+Phase 1 historical register. The [Phase 1.1 Owner decision set](../research/phase-1-1/open-decisions.md) narrows these to four user-visible policy/architecture decisions and supplies engineering defaults for the rest. Do not treat every D/P gate below as a current required research experiment.
+
 These are decisions that can change safety, storage authority or the authoring experience. Confirmed requirements are not reopened. Proposed defaults are **not Owner approval**. [Legacy Q register](../architecture/open-questions.md) remains historical; [reconciliation](../architecture/reconciliation-register.md) maps it.
 
 | ID | Decision / recommended default | Risk and alternatives | Blocking milestone / deciding evidence |

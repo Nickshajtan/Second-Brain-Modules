@@ -1,5 +1,7 @@
 # Phase 1 domain and reuse assessment
 
+Current feasibility recommendation: [Phase 1.1 lean architecture decision](phase-1-1/architecture-decision.md). The Owner's Phase 1.1 task replaces the four-PoC research gate and confirms authenticated MCP-only agent access with deployment isolation. This page retains the original Phase 1 assessment and sequencing as history; its mandatory PoC/CLI-first agent sequencing no longer applies.
+
 Prepared 2026-10-21–22 against local commit `b835974491890e7bad8a2193643f5217686e5cdf`. Documentation/evidence phase only. No runtime, production schemas, dependencies, databases, migrations or plugins were implemented. Candidate projects were inspected remotely, not executed.
 
 ## Executive finding

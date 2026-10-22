@@ -1,5 +1,7 @@
 # Architecture alternatives
 
+Historical Phase 1 comparison. The [Phase 1.1 decision](phase-1-1/architecture-decision.md) recommends C with SQLite FTS5, a single committed Git ref and authenticated MCP-only agent ingress; Basic Memory remains optional future reuse. Its four-PoC prerequisite is superseded. Storage and approval defaults remain recommendations pending the stated Owner choices.
+
 Status: analyst comparison, 2026-10-22. Confirmed requirements constrain every option; recommendation is conditional. Sources and confidence are in [reuse evidence](reuse-assessment.md); unresolved choices in [D01–D10](../domain/open-decisions.md).
 
 ## Shared use cases

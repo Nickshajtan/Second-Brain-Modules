@@ -1,5 +1,7 @@
 # Narrow falsification plan
 
+**Superseded as a required experimental phase by the Owner's Phase 1.1 task.** See [lean assessment](phase-1-1/architecture-decision.md). P01–P04 remain historical proposals, not prerequisites or authorization to deploy platforms/run broad tests. Phase 1.1 performs zero spikes.
+
 Status: proposals only, 2026-10-22. **None of these experiments was built or run in this phase.** Commands below define a proposed disposable experiment harness, not existing repository commands. Do not invoke them until a later implementation task creates and reviews that harness. No production-data, dependency installation or plugin work is authorized by this document.
 
 ## Shared reproducible envelope
