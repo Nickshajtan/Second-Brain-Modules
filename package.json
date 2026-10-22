@@ -2,7 +2,7 @@
   "name": "second-brain-modules-foundation",
   "version": "0.1.0",
   "private": true,
-  "description": "Development-only illustrative contract generation and validation",
+  "description": "Canonical production and illustrative contract generation and validation",
   "engines": {"node": ">=22.19 <25"},
   "scripts": {
     "generate": "node tools/generate_typescript.mjs",

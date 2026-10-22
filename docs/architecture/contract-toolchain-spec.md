@@ -2,6 +2,8 @@
 
 Status: illustrative toolchain implemented during repository hardening. Exact locks, generated artifacts, unit tests and Python/Ajv parity now exist. Production schema approval and all-OS CI confirmation remain gates. See [hardening report](hardening-report.md) for executed results.
 
+Phase 2 implementation: the existing pinned generators now also emit the [production 1.0.0 baseline](../contracts/README.md). Eight canonical resources, offline registry, generated source/artifact hashes, independent jsonschema/Ajv fixtures and exact round-trips extend this toolchain. Standard JSON Schema `not` guards reject identifier newlines; generated primitive types approximate those constraints, so external canonical validation remains mandatory. UTC strings are generated as strings to preserve fractional spelling. Production examples are not a promotion of illustrative schemas. Hosted all-OS release proof remains separate.
+
 ## 1. Sources and candidate versions
 
 Canonical JSON Schema is authoritative. Generated Pydantic classes are ergonomic application types, TS declarations are static types, and neither replaces JSON Schema runtime validation. No reverse generation from Pydantic/OpenAPI into authoritative schemas. Generated files MUST NOT be edited manually.

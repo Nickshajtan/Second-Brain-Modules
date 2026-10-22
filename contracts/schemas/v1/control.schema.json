@@ -1,0 +1,403 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Nickshajtan/Second-Brain-Modules/contracts/1.0.0/control.schema.json",
+  "title": "ControlRecord",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/PrincipalRegistration"
+    },
+    {
+      "$ref": "#/$defs/CapabilityGrant"
+    },
+    {
+      "$ref": "#/$defs/ClusterPolicy"
+    },
+    {
+      "$ref": "#/$defs/ResourceRestriction"
+    },
+    {
+      "$ref": "#/$defs/AccessDecision"
+    },
+    {
+      "$ref": "#/$defs/OwnerRegistration"
+    }
+  ],
+  "$defs": {
+    "PrincipalRegistration": {
+      "title": "PrincipalRegistration",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "principal_registration"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "revision": {
+          "$ref": "common.schema.json#/$defs/EntityRevision"
+        },
+        "principal_kind": {
+          "type": "string",
+          "enum": [
+            "human",
+            "agent",
+            "service"
+          ]
+        },
+        "issuer": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "subject": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "disabled"
+          ]
+        },
+        "registered_by": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        },
+        "registered_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "schema_version",
+        "revision",
+        "principal_kind",
+        "issuer",
+        "subject",
+        "display_name",
+        "status",
+        "registered_by",
+        "registered_at"
+      ]
+    },
+    "GrantConditions": {
+      "title": "GrantConditions",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "valid_from": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "expires_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "session_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "delegated_from": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": []
+    },
+    "CapabilityGrant": {
+      "title": "CapabilityGrant",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "capability_grant"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "revision": {
+          "$ref": "common.schema.json#/$defs/EntityRevision"
+        },
+        "principal": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CapabilityId"
+          },
+          "maxItems": 100
+        },
+        "scope": {
+          "$ref": "common.schema.json#/$defs/ResourceScope"
+        },
+        "conditions": {
+          "$ref": "#/$defs/GrantConditions"
+        },
+        "issued_by": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        },
+        "issued_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "revoked_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "schema_version",
+        "revision",
+        "principal",
+        "capabilities",
+        "scope",
+        "conditions",
+        "issued_by",
+        "issued_at"
+      ]
+    },
+    "PolicyRule": {
+      "title": "PolicyRule",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "effect": {
+          "type": "string",
+          "enum": [
+            "allow",
+            "deny"
+          ]
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CapabilityId"
+          },
+          "maxItems": 100
+        },
+        "principals": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/PrincipalRef"
+          },
+          "maxItems": 100
+        },
+        "conditions": {
+          "$ref": "#/$defs/GrantConditions"
+        }
+      },
+      "required": [
+        "effect",
+        "capabilities",
+        "principals",
+        "conditions"
+      ]
+    },
+    "ClusterPolicy": {
+      "title": "ClusterPolicy",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "cluster_policy"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "revision": {
+          "$ref": "common.schema.json#/$defs/EntityRevision"
+        },
+        "cluster_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PolicyRule"
+          },
+          "maxItems": 1000
+        },
+        "default_effect": {
+          "type": "string",
+          "const": "deny"
+        },
+        "governed_operations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/OperationId"
+          },
+          "maxItems": 100
+        },
+        "definition_version": {
+          "$ref": "common.schema.json#/$defs/EntityRevision"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "schema_version",
+        "revision",
+        "cluster_id",
+        "rules",
+        "default_effect",
+        "governed_operations",
+        "definition_version"
+      ]
+    },
+    "ResourceRestriction": {
+      "title": "ResourceRestriction",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "resource_restriction"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "revision": {
+          "$ref": "common.schema.json#/$defs/EntityRevision"
+        },
+        "resource": {
+          "$ref": "common.schema.json#/$defs/ResourceRef"
+        },
+        "denied_capabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CapabilityId"
+          },
+          "maxItems": 100
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "imposed_by": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "schema_version",
+        "revision",
+        "resource",
+        "denied_capabilities",
+        "reason",
+        "imposed_by"
+      ]
+    },
+    "AccessDecision": {
+      "title": "AccessDecision",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "access_decision"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "decided_by": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "grant",
+            "reject"
+          ]
+        },
+        "grant_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/EntityId"
+          },
+          "maxItems": 100
+        },
+        "recorded_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "schema_version",
+        "request_id",
+        "decided_by",
+        "outcome",
+        "grant_ids",
+        "recorded_at"
+      ]
+    },
+    "OwnerRegistration": {
+      "title": "OwnerRegistration",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "owner_registration"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "principal": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        },
+        "registered_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "authority_evidence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "schema_version",
+        "instance_id",
+        "principal",
+        "registered_at",
+        "authority_evidence"
+      ]
+    }
+  }
+}

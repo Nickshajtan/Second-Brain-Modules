@@ -2,6 +2,8 @@
 
 Status: proposed implementation baseline, with task-mandated principles recorded in [ADRs](decisions/README.md). Examples are not production schemas. Decisions marked Qxx remain open in the [register](open-questions.md).
 
+Historical design specification. [Production 1.0.0 structural contracts](../contracts/README.md) implement the later domain/Phase 1.1 corrections: standalone Relations, passive Core, authenticated MCP-only agent ingress and explicit unresolved O1–O4. Embedded edges, Core Context and fixed Stable permissions below are superseded as recorded in the [reconciliation register](reconciliation-register.md). Production operations/schema references are mapped in [contract obligations](../contracts/operations.md).
+
 ## 1. Boundaries and authority
 
 The Knowledge Plane owns managed Markdown/YAML nodes, embedded typed relations, cluster manifests, membership manifests, immutable provenance, and knowledge revision references. The Control Plane owns desired configuration, principals, grants, policy versions, approvals, and permitted transitions. The Execution Plane owns application services, runs, attempts, checkpoints, and operation events. The Integration Plane owns translation at the edges and implementations of outbound ports.

@@ -1,0 +1,212 @@
+{
+  "synthetic_only": true,
+  "schemas": {
+    "previous": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "type": "string",
+          "const": "synthetic.read"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "active"
+          ]
+        }
+      },
+      "required": [
+        "operation",
+        "state"
+      ]
+    },
+    "optional_added": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "type": "string",
+          "const": "synthetic.read"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "active"
+          ]
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "operation",
+        "state"
+      ]
+    },
+    "enum_expanded": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "type": "string",
+          "const": "synthetic.read"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "active",
+            "archived"
+          ]
+        }
+      },
+      "required": [
+        "operation",
+        "state"
+      ]
+    },
+    "required_added": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "type": "string",
+          "const": "synthetic.read"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "active"
+          ]
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "operation",
+        "state",
+        "label"
+      ]
+    },
+    "renamed": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "type": "string",
+          "const": "synthetic.read"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active"
+          ]
+        }
+      },
+      "required": [
+        "operation",
+        "status"
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "previous producer to current optional reader",
+      "schema": "optional_added",
+      "instance": {
+        "operation": "synthetic.read",
+        "state": "active"
+      },
+      "valid": true
+    },
+    {
+      "name": "current producer with new field to previous closed reader",
+      "schema": "previous",
+      "instance": {
+        "operation": "synthetic.read",
+        "state": "active",
+        "label": "x"
+      },
+      "valid": false
+    },
+    {
+      "name": "current producer omitting new optional field to previous reader",
+      "schema": "previous",
+      "instance": {
+        "operation": "synthetic.read",
+        "state": "active"
+      },
+      "valid": true
+    },
+    {
+      "name": "old enum producer to expanded reader",
+      "schema": "enum_expanded",
+      "instance": {
+        "operation": "synthetic.read",
+        "state": "active"
+      },
+      "valid": true
+    },
+    {
+      "name": "expanded enum producer to old reader",
+      "schema": "previous",
+      "instance": {
+        "operation": "synthetic.read",
+        "state": "archived"
+      },
+      "valid": false
+    },
+    {
+      "name": "required addition rejects old producer",
+      "schema": "required_added",
+      "instance": {
+        "operation": "synthetic.read",
+        "state": "active"
+      },
+      "valid": false
+    },
+    {
+      "name": "required addition current accepts new producer",
+      "schema": "required_added",
+      "instance": {
+        "operation": "synthetic.read",
+        "state": "active",
+        "label": "x"
+      },
+      "valid": true
+    },
+    {
+      "name": "rename rejects old producer",
+      "schema": "renamed",
+      "instance": {
+        "operation": "synthetic.read",
+        "state": "active"
+      },
+      "valid": false
+    },
+    {
+      "name": "old reader rejects renamed producer",
+      "schema": "previous",
+      "instance": {
+        "operation": "synthetic.read",
+        "status": "active"
+      },
+      "valid": false
+    },
+    {
+      "name": "changed operation discriminator rejects",
+      "schema": "previous",
+      "instance": {
+        "operation": "synthetic.write",
+        "state": "active"
+      },
+      "valid": false
+    }
+  ]
+}

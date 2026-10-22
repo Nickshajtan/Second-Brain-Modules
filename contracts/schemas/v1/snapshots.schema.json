@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Nickshajtan/Second-Brain-Modules/contracts/1.0.0/snapshots.schema.json",
+  "title": "SnapshotRecord",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/ExportManifest"
+    },
+    {
+      "$ref": "#/$defs/ImportPlan"
+    },
+    {
+      "$ref": "#/$defs/ApprovedSelection"
+    }
+  ],
+  "$defs": {
+    "ExportManifest": {
+      "title": "ExportManifest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "export_manifest"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "source_instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "generation": {
+          "$ref": "common.schema.json#/$defs/GenerationRef"
+        },
+        "revisions": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/RevisionRef"
+          },
+          "maxItems": 10000
+        },
+        "asset_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/EntityId"
+          },
+          "maxItems": 10000
+        },
+        "exported_by": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        },
+        "exported_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "schema_version",
+        "source_instance_id",
+        "generation",
+        "revisions",
+        "asset_ids",
+        "exported_by",
+        "exported_at",
+        "digest"
+      ]
+    },
+    "ImportMapping": {
+      "title": "ImportMapping",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "foreign": {
+          "$ref": "common.schema.json#/$defs/ResourceRef"
+        },
+        "local": {
+          "$ref": "common.schema.json#/$defs/ResourceRef"
+        }
+      },
+      "required": [
+        "foreign",
+        "local"
+      ]
+    },
+    "ImportPlan": {
+      "title": "ImportPlan",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "import_plan"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "destination_instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "source_manifest_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "source_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "target_scope": {
+          "$ref": "common.schema.json#/$defs/ResourceScope"
+        },
+        "mappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ImportMapping"
+          },
+          "maxItems": 10000
+        },
+        "review_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/EntityId"
+          },
+          "maxItems": 100
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "schema_version",
+        "destination_instance_id",
+        "source_manifest_id",
+        "source_digest",
+        "target_scope",
+        "mappings"
+      ]
+    },
+    "ApprovedSelection": {
+      "title": "ApprovedSelection",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "approved_selection"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "cluster_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "node_revision": {
+          "$ref": "common.schema.json#/$defs/RevisionRef"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "relation_revisions": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/RevisionRef"
+          },
+          "maxItems": 1000
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "cluster_id",
+        "node_revision",
+        "approval_id"
+      ]
+    }
+  }
+}

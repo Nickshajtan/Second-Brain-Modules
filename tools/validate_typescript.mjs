@@ -3,6 +3,7 @@ import addFormats from 'ajv-formats';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {productionVerdicts, compatibilityVerdicts} from './validate_production_typescript.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = async name => JSON.parse(await readFile(path.join(root, name), 'utf8'));
@@ -24,4 +25,8 @@ for (const item of cases) {
   if (JSON.stringify(item.instance) !== before) throw new Error(`${item.name}: mutated input`);
   results.push({name: item.name, valid});
 }
-process.stdout.write(JSON.stringify(results) + '\n');
+const production = await productionVerdicts(await read('tests/fixtures/contracts/v1.json'));
+const compatibility = await compatibilityVerdicts();
+const expectedCompatibility = (await read('tests/fixtures/contracts/compatibility.json')).cases;
+if (compatibility.some((r, i) => r.valid !== expectedCompatibility[i].valid)) throw Error('Compatibility verdict mismatch');
+process.stdout.write(JSON.stringify(process.argv.includes('--production') ? production : results) + '\n');

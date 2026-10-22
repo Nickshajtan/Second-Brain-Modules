@@ -1,0 +1,2328 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Nickshajtan/Second-Brain-Modules/contracts/1.0.0/operations.schema.json",
+  "title": "OperationRequest",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/NodeCreate"
+    },
+    {
+      "$ref": "#/$defs/NodeRead"
+    },
+    {
+      "$ref": "#/$defs/NodeUpdate"
+    },
+    {
+      "$ref": "#/$defs/NodeArchive"
+    },
+    {
+      "$ref": "#/$defs/NodeUnarchive"
+    },
+    {
+      "$ref": "#/$defs/NodeDelete"
+    },
+    {
+      "$ref": "#/$defs/NodeRestore"
+    },
+    {
+      "$ref": "#/$defs/NodeCopy"
+    },
+    {
+      "$ref": "#/$defs/NodeFork"
+    },
+    {
+      "$ref": "#/$defs/NodePublish"
+    },
+    {
+      "$ref": "#/$defs/NodeProposeRevision"
+    },
+    {
+      "$ref": "#/$defs/ClusterConfigure"
+    },
+    {
+      "$ref": "#/$defs/MembershipAttach"
+    },
+    {
+      "$ref": "#/$defs/MembershipDetach"
+    },
+    {
+      "$ref": "#/$defs/MembershipSelectRevision"
+    },
+    {
+      "$ref": "#/$defs/CollectionCreate"
+    },
+    {
+      "$ref": "#/$defs/CollectionUpdate"
+    },
+    {
+      "$ref": "#/$defs/CollectionRemove"
+    },
+    {
+      "$ref": "#/$defs/RelationCreate"
+    },
+    {
+      "$ref": "#/$defs/RelationUpdate"
+    },
+    {
+      "$ref": "#/$defs/RelationDelete"
+    },
+    {
+      "$ref": "#/$defs/RelationRead"
+    },
+    {
+      "$ref": "#/$defs/AssetRegister"
+    },
+    {
+      "$ref": "#/$defs/AssetReference"
+    },
+    {
+      "$ref": "#/$defs/KnowledgeSearch"
+    },
+    {
+      "$ref": "#/$defs/ProposalRecord"
+    },
+    {
+      "$ref": "#/$defs/ReviewRecord"
+    },
+    {
+      "$ref": "#/$defs/ApprovalRecord"
+    },
+    {
+      "$ref": "#/$defs/ApprovalRevoke"
+    },
+    {
+      "$ref": "#/$defs/AccessRequestSubmit"
+    },
+    {
+      "$ref": "#/$defs/DisposalRoute"
+    },
+    {
+      "$ref": "#/$defs/DisposalPreserve"
+    },
+    {
+      "$ref": "#/$defs/SnapshotExport"
+    },
+    {
+      "$ref": "#/$defs/SnapshotImport"
+    }
+  ],
+  "$defs": {
+    "NodeCreate": {
+      "title": "NodeCreate",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "node.create"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "NodeCreatePayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "target_cluster_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            },
+            "content": {
+              "$ref": "knowledge.schema.json#/$defs/NodeContent"
+            }
+          },
+          "required": [
+            "target_cluster_id",
+            "content"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "NodeRead": {
+      "title": "NodeRead",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "node.read"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "NodeReadPayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "node_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            },
+            "selected_cluster_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            },
+            "revision": {
+              "$ref": "common.schema.json#/$defs/RevisionRef"
+            }
+          },
+          "required": [
+            "node_id"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload"
+      ]
+    },
+    "NodeUpdate": {
+      "title": "NodeUpdate",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "node.update"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "NodeUpdatePayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "node_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            },
+            "content": {
+              "$ref": "knowledge.schema.json#/$defs/NodeContent"
+            }
+          },
+          "required": [
+            "node_id",
+            "content"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "NodeArchive": {
+      "title": "NodeArchive",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "node.archive"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "NodeArchivePayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "node_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            }
+          },
+          "required": [
+            "node_id",
+            "reason"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "NodeUnarchive": {
+      "title": "NodeUnarchive",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "node.unarchive"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "NodeUnarchivePayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "node_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            }
+          },
+          "required": [
+            "node_id",
+            "reason"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "NodeDelete": {
+      "title": "NodeDelete",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "node.delete"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "NodeDeletePayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "node_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            }
+          },
+          "required": [
+            "node_id",
+            "reason"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "NodeRestore": {
+      "title": "NodeRestore",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "node.restore"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "NodeRestorePayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "disposal_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            },
+            "destination_cluster_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            }
+          },
+          "required": [
+            "disposal_id",
+            "destination_cluster_id"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "NodeCopy": {
+      "title": "NodeCopy",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "node.copy"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "NodeCopyPayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source_revision": {
+              "$ref": "common.schema.json#/$defs/RevisionRef"
+            },
+            "destination_cluster_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            }
+          },
+          "required": [
+            "source_revision",
+            "destination_cluster_id"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "NodeFork": {
+      "title": "NodeFork",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "node.fork"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "NodeForkPayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source_revision": {
+              "$ref": "common.schema.json#/$defs/RevisionRef"
+            },
+            "destination_cluster_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            }
+          },
+          "required": [
+            "source_revision",
+            "destination_cluster_id"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "NodePublish": {
+      "title": "NodePublish",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "node.publish"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "NodePublishPayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source_revision": {
+              "$ref": "common.schema.json#/$defs/RevisionRef"
+            },
+            "destination_cluster_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            }
+          },
+          "required": [
+            "source_revision",
+            "destination_cluster_id"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "NodeProposeRevision": {
+      "title": "NodeProposeRevision",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "node.propose_revision"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "NodeProposeRevisionPayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "base_revision": {
+              "$ref": "common.schema.json#/$defs/RevisionRef"
+            },
+            "candidate_scope": {
+              "$ref": "common.schema.json#/$defs/ResourceScope"
+            },
+            "content": {
+              "$ref": "knowledge.schema.json#/$defs/NodeContent"
+            }
+          },
+          "required": [
+            "base_revision",
+            "candidate_scope",
+            "content"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "ClusterConfigure": {
+      "title": "ClusterConfigure",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "cluster.configure"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "ClusterConfigurePayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "cluster_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 240
+            },
+            "policy": {
+              "$ref": "common.schema.json#/$defs/PolicyRef"
+            },
+            "owner": {
+              "$ref": "common.schema.json#/$defs/PrincipalRef"
+            }
+          },
+          "required": [
+            "cluster_id"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "MembershipAttach": {
+      "title": "MembershipAttach",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "membership.attach"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "MembershipAttachPayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "cluster_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            },
+            "node_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            }
+          },
+          "required": [
+            "cluster_id",
+            "node_id"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "MembershipDetach": {
+      "title": "MembershipDetach",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "membership.detach"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "MembershipDetachPayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "cluster_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            },
+            "node_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            }
+          },
+          "required": [
+            "cluster_id",
+            "node_id"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "MembershipSelectRevision": {
+      "title": "MembershipSelectRevision",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "membership.select_revision"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "$ref": "snapshots.schema.json#/$defs/ApprovedSelection"
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "CollectionCreate": {
+      "title": "CollectionCreate",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "collection.create"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "CollectionCreatePayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "collection": {
+              "$ref": "knowledge.schema.json#/$defs/Collection"
+            }
+          },
+          "required": [
+            "collection"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "CollectionUpdate": {
+      "title": "CollectionUpdate",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "collection.update"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "CollectionUpdatePayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "collection": {
+              "$ref": "knowledge.schema.json#/$defs/Collection"
+            }
+          },
+          "required": [
+            "collection"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "CollectionRemove": {
+      "title": "CollectionRemove",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "collection.remove"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "CollectionRemovePayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "collection_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            }
+          },
+          "required": [
+            "collection_id"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "RelationCreate": {
+      "title": "RelationCreate",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "relation.create"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "RelationCreatePayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "relation": {
+              "$ref": "knowledge.schema.json#/$defs/Relation"
+            }
+          },
+          "required": [
+            "relation"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "RelationUpdate": {
+      "title": "RelationUpdate",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "relation.update"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "RelationUpdatePayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "relation": {
+              "$ref": "knowledge.schema.json#/$defs/Relation"
+            }
+          },
+          "required": [
+            "relation"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "RelationDelete": {
+      "title": "RelationDelete",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "relation.delete"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "RelationDeletePayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "relation_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            }
+          },
+          "required": [
+            "relation_id",
+            "reason"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "RelationRead": {
+      "title": "RelationRead",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "relation.read"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "RelationReadPayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "relation_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            },
+            "selected_cluster_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            }
+          },
+          "required": [
+            "relation_id"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload"
+      ]
+    },
+    "AssetRegister": {
+      "title": "AssetRegister",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "asset.register"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "AssetRegisterPayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "asset": {
+              "$ref": "knowledge.schema.json#/$defs/Asset"
+            }
+          },
+          "required": [
+            "asset"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "AssetReference": {
+      "title": "AssetReference",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "asset.reference"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "AssetReferencePayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "asset_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            },
+            "node_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            },
+            "action": {
+              "type": "string",
+              "enum": [
+                "reference",
+                "unreference"
+              ]
+            }
+          },
+          "required": [
+            "asset_id",
+            "node_id",
+            "action"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "KnowledgeSearch": {
+      "title": "KnowledgeSearch",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "knowledge.search"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "KnowledgeSearchPayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "query": {
+              "type": "string",
+              "maxLength": 4096
+            },
+            "scope": {
+              "$ref": "common.schema.json#/$defs/ResourceScope"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "cursor": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "include_archived": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "query",
+            "scope",
+            "limit"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload"
+      ]
+    },
+    "ProposalRecord": {
+      "title": "ProposalRecord",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "proposal.create"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "$ref": "governance.schema.json#/$defs/Proposal"
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "ReviewRecord": {
+      "title": "ReviewRecord",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "review.record"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "$ref": "governance.schema.json#/$defs/Review"
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "ApprovalRecord": {
+      "title": "ApprovalRecord",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "approval.issue"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "$ref": "governance.schema.json#/$defs/Approval"
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "ApprovalRevoke": {
+      "title": "ApprovalRevoke",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "approval.revoke"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "$ref": "governance.schema.json#/$defs/ApprovalRevocation"
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "AccessRequestSubmit": {
+      "title": "AccessRequestSubmit",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "access.request"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "$ref": "governance.schema.json#/$defs/AccessRequest"
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "DisposalRoute": {
+      "title": "DisposalRoute",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "disposal.route"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "DisposalRoutePayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "disposal_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            },
+            "routing": {
+              "$ref": "governance.schema.json#/$defs/DisposalRouting"
+            }
+          },
+          "required": [
+            "disposal_id",
+            "routing"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "DisposalPreserve": {
+      "title": "DisposalPreserve",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "disposal.preserve_copy"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "DisposalPreservePayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "disposal_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            },
+            "source_revision": {
+              "$ref": "common.schema.json#/$defs/RevisionRef"
+            },
+            "archive_cluster_id": {
+              "$ref": "common.schema.json#/$defs/EntityId"
+            }
+          },
+          "required": [
+            "disposal_id",
+            "source_revision",
+            "archive_cluster_id"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "SnapshotExport": {
+      "title": "SnapshotExport",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "snapshot.export"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "SnapshotExportPayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "revisions": {
+              "type": "array",
+              "items": {
+                "$ref": "common.schema.json#/$defs/RevisionRef"
+              },
+              "maxItems": 10000
+            },
+            "scope": {
+              "$ref": "common.schema.json#/$defs/ResourceScope"
+            }
+          },
+          "required": [
+            "revisions",
+            "scope"
+          ]
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "SnapshotImport": {
+      "title": "SnapshotImport",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "snapshot.import"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "$ref": "snapshots.schema.json#/$defs/ImportPlan"
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload",
+        "idempotency_key",
+        "expectations"
+      ]
+    },
+    "MutationOperation": {
+      "title": "MutationOperation",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/NodeCreate"
+        },
+        {
+          "$ref": "#/$defs/NodeUpdate"
+        },
+        {
+          "$ref": "#/$defs/NodeArchive"
+        },
+        {
+          "$ref": "#/$defs/NodeUnarchive"
+        },
+        {
+          "$ref": "#/$defs/NodeDelete"
+        },
+        {
+          "$ref": "#/$defs/NodeRestore"
+        },
+        {
+          "$ref": "#/$defs/NodeCopy"
+        },
+        {
+          "$ref": "#/$defs/NodeFork"
+        },
+        {
+          "$ref": "#/$defs/NodePublish"
+        },
+        {
+          "$ref": "#/$defs/NodeProposeRevision"
+        },
+        {
+          "$ref": "#/$defs/ClusterConfigure"
+        },
+        {
+          "$ref": "#/$defs/MembershipAttach"
+        },
+        {
+          "$ref": "#/$defs/MembershipDetach"
+        },
+        {
+          "$ref": "#/$defs/MembershipSelectRevision"
+        },
+        {
+          "$ref": "#/$defs/CollectionCreate"
+        },
+        {
+          "$ref": "#/$defs/CollectionUpdate"
+        },
+        {
+          "$ref": "#/$defs/CollectionRemove"
+        },
+        {
+          "$ref": "#/$defs/RelationCreate"
+        },
+        {
+          "$ref": "#/$defs/RelationUpdate"
+        },
+        {
+          "$ref": "#/$defs/RelationDelete"
+        },
+        {
+          "$ref": "#/$defs/AssetRegister"
+        },
+        {
+          "$ref": "#/$defs/AssetReference"
+        },
+        {
+          "$ref": "#/$defs/ProposalRecord"
+        },
+        {
+          "$ref": "#/$defs/ReviewRecord"
+        },
+        {
+          "$ref": "#/$defs/ApprovalRecord"
+        },
+        {
+          "$ref": "#/$defs/ApprovalRevoke"
+        },
+        {
+          "$ref": "#/$defs/AccessRequestSubmit"
+        },
+        {
+          "$ref": "#/$defs/DisposalRoute"
+        },
+        {
+          "$ref": "#/$defs/DisposalPreserve"
+        },
+        {
+          "$ref": "#/$defs/SnapshotExport"
+        },
+        {
+          "$ref": "#/$defs/SnapshotImport"
+        }
+      ]
+    }
+  }
+}

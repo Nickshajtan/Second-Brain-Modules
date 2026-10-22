@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Nickshajtan/Second-Brain-Modules/contracts/1.0.0/authoring.schema.json",
+  "title": "AuthoringInput",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/UnmanagedInput"
+    },
+    {
+      "$ref": "#/$defs/CandidateInput"
+    },
+    {
+      "$ref": "#/$defs/ConflictInput"
+    }
+  ],
+  "$defs": {
+    "UnmanagedInput": {
+      "title": "UnmanagedInput",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "input_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "state": {
+          "type": "string",
+          "const": "unmanaged"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "raw_markdown": {
+          "type": "string",
+          "maxLength": 1100000
+        },
+        "raw_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "captured_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "base_revision": {
+          "$ref": "common.schema.json#/$defs/RevisionRef"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        }
+      },
+      "required": [
+        "input_id",
+        "state",
+        "instance_id",
+        "raw_markdown",
+        "raw_digest",
+        "captured_at",
+        "schema_version"
+      ]
+    },
+    "CandidateInput": {
+      "title": "CandidateInput",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "input_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "state": {
+          "type": "string",
+          "const": "candidate"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "raw_markdown": {
+          "type": "string",
+          "maxLength": 1100000
+        },
+        "raw_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "captured_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "base_revision": {
+          "$ref": "common.schema.json#/$defs/RevisionRef"
+        },
+        "candidate_content": {
+          "$ref": "knowledge.schema.json#/$defs/NodeContent"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        }
+      },
+      "required": [
+        "input_id",
+        "state",
+        "instance_id",
+        "raw_markdown",
+        "raw_digest",
+        "captured_at",
+        "candidate_content",
+        "schema_version"
+      ]
+    },
+    "ConflictInput": {
+      "title": "ConflictInput",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "input_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "state": {
+          "type": "string",
+          "const": "conflict"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "raw_markdown": {
+          "type": "string",
+          "maxLength": 1100000
+        },
+        "raw_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "captured_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "base_revision": {
+          "$ref": "common.schema.json#/$defs/RevisionRef"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json"
+          },
+          "maxItems": 100
+        },
+        "committed_revision": {
+          "$ref": "common.schema.json#/$defs/RevisionRef"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        }
+      },
+      "required": [
+        "input_id",
+        "state",
+        "instance_id",
+        "raw_markdown",
+        "raw_digest",
+        "captured_at",
+        "errors",
+        "committed_revision",
+        "schema_version"
+      ]
+    }
+  }
+}

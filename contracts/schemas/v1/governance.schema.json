@@ -1,0 +1,436 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Nickshajtan/Second-Brain-Modules/contracts/1.0.0/governance.schema.json",
+  "title": "GovernanceRecord",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/Proposal"
+    },
+    {
+      "$ref": "#/$defs/Review"
+    },
+    {
+      "$ref": "#/$defs/Approval"
+    },
+    {
+      "$ref": "#/$defs/ApprovalRevocation"
+    },
+    {
+      "$ref": "#/$defs/Disposal"
+    },
+    {
+      "$ref": "#/$defs/AccessRequest"
+    }
+  ],
+  "$defs": {
+    "Proposal": {
+      "title": "Proposal",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "proposal"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "$ref": "common.schema.json#/$defs/OperationId"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "subject": {
+          "$ref": "common.schema.json#/$defs/RevisionRef"
+        },
+        "target_scope": {
+          "$ref": "common.schema.json#/$defs/ResourceScope"
+        },
+        "payload_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CasExpectation"
+          },
+          "maxItems": 1000
+        },
+        "proposer": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        },
+        "proposed_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "schema_version",
+        "operation",
+        "operation_version",
+        "subject",
+        "target_scope",
+        "payload_digest",
+        "expectations",
+        "proposer",
+        "proposed_at"
+      ]
+    },
+    "Review": {
+      "title": "Review",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "review"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "review_type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "not": {
+            "pattern": "[\\r\\n]"
+          }
+        },
+        "subject": {
+          "$ref": "common.schema.json#/$defs/RevisionRef"
+        },
+        "reviewer": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "positive",
+            "negative",
+            "inconclusive"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/ProvenanceRef"
+          },
+          "maxItems": 1000
+        },
+        "recorded_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "extensions": {
+          "$ref": "common.schema.json#/$defs/Extensions"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "schema_version",
+        "review_type",
+        "subject",
+        "reviewer",
+        "outcome",
+        "evidence",
+        "recorded_at"
+      ]
+    },
+    "Approval": {
+      "title": "Approval",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "approval"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "proposal_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "approver": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        },
+        "decision": {
+          "type": "string",
+          "enum": [
+            "approve",
+            "reject"
+          ]
+        },
+        "operation_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "recorded_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "valid_from": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "expires_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "review_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/EntityId"
+          },
+          "maxItems": 100
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "schema_version",
+        "proposal_id",
+        "approver",
+        "decision",
+        "operation_digest",
+        "recorded_at"
+      ]
+    },
+    "ApprovalRevocation": {
+      "title": "ApprovalRevocation",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "approval_revocation"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "approval_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "revoked_by": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        },
+        "revoked_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "schema_version",
+        "approval_id",
+        "revoked_by",
+        "revoked_at",
+        "reason"
+      ]
+    },
+    "Disposal": {
+      "title": "Disposal",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "disposal"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "revision": {
+          "$ref": "common.schema.json#/$defs/EntityRevision"
+        },
+        "node_revision": {
+          "$ref": "common.schema.json#/$defs/RevisionRef"
+        },
+        "requested_by": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        },
+        "requested_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "original_owner": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        },
+        "original_cluster_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/EntityId"
+          },
+          "maxItems": 100
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "routed",
+            "restored",
+            "expired"
+          ]
+        },
+        "routing": {
+          "$ref": "#/$defs/DisposalRouting"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "schema_version",
+        "revision",
+        "node_revision",
+        "requested_by",
+        "requested_at",
+        "reason",
+        "original_owner",
+        "original_cluster_ids",
+        "state"
+      ]
+    },
+    "AccessRequest": {
+      "title": "AccessRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "access_request"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "revision": {
+          "$ref": "common.schema.json#/$defs/EntityRevision"
+        },
+        "requested_by": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "requested_scope": {
+          "$ref": "common.schema.json#/$defs/ResourceScope"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CapabilityId"
+          },
+          "maxItems": 100
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "granted",
+            "rejected",
+            "withdrawn"
+          ]
+        },
+        "requested_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "decision_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "schema_version",
+        "revision",
+        "requested_by",
+        "purpose",
+        "requested_scope",
+        "capabilities",
+        "status",
+        "requested_at"
+      ]
+    },
+    "DisposalRouting": {
+      "title": "DisposalRouting",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "destination": {
+          "type": "string",
+          "enum": [
+            "trash",
+            "global_archive",
+            "trash_and_global_archive"
+          ]
+        },
+        "decided_by": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        },
+        "decided_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "preservation_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/RevisionRef"
+          },
+          "maxItems": 100
+        },
+        "preservation_state": {
+          "type": "string",
+          "enum": [
+            "not_required",
+            "required",
+            "durable"
+          ]
+        },
+        "retention_policy": {
+          "$ref": "common.schema.json#/$defs/PolicyRef"
+        },
+        "retention_hold": {
+          "type": "boolean"
+        },
+        "expires_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        }
+      },
+      "required": [
+        "destination",
+        "decided_by",
+        "decided_at",
+        "preservation_refs",
+        "preservation_state",
+        "retention_policy",
+        "retention_hold"
+      ]
+    }
+  }
+}

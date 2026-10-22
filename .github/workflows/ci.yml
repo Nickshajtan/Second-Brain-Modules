@@ -45,6 +45,8 @@ jobs:
         run: python -m compileall -q tools tests packages/python/generated
       - name: Schemas, refs, fixtures, semantic OpenAPI and document links
         run: python -m tools.validate_examples
+      - name: Production schemas, registry, canonical validation and generated round-trips
+        run: python -m tools.validate_contracts
       - name: Unit tests and cross-language parity
         run: python -m pytest -q
       - name: Strict TypeScript checks

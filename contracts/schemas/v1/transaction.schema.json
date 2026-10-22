@@ -1,0 +1,341 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Nickshajtan/Second-Brain-Modules/contracts/1.0.0/transaction.schema.json",
+  "title": "TransactionRecord",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/BatchRequest"
+    },
+    {
+      "$ref": "#/$defs/OperationResult"
+    },
+    {
+      "$ref": "#/$defs/CommittedReceipt"
+    },
+    {
+      "$ref": "#/$defs/ErrorResponse"
+    },
+    {
+      "$ref": "#/$defs/ReadResult"
+    },
+    {
+      "$ref": "#/$defs/CommittedEvent"
+    },
+    {
+      "$ref": "#/$defs/OutboxRecord"
+    }
+  ],
+  "$defs": {
+    "BatchRequest": {
+      "title": "BatchRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "batch_request"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "transaction_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "expected_generation": {
+          "$ref": "common.schema.json#/$defs/GenerationRef"
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "$ref": "operations.schema.json#/$defs/MutationOperation"
+          },
+          "maxItems": 100,
+          "minItems": 1
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "instance_id",
+        "transaction_id",
+        "idempotency_key",
+        "expected_generation",
+        "operations"
+      ]
+    },
+    "OperationResult": {
+      "title": "OperationResult",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "operation_result"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "operation": {
+          "$ref": "common.schema.json#/$defs/OperationId"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/ResourceRef"
+          },
+          "maxItems": 1000
+        },
+        "revisions": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/RevisionRef"
+          },
+          "maxItems": 1000
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        }
+      },
+      "required": [
+        "kind",
+        "request_id",
+        "operation",
+        "resources",
+        "revisions",
+        "schema_version"
+      ]
+    },
+    "CommittedReceipt": {
+      "title": "CommittedReceipt",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "committed_receipt"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "status": {
+          "type": "string",
+          "const": "committed"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "transaction_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "idempotency_key": {
+          "$ref": "common.schema.json#/$defs/IdempotencyKey"
+        },
+        "request_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "actor": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        },
+        "generation": {
+          "$ref": "common.schema.json#/$defs/GenerationRef"
+        },
+        "committed_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OperationResult"
+          },
+          "maxItems": 100
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "status",
+        "instance_id",
+        "transaction_id",
+        "idempotency_key",
+        "request_digest",
+        "actor",
+        "generation",
+        "committed_at",
+        "results"
+      ]
+    },
+    "ErrorResponse": {
+      "title": "ErrorResponse",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "error_response"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "status": {
+          "type": "string",
+          "const": "error"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "error": {
+          "$ref": "common.schema.json"
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "status",
+        "request_id",
+        "error"
+      ]
+    },
+    "ReadResult": {
+      "title": "ReadResult",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "read_result"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "generation": {
+          "$ref": "common.schema.json#/$defs/GenerationRef"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "knowledge.schema.json"
+          },
+          "maxItems": 100
+        },
+        "next_cursor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "request_id",
+        "generation",
+        "records"
+      ]
+    },
+    "CommittedEvent": {
+      "title": "CommittedEvent",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "committed_event"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "event_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "event_type": {
+          "$ref": "common.schema.json#/$defs/OperationId"
+        },
+        "transaction_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "generation": {
+          "$ref": "common.schema.json#/$defs/GenerationRef"
+        },
+        "recorded_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "actor": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/ResourceRef"
+          },
+          "maxItems": 1000
+        },
+        "revision_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/RevisionRef"
+          },
+          "maxItems": 1000
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "event_id",
+        "event_type",
+        "transaction_id",
+        "generation",
+        "recorded_at",
+        "actor",
+        "resources",
+        "revision_refs"
+      ]
+    },
+    "OutboxRecord": {
+      "title": "OutboxRecord",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "outbox_record"
+        },
+        "event": {
+          "$ref": "#/$defs/CommittedEvent"
+        },
+        "delivery_state": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "delivered"
+          ]
+        },
+        "attempts": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "delivered_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        }
+      },
+      "required": [
+        "kind",
+        "event",
+        "delivery_state",
+        "attempts",
+        "schema_version"
+      ]
+    }
+  }
+}

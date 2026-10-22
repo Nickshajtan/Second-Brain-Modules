@@ -1,0 +1,63 @@
+{
+  "contract_version": "1.0.0",
+  "status": "unreleased",
+  "namespace": "https://github.com/Nickshajtan/Second-Brain-Modules/contracts/1.0.0/",
+  "schemas": [
+    {
+      "name": "common",
+      "path": "contracts/schemas/v1/common.schema.json",
+      "id": "https://github.com/Nickshajtan/Second-Brain-Modules/contracts/1.0.0/common.schema.json",
+      "python_module": "generated.v1.common_schema",
+      "python_type": "DomainError"
+    },
+    {
+      "name": "knowledge",
+      "path": "contracts/schemas/v1/knowledge.schema.json",
+      "id": "https://github.com/Nickshajtan/Second-Brain-Modules/contracts/1.0.0/knowledge.schema.json",
+      "python_module": "generated.v1.knowledge_schema",
+      "python_type": "KnowledgeRecord"
+    },
+    {
+      "name": "governance",
+      "path": "contracts/schemas/v1/governance.schema.json",
+      "id": "https://github.com/Nickshajtan/Second-Brain-Modules/contracts/1.0.0/governance.schema.json",
+      "python_module": "generated.v1.governance_schema",
+      "python_type": "GovernanceRecord"
+    },
+    {
+      "name": "control",
+      "path": "contracts/schemas/v1/control.schema.json",
+      "id": "https://github.com/Nickshajtan/Second-Brain-Modules/contracts/1.0.0/control.schema.json",
+      "python_module": "generated.v1.control_schema",
+      "python_type": "ControlRecord"
+    },
+    {
+      "name": "snapshots",
+      "path": "contracts/schemas/v1/snapshots.schema.json",
+      "id": "https://github.com/Nickshajtan/Second-Brain-Modules/contracts/1.0.0/snapshots.schema.json",
+      "python_module": "generated.v1.snapshots_schema",
+      "python_type": "SnapshotRecord"
+    },
+    {
+      "name": "authoring",
+      "path": "contracts/schemas/v1/authoring.schema.json",
+      "id": "https://github.com/Nickshajtan/Second-Brain-Modules/contracts/1.0.0/authoring.schema.json",
+      "python_module": "generated.v1.authoring_schema",
+      "python_type": "AuthoringInput"
+    },
+    {
+      "name": "operations",
+      "path": "contracts/schemas/v1/operations.schema.json",
+      "id": "https://github.com/Nickshajtan/Second-Brain-Modules/contracts/1.0.0/operations.schema.json",
+      "python_module": "generated.v1.operations_schema",
+      "python_type": "OperationRequest"
+    },
+    {
+      "name": "transaction",
+      "path": "contracts/schemas/v1/transaction.schema.json",
+      "id": "https://github.com/Nickshajtan/Second-Brain-Modules/contracts/1.0.0/transaction.schema.json",
+      "python_module": "generated.v1.transaction_schema",
+      "python_type": "TransactionRecord"
+    }
+  ]
+}

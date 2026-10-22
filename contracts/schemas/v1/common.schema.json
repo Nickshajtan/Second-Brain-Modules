@@ -1,0 +1,477 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Nickshajtan/Second-Brain-Modules/contracts/1.0.0/common.schema.json",
+  "title": "DomainError",
+  "$defs": {
+    "EntityId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 36,
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "not": {
+        "pattern": "[\\r\\n]"
+      }
+    },
+    "BrainInstanceId": {
+      "$ref": "#/$defs/EntityId"
+    },
+    "SchemaVersion": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "EntityRevision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "UtcTimestamp": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 32,
+      "pattern": "^(?:[0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]|[0-9][1-9][0-9]{2}|[1-9][0-9]{3})-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-5][0-9](\\.[0-9]{1,6})?Z$",
+      "format": "date-time",
+      "not": {
+        "pattern": "[\\r\\n]"
+      }
+    },
+    "Digest": {
+      "title": "Digest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "const": "sha256"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "not": {
+            "pattern": "[\\r\\n]"
+          }
+        }
+      },
+      "required": [
+        "algorithm",
+        "value"
+      ]
+    },
+    "PrincipalRef": {
+      "title": "PrincipalRef",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "principal_id": {
+          "$ref": "#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "principal_id"
+      ]
+    },
+    "ProvenanceRef": {
+      "title": "ProvenanceRef",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "record_id": {
+          "$ref": "#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "record_id"
+      ]
+    },
+    "CapabilityId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$",
+      "not": {
+        "pattern": "[\\r\\n]"
+      }
+    },
+    "OperationId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$",
+      "not": {
+        "pattern": "[\\r\\n]"
+      }
+    },
+    "IdempotencyKey": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+      "not": {
+        "pattern": "[\\r\\n]"
+      }
+    },
+    "CorrelationId": {
+      "$ref": "#/$defs/EntityId"
+    },
+    "ResourceRef": {
+      "title": "ResourceRef",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "instance_id": {
+          "$ref": "#/$defs/BrainInstanceId"
+        },
+        "resource_kind": {
+          "type": "string",
+          "enum": [
+            "node",
+            "relation",
+            "cluster",
+            "membership",
+            "collection",
+            "asset",
+            "external_reference",
+            "proposal",
+            "review",
+            "approval",
+            "disposal",
+            "grant",
+            "policy",
+            "principal",
+            "access_request",
+            "snapshot"
+          ]
+        },
+        "id": {
+          "$ref": "#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "instance_id",
+        "resource_kind",
+        "id"
+      ]
+    },
+    "RevisionRef": {
+      "title": "RevisionRef",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resource": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "revision_id": {
+          "$ref": "#/$defs/EntityId"
+        },
+        "revision": {
+          "$ref": "#/$defs/EntityRevision"
+        }
+      },
+      "required": [
+        "resource",
+        "revision_id",
+        "revision"
+      ]
+    },
+    "ClusterResourceRef": {
+      "title": "ClusterResourceRef",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resource": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "cluster_id": {
+          "$ref": "#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "resource",
+        "cluster_id"
+      ]
+    },
+    "SourceRef": {
+      "title": "SourceRef",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {
+          "$ref": "#/$defs/EntityId"
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "source_id",
+        "locator"
+      ]
+    },
+    "PolicyRef": {
+      "title": "PolicyRef",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "policy_id": {
+          "$ref": "#/$defs/EntityId"
+        },
+        "version": {
+          "$ref": "#/$defs/EntityRevision"
+        }
+      },
+      "required": [
+        "policy_id",
+        "version"
+      ]
+    },
+    "CasExpectation": {
+      "title": "CasExpectation",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resource": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "expected_revision": {
+          "$ref": "#/$defs/EntityRevision"
+        },
+        "expected_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "resource",
+        "expected_revision"
+      ]
+    },
+    "GenerationRef": {
+      "title": "GenerationRef",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "instance_id": {
+          "$ref": "#/$defs/BrainInstanceId"
+        },
+        "generation_id": {
+          "$ref": "#/$defs/EntityId"
+        },
+        "digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "instance_id",
+        "generation_id",
+        "digest"
+      ]
+    },
+    "FlatScalar": {
+      "oneOf": [
+        {
+          "type": "string",
+          "maxLength": 4096
+        },
+        {
+          "type": "number",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "boolean"
+        }
+      ]
+    },
+    "FlatProperties": {
+      "type": "object",
+      "maxProperties": 64,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "not": {
+          "pattern": "[\\r\\n]"
+        }
+      },
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/FlatScalar"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/FlatScalar"
+            },
+            "maxItems": 100
+          }
+        ]
+      }
+    },
+    "Extensions": {
+      "type": "object",
+      "maxProperties": 16,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$",
+        "not": {
+          "pattern": "[\\r\\n]"
+        }
+      },
+      "additionalProperties": {
+        "title": "VersionedExtension",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32,
+            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+            "not": {
+              "pattern": "[\\r\\n]"
+            }
+          },
+          "properties": {
+            "$ref": "#/$defs/FlatProperties"
+          }
+        },
+        "required": [
+          "version",
+          "properties"
+        ]
+      }
+    },
+    "ResourceScope": {
+      "title": "ResourceScope",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "instance_id": {
+          "$ref": "#/$defs/BrainInstanceId"
+        },
+        "cluster_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EntityId"
+          },
+          "maxItems": 100
+        },
+        "resource_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EntityId"
+          },
+          "maxItems": 1000
+        }
+      },
+      "required": [
+        "instance_id"
+      ]
+    },
+    "NodeRef": {
+      "title": "NodeRef",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "instance_id": {
+          "$ref": "#/$defs/BrainInstanceId"
+        },
+        "resource_kind": {
+          "type": "string",
+          "const": "node"
+        },
+        "id": {
+          "$ref": "#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "instance_id",
+        "resource_kind",
+        "id"
+      ]
+    },
+    "DefinitionVersion": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 32,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$",
+      "not": {
+        "pattern": "[\\r\\n]"
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "code": {
+      "type": "string",
+      "enum": [
+        "VALIDATION_FAILED",
+        "UNAUTHENTICATED",
+        "NOT_FOUND",
+        "FORBIDDEN",
+        "REVISION_CONFLICT",
+        "IDEMPOTENCY_CONFLICT",
+        "POLICY_CHANGED",
+        "APPROVAL_REQUIRED",
+        "APPROVAL_REVOKED",
+        "INVALID_TRANSITION",
+        "INTEGRITY_FAILED",
+        "UNSUPPORTED_VERSION",
+        "DEADLINE_EXCEEDED",
+        "BUDGET_EXCEEDED",
+        "RETENTION_HOLD",
+        "REPAIR_REQUIRED",
+        "INTERNAL"
+      ]
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "retryable": {
+      "type": "boolean"
+    },
+    "correlation_id": {
+      "$ref": "#/$defs/CorrelationId"
+    },
+    "field_errors": {
+      "type": "array",
+      "items": {
+        "title": "FieldError",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pointer": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "keyword": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "pointer",
+          "keyword"
+        ]
+      },
+      "maxItems": 100
+    }
+  },
+  "required": [
+    "schema_version",
+    "code",
+    "message",
+    "retryable",
+    "correlation_id"
+  ]
+}

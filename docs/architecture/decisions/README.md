@@ -13,5 +13,6 @@ Recorded 2026-10-20. “Task-mandated” records an explicit requirement from th
 | [007](ADR-007-deployment-model.md) | Modular monolith first | Task-mandated; extraction triggers proposed |
 | [008](ADR-008-monorepo-consumption.md) | Whole-repository reuse with isolated host state | Accepted direction from hardening task |
 | [009](ADR-009-phase-1-domain-baseline.md) | Owner-confirmed domain baseline; independent Relations and passive Core scope | Partially supersedes ADR-006 embedded-edge ownership; implementation choices remain open |
+| [010](ADR-010-production-contract-baseline.md) | Production structural schemas, generated models and independent validator gates | Implemented unreleased 1.0.0 baseline; O1–O4 remain unresolved |
 
 Changes supersede an ADR with a new record instead of silently editing a released decision. Review outstanding details in the [question register](../open-questions.md).

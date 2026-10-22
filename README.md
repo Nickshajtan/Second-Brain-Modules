@@ -5,6 +5,10 @@ This repository is the single code/submodule boundary. Each consumer owns its va
 workspace identity, configuration, knowledge Git history, runtime stores and secrets.
 No knowledge CRUD, graph engine, agent runtime or server is implemented here.
 
+The [production contract baseline](docs/contracts/README.md) now supplies eight canonical
+Draft 2020-12 resources, generated Python/TypeScript models and 34 typed operation requests.
+Version 1.0.0 is an unreleased contract baseline; illustrative 0.1.0 examples remain separate.
+
 ## What works today
 
 - Offline Draft 2020-12 schema and local-reference checks.
@@ -30,6 +34,7 @@ Then:
 python -m pip install --require-hashes -r requirements-dev.lock
 npm ci --ignore-scripts --no-audit --no-fund
 python -m tools.validate_examples
+python -m tools.validate_contracts
 python -m pytest -q
 python -m ruff check .
 python -m ruff format --check .
@@ -40,8 +45,9 @@ python -m tools.generate_contracts --check
 Regenerate with `python -m tools.generate_contracts`. Generated files are committed,
 never edited by hand. The checker compares bytes and the complete file set in a
 clean temporary directory. Tools use only synthetic fixtures, no external vault.
-The schemas retain unpublished `example.invalid` IDs: this is a toolchain spike,
-not production domain approval.
+The illustrative schemas retain unpublished `example.invalid` IDs. Production schema
+IDs and offline registry are separate under `contracts/`; no schema hosting or package
+publication is claimed. O1–O4 policy decisions remain open.
 
 Python API: `ExampleValidator(root).run()` from `tools.example_validation` returns
 an immutable `ValidationReport` and raises on failure without printing. Individual

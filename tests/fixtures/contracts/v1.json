@@ -1,0 +1,5032 @@
+[
+  {
+    "name": "common-domain-error",
+    "schema": "common",
+    "instance": {
+      "schema_version": "1.0.0",
+      "code": "NOT_FOUND",
+      "message": "Resource unavailable",
+      "retryable": false,
+      "correlation_id": "00000004-1111-4111-8111-000000000004"
+    },
+    "valid": true
+  },
+  {
+    "name": "knowledge-node",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": true
+  },
+  {
+    "name": "knowledge-node_revision",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node_revision",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "node_id": "00000002-1111-4111-8111-000000000002",
+      "logical_revision": 1,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "recorded_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "recorded_at": "2026-10-22T12:34:56Z",
+      "provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "knowledge-node_type_definition",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node_type_definition",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "type_key": "note",
+      "type_version": "1.0.0",
+      "metadata_schema_id": "urn:second-brain:metadata:note:1",
+      "description": "Flat metadata",
+      "flat_properties_required": true
+    },
+    "valid": true
+  },
+  {
+    "name": "knowledge-cluster",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "cluster",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "name": "Research",
+      "owner": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "policy": {
+        "policy_id": "00000004-1111-4111-8111-000000000004",
+        "version": 1
+      },
+      "publication_mode": "private",
+      "lifecycle": "active"
+    },
+    "valid": true
+  },
+  {
+    "name": "knowledge-membership",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "membership",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "cluster_id": "00000003-1111-4111-8111-000000000003",
+      "node_id": "00000002-1111-4111-8111-000000000002",
+      "admitted_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "admitted_at": "2026-10-22T12:34:56Z",
+      "admission_provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "lifecycle": "active"
+    },
+    "valid": true
+  },
+  {
+    "name": "knowledge-collection",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "collection",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "cluster_id": "00000003-1111-4111-8111-000000000003",
+      "name": "Reading",
+      "node_ids": [
+        "00000002-1111-4111-8111-000000000002"
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "knowledge-relation",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "relation",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "owner_cluster_id": "00000003-1111-4111-8111-000000000003",
+      "source": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "resource_kind": "node",
+        "id": "00000002-1111-4111-8111-000000000002"
+      },
+      "target": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "resource_kind": "node",
+        "id": "00000005-1111-4111-8111-000000000005"
+      },
+      "predicate": "supports",
+      "provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "lifecycle": "active",
+      "predicate_version": "1.0.0"
+    },
+    "valid": true
+  },
+  {
+    "name": "knowledge-relation_type_definition",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "relation_type_definition",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "predicate": "supports",
+      "type_version": "1.0.0",
+      "symmetric": false,
+      "source_node_types": [
+        "note"
+      ],
+      "target_node_types": [
+        "note"
+      ],
+      "self_links_allowed": false,
+      "description": "Evidence supports note"
+    },
+    "valid": true
+  },
+  {
+    "name": "knowledge-asset",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "asset",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "media_type": "image/png",
+      "digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "size_bytes": 42,
+      "storage": {
+        "provider": "git",
+        "object_key": "opaque-handle"
+      },
+      "scope": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "cluster_ids": [
+          "00000003-1111-4111-8111-000000000003"
+        ]
+      },
+      "provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "referenced_by": [
+        {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "knowledge-external_reference",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "external_reference",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "scope": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "cluster_ids": [
+          "00000003-1111-4111-8111-000000000003"
+        ]
+      },
+      "source": {
+        "source_id": "00000005-1111-4111-8111-000000000005",
+        "locator": "https://example.invalid/source"
+      },
+      "provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "knowledge-provenance_record",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "provenance_record",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "source": {
+        "source_id": "00000005-1111-4111-8111-000000000005",
+        "locator": "https://example.invalid/source"
+      },
+      "origin": "human",
+      "recorded_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "recorded_at": "2026-10-22T12:34:56Z",
+      "parents": [],
+      "derived_from": []
+    },
+    "valid": true
+  },
+  {
+    "name": "governance-proposal",
+    "schema": "governance",
+    "instance": {
+      "kind": "proposal",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "operation": "node.update",
+      "operation_version": "1.0.0",
+      "subject": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "target_scope": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "cluster_ids": [
+          "00000003-1111-4111-8111-000000000003"
+        ]
+      },
+      "payload_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ],
+      "proposer": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "proposed_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": true
+  },
+  {
+    "name": "governance-review",
+    "schema": "governance",
+    "instance": {
+      "kind": "review",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "review_type": "freshness",
+      "subject": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "reviewer": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "outcome": "positive",
+      "evidence": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "recorded_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": true
+  },
+  {
+    "name": "governance-approval",
+    "schema": "governance",
+    "instance": {
+      "kind": "approval",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "proposal_id": "00000005-1111-4111-8111-000000000005",
+      "approver": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "decision": "approve",
+      "operation_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "recorded_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": true
+  },
+  {
+    "name": "governance-approval_revocation",
+    "schema": "governance",
+    "instance": {
+      "kind": "approval_revocation",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "approval_id": "00000005-1111-4111-8111-000000000005",
+      "revoked_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "revoked_at": "2026-10-22T12:34:56Z",
+      "reason": "Withdraw authority"
+    },
+    "valid": true
+  },
+  {
+    "name": "governance-disposal",
+    "schema": "governance",
+    "instance": {
+      "kind": "disposal",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "node_revision": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "requested_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "requested_at": "2026-10-22T12:34:56Z",
+      "reason": "No longer needed",
+      "original_owner": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "original_cluster_ids": [
+        "00000003-1111-4111-8111-000000000003"
+      ],
+      "state": "pending"
+    },
+    "valid": true
+  },
+  {
+    "name": "governance-access_request",
+    "schema": "governance",
+    "instance": {
+      "kind": "access_request",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "requested_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "purpose": "Read references",
+      "requested_scope": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "cluster_ids": [
+          "00000003-1111-4111-8111-000000000003"
+        ]
+      },
+      "capabilities": [
+        "node.read"
+      ],
+      "status": "pending",
+      "requested_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": true
+  },
+  {
+    "name": "control-principal_registration",
+    "schema": "control",
+    "instance": {
+      "kind": "principal_registration",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "principal_kind": "human",
+      "issuer": "local-admin",
+      "subject": "fixture-owner",
+      "display_name": "Fixture Owner",
+      "status": "active",
+      "registered_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "registered_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": true
+  },
+  {
+    "name": "control-capability_grant",
+    "schema": "control",
+    "instance": {
+      "kind": "capability_grant",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "principal": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "capabilities": [
+        "node.read"
+      ],
+      "scope": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "cluster_ids": [
+          "00000003-1111-4111-8111-000000000003"
+        ]
+      },
+      "conditions": {},
+      "issued_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "issued_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": true
+  },
+  {
+    "name": "control-cluster_policy",
+    "schema": "control",
+    "instance": {
+      "kind": "cluster_policy",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "cluster_id": "00000003-1111-4111-8111-000000000003",
+      "rules": [
+        {
+          "effect": "allow",
+          "capabilities": [
+            "node.read"
+          ],
+          "principals": [
+            {
+              "principal_id": "00000001-1111-4111-8111-000000000001"
+            }
+          ],
+          "conditions": {}
+        }
+      ],
+      "default_effect": "deny",
+      "governed_operations": [
+        "node.publish"
+      ],
+      "definition_version": 1
+    },
+    "valid": true
+  },
+  {
+    "name": "control-resource_restriction",
+    "schema": "control",
+    "instance": {
+      "kind": "resource_restriction",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "resource": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "resource_kind": "node",
+        "id": "00000002-1111-4111-8111-000000000002"
+      },
+      "denied_capabilities": [
+        "node.read"
+      ],
+      "reason": "Restricted",
+      "imposed_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "control-access_decision",
+    "schema": "control",
+    "instance": {
+      "kind": "access_decision",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "request_id": "00000005-1111-4111-8111-000000000005",
+      "decided_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "outcome": "grant",
+      "grant_ids": [
+        "00000004-1111-4111-8111-000000000004"
+      ],
+      "recorded_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": true
+  },
+  {
+    "name": "control-owner_registration",
+    "schema": "control",
+    "instance": {
+      "kind": "owner_registration",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "principal": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "registered_at": "2026-10-22T12:34:56Z",
+      "authority_evidence": "verified-local-bootstrap"
+    },
+    "valid": true
+  },
+  {
+    "name": "snapshots-export_manifest",
+    "schema": "snapshots",
+    "instance": {
+      "kind": "export_manifest",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "source_instance_id": "00000001-1111-4111-8111-000000000001",
+      "generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "revisions": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "revision_id": "00000004-1111-4111-8111-000000000004",
+          "revision": 1
+        }
+      ],
+      "asset_ids": [],
+      "exported_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "exported_at": "2026-10-22T12:34:56Z",
+      "digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "snapshots-import_plan",
+    "schema": "snapshots",
+    "instance": {
+      "kind": "import_plan",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "destination_instance_id": "00000001-1111-4111-8111-000000000001",
+      "source_manifest_id": "00000005-1111-4111-8111-000000000005",
+      "source_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "target_scope": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "cluster_ids": [
+          "00000003-1111-4111-8111-000000000003"
+        ]
+      },
+      "mappings": [
+        {
+          "foreign": {
+            "instance_id": "00000005-1111-4111-8111-000000000005",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "local": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000004-1111-4111-8111-000000000004"
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "snapshots-approved_selection",
+    "schema": "snapshots",
+    "instance": {
+      "cluster_id": "00000003-1111-4111-8111-000000000003",
+      "node_revision": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "approval_id": "00000005-1111-4111-8111-000000000005",
+      "kind": "approved_selection",
+      "schema_version": "1.0.0"
+    },
+    "valid": true
+  },
+  {
+    "name": "authoring-unmanaged",
+    "schema": "authoring",
+    "instance": {
+      "input_id": "00000002-1111-4111-8111-000000000002",
+      "state": "unmanaged",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "raw_markdown": "---\ntitle: Offline\n---\n\nНевалідний raw 🧠\r\n",
+      "raw_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "captured_at": "2026-10-22T12:34:56Z",
+      "base_revision": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "schema_version": "1.0.0"
+    },
+    "valid": true
+  },
+  {
+    "name": "authoring-candidate",
+    "schema": "authoring",
+    "instance": {
+      "input_id": "00000002-1111-4111-8111-000000000002",
+      "state": "candidate",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "raw_markdown": "---\ntitle: Offline\n---\n\nНевалідний raw 🧠\r\n",
+      "raw_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "captured_at": "2026-10-22T12:34:56Z",
+      "base_revision": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "candidate_content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "schema_version": "1.0.0"
+    },
+    "valid": true
+  },
+  {
+    "name": "authoring-conflict",
+    "schema": "authoring",
+    "instance": {
+      "input_id": "00000002-1111-4111-8111-000000000002",
+      "state": "conflict",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "raw_markdown": "---\ntitle: Offline\n---\n\nНевалідний raw 🧠\r\n",
+      "raw_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "captured_at": "2026-10-22T12:34:56Z",
+      "base_revision": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "errors": [
+        {
+          "schema_version": "1.0.0",
+          "code": "NOT_FOUND",
+          "message": "Resource unavailable",
+          "retryable": false,
+          "correlation_id": "00000004-1111-4111-8111-000000000004"
+        }
+      ],
+      "committed_revision": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "schema_version": "1.0.0"
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-node.create",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "node.create",
+      "operation_version": "1.0.0",
+      "request_id": "00000064-1111-4111-8111-000000000064",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "target_cluster_id": "00000003-1111-4111-8111-000000000003",
+        "content": {
+          "node_type": "note",
+          "title": "Independent fixture",
+          "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+          "properties": {
+            "topics": [
+              "science",
+              "дані"
+            ],
+            "priority": 1,
+            "pinned": false
+          },
+          "provenance": [
+            {
+              "record_id": "00000005-1111-4111-8111-000000000005"
+            }
+          ],
+          "node_type_version": "1.0.0"
+        }
+      },
+      "idempotency_key": "fixture:node.create",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-node.read",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "node.read",
+      "operation_version": "1.0.0",
+      "request_id": "00000065-1111-4111-8111-000000000065",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "node_id": "00000002-1111-4111-8111-000000000002"
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-node.update",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "node.update",
+      "operation_version": "1.0.0",
+      "request_id": "00000066-1111-4111-8111-000000000066",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "node_id": "00000002-1111-4111-8111-000000000002",
+        "content": {
+          "node_type": "note",
+          "title": "Independent fixture",
+          "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+          "properties": {
+            "topics": [
+              "science",
+              "дані"
+            ],
+            "priority": 1,
+            "pinned": false
+          },
+          "provenance": [
+            {
+              "record_id": "00000005-1111-4111-8111-000000000005"
+            }
+          ],
+          "node_type_version": "1.0.0"
+        }
+      },
+      "idempotency_key": "fixture:node.update",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-node.archive",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "node.archive",
+      "operation_version": "1.0.0",
+      "request_id": "00000067-1111-4111-8111-000000000067",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "node_id": "00000002-1111-4111-8111-000000000002",
+        "reason": "Pause"
+      },
+      "idempotency_key": "fixture:node.archive",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-node.unarchive",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "node.unarchive",
+      "operation_version": "1.0.0",
+      "request_id": "00000068-1111-4111-8111-000000000068",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "node_id": "00000002-1111-4111-8111-000000000002",
+        "reason": "Resume"
+      },
+      "idempotency_key": "fixture:node.unarchive",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-node.delete",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "node.delete",
+      "operation_version": "1.0.0",
+      "request_id": "00000069-1111-4111-8111-000000000069",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "node_id": "00000002-1111-4111-8111-000000000002",
+        "reason": "Request disposal"
+      },
+      "idempotency_key": "fixture:node.delete",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-node.restore",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "node.restore",
+      "operation_version": "1.0.0",
+      "request_id": "0000006a-1111-4111-8111-00000000006a",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "disposal_id": "00000002-1111-4111-8111-000000000002",
+        "destination_cluster_id": "00000003-1111-4111-8111-000000000003"
+      },
+      "idempotency_key": "fixture:node.restore",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-node.copy",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "node.copy",
+      "operation_version": "1.0.0",
+      "request_id": "0000006b-1111-4111-8111-00000000006b",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "source_revision": {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "revision_id": "00000004-1111-4111-8111-000000000004",
+          "revision": 1
+        },
+        "destination_cluster_id": "00000003-1111-4111-8111-000000000003"
+      },
+      "idempotency_key": "fixture:node.copy",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-node.fork",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "node.fork",
+      "operation_version": "1.0.0",
+      "request_id": "0000006c-1111-4111-8111-00000000006c",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "source_revision": {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "revision_id": "00000004-1111-4111-8111-000000000004",
+          "revision": 1
+        },
+        "destination_cluster_id": "00000003-1111-4111-8111-000000000003"
+      },
+      "idempotency_key": "fixture:node.fork",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-node.publish",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "node.publish",
+      "operation_version": "1.0.0",
+      "request_id": "0000006d-1111-4111-8111-00000000006d",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "source_revision": {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "revision_id": "00000004-1111-4111-8111-000000000004",
+          "revision": 1
+        },
+        "destination_cluster_id": "00000003-1111-4111-8111-000000000003"
+      },
+      "idempotency_key": "fixture:node.publish",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-node.propose_revision",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "node.propose_revision",
+      "operation_version": "1.0.0",
+      "request_id": "0000006e-1111-4111-8111-00000000006e",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "base_revision": {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "revision_id": "00000004-1111-4111-8111-000000000004",
+          "revision": 1
+        },
+        "candidate_scope": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "cluster_ids": [
+            "00000003-1111-4111-8111-000000000003"
+          ]
+        },
+        "content": {
+          "node_type": "note",
+          "title": "Independent fixture",
+          "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+          "properties": {
+            "topics": [
+              "science",
+              "дані"
+            ],
+            "priority": 1,
+            "pinned": false
+          },
+          "provenance": [
+            {
+              "record_id": "00000005-1111-4111-8111-000000000005"
+            }
+          ],
+          "node_type_version": "1.0.0"
+        }
+      },
+      "idempotency_key": "fixture:node.propose_revision",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-cluster.configure",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "cluster.configure",
+      "operation_version": "1.0.0",
+      "request_id": "0000006f-1111-4111-8111-00000000006f",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "cluster_id": "00000003-1111-4111-8111-000000000003",
+        "name": "Updated"
+      },
+      "idempotency_key": "fixture:cluster.configure",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-membership.attach",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "membership.attach",
+      "operation_version": "1.0.0",
+      "request_id": "00000070-1111-4111-8111-000000000070",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "cluster_id": "00000003-1111-4111-8111-000000000003",
+        "node_id": "00000002-1111-4111-8111-000000000002"
+      },
+      "idempotency_key": "fixture:membership.attach",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-membership.detach",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "membership.detach",
+      "operation_version": "1.0.0",
+      "request_id": "00000071-1111-4111-8111-000000000071",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "cluster_id": "00000003-1111-4111-8111-000000000003",
+        "node_id": "00000002-1111-4111-8111-000000000002"
+      },
+      "idempotency_key": "fixture:membership.detach",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-membership.select_revision",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "membership.select_revision",
+      "operation_version": "1.0.0",
+      "request_id": "00000072-1111-4111-8111-000000000072",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "cluster_id": "00000003-1111-4111-8111-000000000003",
+        "node_revision": {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "revision_id": "00000004-1111-4111-8111-000000000004",
+          "revision": 1
+        },
+        "approval_id": "00000005-1111-4111-8111-000000000005",
+        "kind": "approved_selection",
+        "schema_version": "1.0.0"
+      },
+      "idempotency_key": "fixture:membership.select_revision",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-collection.create",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "collection.create",
+      "operation_version": "1.0.0",
+      "request_id": "00000073-1111-4111-8111-000000000073",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "collection": {
+          "kind": "collection",
+          "id": "00000002-1111-4111-8111-000000000002",
+          "schema_version": "1.0.0",
+          "revision": 1,
+          "cluster_id": "00000003-1111-4111-8111-000000000003",
+          "name": "Reading",
+          "node_ids": [
+            "00000002-1111-4111-8111-000000000002"
+          ]
+        }
+      },
+      "idempotency_key": "fixture:collection.create",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-collection.update",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "collection.update",
+      "operation_version": "1.0.0",
+      "request_id": "00000074-1111-4111-8111-000000000074",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "collection": {
+          "kind": "collection",
+          "id": "00000002-1111-4111-8111-000000000002",
+          "schema_version": "1.0.0",
+          "revision": 1,
+          "cluster_id": "00000003-1111-4111-8111-000000000003",
+          "name": "Reading",
+          "node_ids": [
+            "00000002-1111-4111-8111-000000000002"
+          ]
+        }
+      },
+      "idempotency_key": "fixture:collection.update",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-collection.remove",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "collection.remove",
+      "operation_version": "1.0.0",
+      "request_id": "00000075-1111-4111-8111-000000000075",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "collection_id": "00000002-1111-4111-8111-000000000002"
+      },
+      "idempotency_key": "fixture:collection.remove",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-relation.create",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "relation.create",
+      "operation_version": "1.0.0",
+      "request_id": "00000076-1111-4111-8111-000000000076",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "relation": {
+          "kind": "relation",
+          "id": "00000002-1111-4111-8111-000000000002",
+          "schema_version": "1.0.0",
+          "revision": 1,
+          "owner_cluster_id": "00000003-1111-4111-8111-000000000003",
+          "source": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "target": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000005-1111-4111-8111-000000000005"
+          },
+          "predicate": "supports",
+          "provenance": [
+            {
+              "record_id": "00000005-1111-4111-8111-000000000005"
+            }
+          ],
+          "lifecycle": "active",
+          "predicate_version": "1.0.0"
+        }
+      },
+      "idempotency_key": "fixture:relation.create",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-relation.update",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "relation.update",
+      "operation_version": "1.0.0",
+      "request_id": "00000077-1111-4111-8111-000000000077",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "relation": {
+          "kind": "relation",
+          "id": "00000002-1111-4111-8111-000000000002",
+          "schema_version": "1.0.0",
+          "revision": 1,
+          "owner_cluster_id": "00000003-1111-4111-8111-000000000003",
+          "source": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "target": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000005-1111-4111-8111-000000000005"
+          },
+          "predicate": "supports",
+          "provenance": [
+            {
+              "record_id": "00000005-1111-4111-8111-000000000005"
+            }
+          ],
+          "lifecycle": "active",
+          "predicate_version": "1.0.0"
+        }
+      },
+      "idempotency_key": "fixture:relation.update",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-relation.delete",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "relation.delete",
+      "operation_version": "1.0.0",
+      "request_id": "00000078-1111-4111-8111-000000000078",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "relation_id": "00000002-1111-4111-8111-000000000002",
+        "reason": "Retracted"
+      },
+      "idempotency_key": "fixture:relation.delete",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-relation.read",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "relation.read",
+      "operation_version": "1.0.0",
+      "request_id": "00000079-1111-4111-8111-000000000079",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "relation_id": "00000002-1111-4111-8111-000000000002",
+        "selected_cluster_id": "00000003-1111-4111-8111-000000000003"
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-asset.register",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "asset.register",
+      "operation_version": "1.0.0",
+      "request_id": "0000007a-1111-4111-8111-00000000007a",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "asset": {
+          "kind": "asset",
+          "id": "00000002-1111-4111-8111-000000000002",
+          "schema_version": "1.0.0",
+          "revision": 1,
+          "media_type": "image/png",
+          "digest": {
+            "algorithm": "sha256",
+            "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "size_bytes": 42,
+          "storage": {
+            "provider": "git",
+            "object_key": "opaque-handle"
+          },
+          "scope": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "cluster_ids": [
+              "00000003-1111-4111-8111-000000000003"
+            ]
+          },
+          "provenance": [
+            {
+              "record_id": "00000005-1111-4111-8111-000000000005"
+            }
+          ],
+          "referenced_by": [
+            {
+              "instance_id": "00000001-1111-4111-8111-000000000001",
+              "resource_kind": "node",
+              "id": "00000002-1111-4111-8111-000000000002"
+            }
+          ]
+        }
+      },
+      "idempotency_key": "fixture:asset.register",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-asset.reference",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "asset.reference",
+      "operation_version": "1.0.0",
+      "request_id": "0000007b-1111-4111-8111-00000000007b",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "asset_id": "00000005-1111-4111-8111-000000000005",
+        "node_id": "00000002-1111-4111-8111-000000000002",
+        "action": "reference"
+      },
+      "idempotency_key": "fixture:asset.reference",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-knowledge.search",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "knowledge.search",
+      "operation_version": "1.0.0",
+      "request_id": "0000007c-1111-4111-8111-00000000007c",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "query": "Unicode 🧠",
+        "scope": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "cluster_ids": [
+            "00000003-1111-4111-8111-000000000003"
+          ]
+        },
+        "limit": 20,
+        "include_archived": false
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-proposal.create",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "proposal.create",
+      "operation_version": "1.0.0",
+      "request_id": "0000007d-1111-4111-8111-00000000007d",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "kind": "proposal",
+        "id": "00000002-1111-4111-8111-000000000002",
+        "schema_version": "1.0.0",
+        "operation": "node.update",
+        "operation_version": "1.0.0",
+        "subject": {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "revision_id": "00000004-1111-4111-8111-000000000004",
+          "revision": 1
+        },
+        "target_scope": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "cluster_ids": [
+            "00000003-1111-4111-8111-000000000003"
+          ]
+        },
+        "payload_digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "expectations": [
+          {
+            "resource": {
+              "instance_id": "00000001-1111-4111-8111-000000000001",
+              "resource_kind": "node",
+              "id": "00000002-1111-4111-8111-000000000002"
+            },
+            "expected_revision": 1
+          }
+        ],
+        "proposer": {
+          "principal_id": "00000001-1111-4111-8111-000000000001"
+        },
+        "proposed_at": "2026-10-22T12:34:56Z"
+      },
+      "idempotency_key": "fixture:proposal.create",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-review.record",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "review.record",
+      "operation_version": "1.0.0",
+      "request_id": "0000007e-1111-4111-8111-00000000007e",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "kind": "review",
+        "id": "00000002-1111-4111-8111-000000000002",
+        "schema_version": "1.0.0",
+        "review_type": "freshness",
+        "subject": {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "revision_id": "00000004-1111-4111-8111-000000000004",
+          "revision": 1
+        },
+        "reviewer": {
+          "principal_id": "00000001-1111-4111-8111-000000000001"
+        },
+        "outcome": "positive",
+        "evidence": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "recorded_at": "2026-10-22T12:34:56Z"
+      },
+      "idempotency_key": "fixture:review.record",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-approval.issue",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "approval.issue",
+      "operation_version": "1.0.0",
+      "request_id": "0000007f-1111-4111-8111-00000000007f",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "kind": "approval",
+        "id": "00000002-1111-4111-8111-000000000002",
+        "schema_version": "1.0.0",
+        "proposal_id": "00000005-1111-4111-8111-000000000005",
+        "approver": {
+          "principal_id": "00000001-1111-4111-8111-000000000001"
+        },
+        "decision": "approve",
+        "operation_digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "recorded_at": "2026-10-22T12:34:56Z"
+      },
+      "idempotency_key": "fixture:approval.issue",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-approval.revoke",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "approval.revoke",
+      "operation_version": "1.0.0",
+      "request_id": "00000080-1111-4111-8111-000000000080",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "kind": "approval_revocation",
+        "id": "00000002-1111-4111-8111-000000000002",
+        "schema_version": "1.0.0",
+        "approval_id": "00000005-1111-4111-8111-000000000005",
+        "revoked_by": {
+          "principal_id": "00000001-1111-4111-8111-000000000001"
+        },
+        "revoked_at": "2026-10-22T12:34:56Z",
+        "reason": "Withdraw authority"
+      },
+      "idempotency_key": "fixture:approval.revoke",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-access.request",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "access.request",
+      "operation_version": "1.0.0",
+      "request_id": "00000081-1111-4111-8111-000000000081",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "kind": "access_request",
+        "id": "00000002-1111-4111-8111-000000000002",
+        "schema_version": "1.0.0",
+        "revision": 1,
+        "requested_by": {
+          "principal_id": "00000001-1111-4111-8111-000000000001"
+        },
+        "purpose": "Read references",
+        "requested_scope": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "cluster_ids": [
+            "00000003-1111-4111-8111-000000000003"
+          ]
+        },
+        "capabilities": [
+          "node.read"
+        ],
+        "status": "pending",
+        "requested_at": "2026-10-22T12:34:56Z"
+      },
+      "idempotency_key": "fixture:access.request",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-disposal.route",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "disposal.route",
+      "operation_version": "1.0.0",
+      "request_id": "00000082-1111-4111-8111-000000000082",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "disposal_id": "00000002-1111-4111-8111-000000000002",
+        "routing": {
+          "destination": "trash",
+          "decided_by": {
+            "principal_id": "00000001-1111-4111-8111-000000000001"
+          },
+          "decided_at": "2026-10-22T12:34:56Z",
+          "preservation_refs": [],
+          "preservation_state": "not_required",
+          "retention_policy": {
+            "policy_id": "00000004-1111-4111-8111-000000000004",
+            "version": 1
+          },
+          "retention_hold": true
+        }
+      },
+      "idempotency_key": "fixture:disposal.route",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-disposal.preserve_copy",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "disposal.preserve_copy",
+      "operation_version": "1.0.0",
+      "request_id": "00000083-1111-4111-8111-000000000083",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "disposal_id": "00000002-1111-4111-8111-000000000002",
+        "source_revision": {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "revision_id": "00000004-1111-4111-8111-000000000004",
+          "revision": 1
+        },
+        "archive_cluster_id": "00000003-1111-4111-8111-000000000003"
+      },
+      "idempotency_key": "fixture:disposal.preserve_copy",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-snapshot.export",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "snapshot.export",
+      "operation_version": "1.0.0",
+      "request_id": "00000084-1111-4111-8111-000000000084",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "revisions": [
+          {
+            "resource": {
+              "instance_id": "00000001-1111-4111-8111-000000000001",
+              "resource_kind": "node",
+              "id": "00000002-1111-4111-8111-000000000002"
+            },
+            "revision_id": "00000004-1111-4111-8111-000000000004",
+            "revision": 1
+          }
+        ],
+        "scope": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "cluster_ids": [
+            "00000003-1111-4111-8111-000000000003"
+          ]
+        }
+      },
+      "idempotency_key": "fixture:snapshot.export",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "operation-snapshot.import",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "snapshot.import",
+      "operation_version": "1.0.0",
+      "request_id": "00000085-1111-4111-8111-000000000085",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "kind": "import_plan",
+        "id": "00000002-1111-4111-8111-000000000002",
+        "schema_version": "1.0.0",
+        "destination_instance_id": "00000001-1111-4111-8111-000000000001",
+        "source_manifest_id": "00000005-1111-4111-8111-000000000005",
+        "source_digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "target_scope": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "cluster_ids": [
+            "00000003-1111-4111-8111-000000000003"
+          ]
+        },
+        "mappings": [
+          {
+            "foreign": {
+              "instance_id": "00000005-1111-4111-8111-000000000005",
+              "resource_kind": "node",
+              "id": "00000002-1111-4111-8111-000000000002"
+            },
+            "local": {
+              "instance_id": "00000001-1111-4111-8111-000000000001",
+              "resource_kind": "node",
+              "id": "00000004-1111-4111-8111-000000000004"
+            }
+          }
+        ]
+      },
+      "idempotency_key": "fixture:snapshot.import",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "transaction-batch",
+    "schema": "transaction",
+    "instance": {
+      "schema_version": "1.0.0",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "transaction_id": "00000004-1111-4111-8111-000000000004",
+      "idempotency_key": "batch-fixture",
+      "expected_generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "operations": [
+        {
+          "schema_version": "1.0.0",
+          "operation": "node.create",
+          "operation_version": "1.0.0",
+          "request_id": "00000064-1111-4111-8111-000000000064",
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "payload": {
+            "target_cluster_id": "00000003-1111-4111-8111-000000000003",
+            "content": {
+              "node_type": "note",
+              "title": "Independent fixture",
+              "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+              "properties": {
+                "topics": [
+                  "science",
+                  "дані"
+                ],
+                "priority": 1,
+                "pinned": false
+              },
+              "provenance": [
+                {
+                  "record_id": "00000005-1111-4111-8111-000000000005"
+                }
+              ],
+              "node_type_version": "1.0.0"
+            }
+          },
+          "idempotency_key": "fixture:node.create",
+          "expectations": [
+            {
+              "resource": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000002-1111-4111-8111-000000000002"
+              },
+              "expected_revision": 1
+            }
+          ]
+        },
+        {
+          "schema_version": "1.0.0",
+          "operation": "relation.create",
+          "operation_version": "1.0.0",
+          "request_id": "00000076-1111-4111-8111-000000000076",
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "payload": {
+            "relation": {
+              "kind": "relation",
+              "id": "00000002-1111-4111-8111-000000000002",
+              "schema_version": "1.0.0",
+              "revision": 1,
+              "owner_cluster_id": "00000003-1111-4111-8111-000000000003",
+              "source": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000002-1111-4111-8111-000000000002"
+              },
+              "target": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000005-1111-4111-8111-000000000005"
+              },
+              "predicate": "supports",
+              "provenance": [
+                {
+                  "record_id": "00000005-1111-4111-8111-000000000005"
+                }
+              ],
+              "lifecycle": "active",
+              "predicate_version": "1.0.0"
+            }
+          },
+          "idempotency_key": "fixture:relation.create",
+          "expectations": [
+            {
+              "resource": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000002-1111-4111-8111-000000000002"
+              },
+              "expected_revision": 1
+            }
+          ]
+        }
+      ],
+      "kind": "batch_request"
+    },
+    "valid": true
+  },
+  {
+    "name": "transaction-operation-result",
+    "schema": "transaction",
+    "instance": {
+      "request_id": "00000066-1111-4111-8111-000000000066",
+      "operation": "node.update",
+      "resources": [
+        {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        }
+      ],
+      "revisions": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "revision_id": "00000004-1111-4111-8111-000000000004",
+          "revision": 1
+        }
+      ],
+      "kind": "operation_result",
+      "schema_version": "1.0.0"
+    },
+    "valid": true
+  },
+  {
+    "name": "transaction-receipt",
+    "schema": "transaction",
+    "instance": {
+      "schema_version": "1.0.0",
+      "status": "committed",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "transaction_id": "00000004-1111-4111-8111-000000000004",
+      "idempotency_key": "batch-fixture",
+      "request_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "actor": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "committed_at": "2026-10-22T12:34:56Z",
+      "results": [
+        {
+          "request_id": "00000066-1111-4111-8111-000000000066",
+          "operation": "node.update",
+          "resources": [
+            {
+              "instance_id": "00000001-1111-4111-8111-000000000001",
+              "resource_kind": "node",
+              "id": "00000002-1111-4111-8111-000000000002"
+            }
+          ],
+          "revisions": [
+            {
+              "resource": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000002-1111-4111-8111-000000000002"
+              },
+              "revision_id": "00000004-1111-4111-8111-000000000004",
+              "revision": 1
+            }
+          ],
+          "kind": "operation_result",
+          "schema_version": "1.0.0"
+        }
+      ],
+      "kind": "committed_receipt"
+    },
+    "valid": true
+  },
+  {
+    "name": "transaction-error-response",
+    "schema": "transaction",
+    "instance": {
+      "schema_version": "1.0.0",
+      "status": "error",
+      "request_id": "00000002-1111-4111-8111-000000000002",
+      "error": {
+        "schema_version": "1.0.0",
+        "code": "NOT_FOUND",
+        "message": "Resource unavailable",
+        "retryable": false,
+        "correlation_id": "00000004-1111-4111-8111-000000000004"
+      },
+      "kind": "error_response"
+    },
+    "valid": true
+  },
+  {
+    "name": "transaction-read-result",
+    "schema": "transaction",
+    "instance": {
+      "schema_version": "1.0.0",
+      "request_id": "00000002-1111-4111-8111-000000000002",
+      "generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "records": [
+        {
+          "kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002",
+          "schema_version": "1.0.0",
+          "revision": 1,
+          "content": {
+            "node_type": "note",
+            "title": "Independent fixture",
+            "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+            "properties": {
+              "topics": [
+                "science",
+                "дані"
+              ],
+              "priority": 1,
+              "pinned": false
+            },
+            "provenance": [
+              {
+                "record_id": "00000005-1111-4111-8111-000000000005"
+              }
+            ],
+            "node_type_version": "1.0.0"
+          },
+          "revision_ref": {
+            "resource": {
+              "instance_id": "00000001-1111-4111-8111-000000000001",
+              "resource_kind": "node",
+              "id": "00000002-1111-4111-8111-000000000002"
+            },
+            "revision_id": "00000004-1111-4111-8111-000000000004",
+            "revision": 1
+          },
+          "lifecycle": "active",
+          "created_at": "2026-10-22T12:34:56Z",
+          "updated_at": "2026-10-22T12:34:56Z"
+        },
+        {
+          "kind": "relation",
+          "id": "00000002-1111-4111-8111-000000000002",
+          "schema_version": "1.0.0",
+          "revision": 1,
+          "owner_cluster_id": "00000003-1111-4111-8111-000000000003",
+          "source": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "target": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000005-1111-4111-8111-000000000005"
+          },
+          "predicate": "supports",
+          "provenance": [
+            {
+              "record_id": "00000005-1111-4111-8111-000000000005"
+            }
+          ],
+          "lifecycle": "active",
+          "predicate_version": "1.0.0"
+        }
+      ],
+      "kind": "read_result"
+    },
+    "valid": true
+  },
+  {
+    "name": "transaction-committed-event",
+    "schema": "transaction",
+    "instance": {
+      "schema_version": "1.0.0",
+      "event_id": "00000005-1111-4111-8111-000000000005",
+      "event_type": "node.revised",
+      "transaction_id": "00000004-1111-4111-8111-000000000004",
+      "generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "recorded_at": "2026-10-22T12:34:56Z",
+      "actor": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "resources": [
+        {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        }
+      ],
+      "revision_refs": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "revision_id": "00000004-1111-4111-8111-000000000004",
+          "revision": 1
+        }
+      ],
+      "kind": "committed_event"
+    },
+    "valid": true
+  },
+  {
+    "name": "transaction-outbox",
+    "schema": "transaction",
+    "instance": {
+      "event": {
+        "schema_version": "1.0.0",
+        "event_id": "00000005-1111-4111-8111-000000000005",
+        "event_type": "node.revised",
+        "transaction_id": "00000004-1111-4111-8111-000000000004",
+        "generation": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "generation_id": "00000004-1111-4111-8111-000000000004",
+          "digest": {
+            "algorithm": "sha256",
+            "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        },
+        "recorded_at": "2026-10-22T12:34:56Z",
+        "actor": {
+          "principal_id": "00000001-1111-4111-8111-000000000001"
+        },
+        "resources": [
+          {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          }
+        ],
+        "revision_refs": [
+          {
+            "resource": {
+              "instance_id": "00000001-1111-4111-8111-000000000001",
+              "resource_kind": "node",
+              "id": "00000002-1111-4111-8111-000000000002"
+            },
+            "revision_id": "00000004-1111-4111-8111-000000000004",
+            "revision": 1
+          }
+        ],
+        "kind": "committed_event"
+      },
+      "delivery_state": "pending",
+      "attempts": 0,
+      "kind": "outbox_record",
+      "schema_version": "1.0.0"
+    },
+    "valid": true
+  },
+  {
+    "name": "missing-node-content-title",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "required",
+      "path": [
+        "content"
+      ]
+    }
+  },
+  {
+    "name": "missing-node-revision_ref-revision_id",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "required",
+      "path": [
+        "revision_ref"
+      ]
+    }
+  },
+  {
+    "name": "missing-relation-owner_cluster_id",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "relation",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "source": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "resource_kind": "node",
+        "id": "00000002-1111-4111-8111-000000000002"
+      },
+      "target": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "resource_kind": "node",
+        "id": "00000005-1111-4111-8111-000000000005"
+      },
+      "predicate": "supports",
+      "provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "lifecycle": "active",
+      "predicate_version": "1.0.0"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "required",
+      "path": []
+    }
+  },
+  {
+    "name": "missing-relation-target",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "relation",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "owner_cluster_id": "00000003-1111-4111-8111-000000000003",
+      "source": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "resource_kind": "node",
+        "id": "00000002-1111-4111-8111-000000000002"
+      },
+      "predicate": "supports",
+      "provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "lifecycle": "active",
+      "predicate_version": "1.0.0"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "required",
+      "path": []
+    }
+  },
+  {
+    "name": "missing-membership-cluster_id",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "membership",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "node_id": "00000002-1111-4111-8111-000000000002",
+      "admitted_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "admitted_at": "2026-10-22T12:34:56Z",
+      "admission_provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "lifecycle": "active"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "required",
+      "path": []
+    }
+  },
+  {
+    "name": "missing-membership-node_id",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "membership",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "cluster_id": "00000003-1111-4111-8111-000000000003",
+      "admitted_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "admitted_at": "2026-10-22T12:34:56Z",
+      "admission_provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "lifecycle": "active"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "required",
+      "path": []
+    }
+  },
+  {
+    "name": "unknown-field-node",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z",
+      "unexpected": true
+    },
+    "valid": false,
+    "error": {
+      "keyword": "additionalProperties",
+      "path": []
+    }
+  },
+  {
+    "name": "bad-enum-node",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "invented",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "enum",
+      "path": [
+        "lifecycle"
+      ]
+    }
+  },
+  {
+    "name": "missing-kind-node",
+    "schema": "knowledge",
+    "instance": {
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "required",
+      "path": []
+    }
+  },
+  {
+    "name": "unknown-field-relation",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "relation",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "owner_cluster_id": "00000003-1111-4111-8111-000000000003",
+      "source": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "resource_kind": "node",
+        "id": "00000002-1111-4111-8111-000000000002"
+      },
+      "target": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "resource_kind": "node",
+        "id": "00000005-1111-4111-8111-000000000005"
+      },
+      "predicate": "supports",
+      "provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "lifecycle": "active",
+      "unexpected": true,
+      "predicate_version": "1.0.0"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "additionalProperties",
+      "path": []
+    }
+  },
+  {
+    "name": "bad-enum-relation",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "relation",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "owner_cluster_id": "00000003-1111-4111-8111-000000000003",
+      "source": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "resource_kind": "node",
+        "id": "00000002-1111-4111-8111-000000000002"
+      },
+      "target": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "resource_kind": "node",
+        "id": "00000005-1111-4111-8111-000000000005"
+      },
+      "predicate": "supports",
+      "provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "lifecycle": "invented",
+      "predicate_version": "1.0.0"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "enum",
+      "path": [
+        "lifecycle"
+      ]
+    }
+  },
+  {
+    "name": "missing-kind-relation",
+    "schema": "knowledge",
+    "instance": {
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "owner_cluster_id": "00000003-1111-4111-8111-000000000003",
+      "source": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "resource_kind": "node",
+        "id": "00000002-1111-4111-8111-000000000002"
+      },
+      "target": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "resource_kind": "node",
+        "id": "00000005-1111-4111-8111-000000000005"
+      },
+      "predicate": "supports",
+      "provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "lifecycle": "active",
+      "predicate_version": "1.0.0"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "required",
+      "path": []
+    }
+  },
+  {
+    "name": "unknown-field-membership",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "membership",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "cluster_id": "00000003-1111-4111-8111-000000000003",
+      "node_id": "00000002-1111-4111-8111-000000000002",
+      "admitted_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "admitted_at": "2026-10-22T12:34:56Z",
+      "admission_provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "lifecycle": "active",
+      "unexpected": true
+    },
+    "valid": false,
+    "error": {
+      "keyword": "additionalProperties",
+      "path": []
+    }
+  },
+  {
+    "name": "bad-enum-membership",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "membership",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "cluster_id": "00000003-1111-4111-8111-000000000003",
+      "node_id": "00000002-1111-4111-8111-000000000002",
+      "admitted_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "admitted_at": "2026-10-22T12:34:56Z",
+      "admission_provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "lifecycle": "invented"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "enum",
+      "path": [
+        "lifecycle"
+      ]
+    }
+  },
+  {
+    "name": "missing-kind-membership",
+    "schema": "knowledge",
+    "instance": {
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "cluster_id": "00000003-1111-4111-8111-000000000003",
+      "node_id": "00000002-1111-4111-8111-000000000002",
+      "admitted_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "admitted_at": "2026-10-22T12:34:56Z",
+      "admission_provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "lifecycle": "active"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "required",
+      "path": []
+    }
+  },
+  {
+    "name": "revision-zero",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 0,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "minimum",
+      "path": [
+        "revision"
+      ]
+    }
+  },
+  {
+    "name": "revision-unsafe",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 9007199254740992,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "maximum",
+      "path": [
+        "revision"
+      ]
+    }
+  },
+  {
+    "name": "revision-string",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": "1",
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "type",
+      "path": [
+        "revision"
+      ]
+    }
+  },
+  {
+    "name": "revision-boolean",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": true,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "type",
+      "path": [
+        "revision"
+      ]
+    }
+  },
+  {
+    "name": "revision-fractional",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1.5,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "type",
+      "path": [
+        "revision"
+      ]
+    }
+  },
+  {
+    "name": "maximum-safe-revision",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 9007199254740991,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": true
+  },
+  {
+    "name": "timestamp-calendar",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-02-30T12:00:00Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "format",
+      "path": [
+        "updated_at"
+      ]
+    }
+  },
+  {
+    "name": "timestamp-leap-second",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:60Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "pattern",
+      "path": [
+        "updated_at"
+      ]
+    }
+  },
+  {
+    "name": "timestamp-offset",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56+00:00"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "pattern",
+      "path": [
+        "updated_at"
+      ]
+    }
+  },
+  {
+    "name": "timestamp-fraction-preserved",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56.120000Z"
+    },
+    "valid": true
+  },
+  {
+    "name": "cluster-explicit-null",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "cluster",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "name": "Research",
+      "owner": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "policy": {
+        "policy_id": "00000004-1111-4111-8111-000000000004",
+        "version": 1
+      },
+      "publication_mode": "private",
+      "lifecycle": "active",
+      "description": null
+    },
+    "valid": true
+  },
+  {
+    "name": "cluster-empty-description",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "cluster",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "name": "Research",
+      "owner": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "policy": {
+        "policy_id": "00000004-1111-4111-8111-000000000004",
+        "version": 1
+      },
+      "publication_mode": "private",
+      "lifecycle": "active",
+      "description": ""
+    },
+    "valid": true
+  },
+  {
+    "name": "node-nonnullable-title",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": null,
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "type",
+      "path": [
+        "content",
+        "title"
+      ]
+    }
+  },
+  {
+    "name": "membership-nonnullable-selection",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "membership",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "cluster_id": "00000003-1111-4111-8111-000000000003",
+      "node_id": "00000002-1111-4111-8111-000000000002",
+      "admitted_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "admitted_at": "2026-10-22T12:34:56Z",
+      "admission_provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "lifecycle": "active",
+      "approved_revision": null
+    },
+    "valid": false,
+    "error": {
+      "keyword": "type",
+      "path": [
+        "approved_revision"
+      ]
+    }
+  },
+  {
+    "name": "node-version-unsupported",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "2.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "const",
+      "path": [
+        "schema_version"
+      ]
+    }
+  },
+  {
+    "name": "unknown-record-discriminator",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "alien",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "const",
+      "path": [
+        "kind"
+      ]
+    }
+  },
+  {
+    "name": "node-embedded-relations-rejected",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z",
+      "relations": []
+    },
+    "valid": false,
+    "error": {
+      "keyword": "additionalProperties",
+      "path": []
+    }
+  },
+  {
+    "name": "node-flat-properties-nested-rejected",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false,
+          "nested": {
+            "secret": true
+          }
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "oneOf",
+      "path": [
+        "content",
+        "properties",
+        "nested"
+      ]
+    }
+  },
+  {
+    "name": "node-extension-valid",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "extensions": {
+          "org.example": {
+            "version": "1.0.0",
+            "properties": {
+              "rating": 0,
+              "empty": [],
+              "flag": false,
+              "text": ""
+            }
+          }
+        },
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": true
+  },
+  {
+    "name": "node-extension-bad-namespace",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "extensions": {
+          "unnamespaced": {
+            "version": "1.0.0",
+            "properties": {}
+          }
+        },
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "pattern",
+      "path": [
+        "content",
+        "extensions"
+      ]
+    }
+  },
+  {
+    "name": "node-extension-unversioned",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "extensions": {
+          "org.example": {
+            "properties": {}
+          }
+        },
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "required",
+      "path": [
+        "content",
+        "extensions",
+        "org.example"
+      ]
+    }
+  },
+  {
+    "name": "relation-null-owner",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "relation",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "owner_cluster_id": null,
+      "source": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "resource_kind": "node",
+        "id": "00000002-1111-4111-8111-000000000002"
+      },
+      "target": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "resource_kind": "node",
+        "id": "00000005-1111-4111-8111-000000000005"
+      },
+      "predicate": "supports",
+      "provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "lifecycle": "active",
+      "predicate_version": "1.0.0"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "type",
+      "path": [
+        "owner_cluster_id"
+      ]
+    }
+  },
+  {
+    "name": "membership-selection-exact-revision",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "membership",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "cluster_id": "00000003-1111-4111-8111-000000000003",
+      "node_id": "00000002-1111-4111-8111-000000000002",
+      "admitted_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "admitted_at": "2026-10-22T12:34:56Z",
+      "admission_provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "lifecycle": "active",
+      "approved_revision": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "proposal-subject-not-exact",
+    "schema": "governance",
+    "instance": {
+      "kind": "proposal",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "operation": "node.update",
+      "operation_version": "1.0.0",
+      "subject": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": null,
+        "revision": 1
+      },
+      "target_scope": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "cluster_ids": [
+          "00000003-1111-4111-8111-000000000003"
+        ]
+      },
+      "payload_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ],
+      "proposer": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "proposed_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "type",
+      "path": [
+        "subject",
+        "revision_id"
+      ]
+    }
+  },
+  {
+    "name": "approval-digest-malformed",
+    "schema": "governance",
+    "instance": {
+      "kind": "approval",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "proposal_id": "00000005-1111-4111-8111-000000000005",
+      "approver": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "decision": "approve",
+      "operation_digest": {
+        "algorithm": "sha256",
+        "value": "sha256:abc"
+      },
+      "recorded_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "pattern",
+      "path": [
+        "operation_digest",
+        "value"
+      ]
+    }
+  },
+  {
+    "name": "approval-unknown-decision",
+    "schema": "governance",
+    "instance": {
+      "kind": "approval",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "proposal_id": "00000005-1111-4111-8111-000000000005",
+      "approver": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "decision": "reviewed",
+      "operation_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "recorded_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "enum",
+      "path": [
+        "decision"
+      ]
+    }
+  },
+  {
+    "name": "operation-unknown-tag",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "node.teleport",
+      "operation_version": "1.0.0",
+      "request_id": "00000066-1111-4111-8111-000000000066",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "node_id": "00000002-1111-4111-8111-000000000002",
+        "content": {
+          "node_type": "note",
+          "title": "Independent fixture",
+          "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+          "properties": {
+            "topics": [
+              "science",
+              "дані"
+            ],
+            "priority": 1,
+            "pinned": false
+          },
+          "provenance": [
+            {
+              "record_id": "00000005-1111-4111-8111-000000000005"
+            }
+          ],
+          "node_type_version": "1.0.0"
+        }
+      },
+      "idempotency_key": "fixture:node.update",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": false,
+    "error": {
+      "keyword": "const",
+      "path": [
+        "operation"
+      ]
+    }
+  },
+  {
+    "name": "operation-wrong-tag-payload",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "node.read",
+      "operation_version": "1.0.0",
+      "request_id": "00000066-1111-4111-8111-000000000066",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "node_id": "00000002-1111-4111-8111-000000000002",
+        "content": {
+          "node_type": "note",
+          "title": "Independent fixture",
+          "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+          "properties": {
+            "topics": [
+              "science",
+              "дані"
+            ],
+            "priority": 1,
+            "pinned": false
+          },
+          "provenance": [
+            {
+              "record_id": "00000005-1111-4111-8111-000000000005"
+            }
+          ],
+          "node_type_version": "1.0.0"
+        }
+      },
+      "idempotency_key": "fixture:node.update",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": false,
+    "error": {
+      "keyword": "additionalProperties",
+      "path": [
+        "payload"
+      ]
+    }
+  },
+  {
+    "name": "operation-missing-idempotency",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "node.update",
+      "operation_version": "1.0.0",
+      "request_id": "00000066-1111-4111-8111-000000000066",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "node_id": "00000002-1111-4111-8111-000000000002",
+        "content": {
+          "node_type": "note",
+          "title": "Independent fixture",
+          "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+          "properties": {
+            "topics": [
+              "science",
+              "дані"
+            ],
+            "priority": 1,
+            "pinned": false
+          },
+          "provenance": [
+            {
+              "record_id": "00000005-1111-4111-8111-000000000005"
+            }
+          ],
+          "node_type_version": "1.0.0"
+        }
+      },
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": false,
+    "error": {
+      "keyword": "required",
+      "path": []
+    }
+  },
+  {
+    "name": "operation-null-payload",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "node.update",
+      "operation_version": "1.0.0",
+      "request_id": "00000066-1111-4111-8111-000000000066",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": null,
+      "idempotency_key": "fixture:node.update",
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ]
+    },
+    "valid": false,
+    "error": {
+      "keyword": "type",
+      "path": [
+        "payload"
+      ]
+    }
+  },
+  {
+    "name": "operation-version-unsupported",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "node.read",
+      "operation_version": "0.9.0",
+      "request_id": "00000065-1111-4111-8111-000000000065",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "node_id": "00000002-1111-4111-8111-000000000002"
+      }
+    },
+    "valid": false,
+    "error": {
+      "keyword": "const",
+      "path": [
+        "operation_version"
+      ]
+    }
+  },
+  {
+    "name": "search-limit-unsafe",
+    "schema": "operations",
+    "instance": {
+      "schema_version": "1.0.0",
+      "operation": "knowledge.search",
+      "operation_version": "1.0.0",
+      "request_id": "0000007c-1111-4111-8111-00000000007c",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "payload": {
+        "query": "Unicode 🧠",
+        "scope": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "cluster_ids": [
+            "00000003-1111-4111-8111-000000000003"
+          ]
+        },
+        "limit": 101,
+        "include_archived": false
+      }
+    },
+    "valid": false,
+    "error": {
+      "keyword": "maximum",
+      "path": [
+        "payload",
+        "limit"
+      ]
+    }
+  },
+  {
+    "name": "batch-empty",
+    "schema": "transaction",
+    "instance": {
+      "schema_version": "1.0.0",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "transaction_id": "00000004-1111-4111-8111-000000000004",
+      "idempotency_key": "batch-fixture",
+      "expected_generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "operations": [],
+      "kind": "batch_request"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "minItems",
+      "path": [
+        "operations"
+      ]
+    }
+  },
+  {
+    "name": "outbox-negative-attempts",
+    "schema": "transaction",
+    "instance": {
+      "event": {
+        "schema_version": "1.0.0",
+        "event_id": "00000005-1111-4111-8111-000000000005",
+        "event_type": "node.revised",
+        "transaction_id": "00000004-1111-4111-8111-000000000004",
+        "generation": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "generation_id": "00000004-1111-4111-8111-000000000004",
+          "digest": {
+            "algorithm": "sha256",
+            "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        },
+        "recorded_at": "2026-10-22T12:34:56Z",
+        "actor": {
+          "principal_id": "00000001-1111-4111-8111-000000000001"
+        },
+        "resources": [
+          {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          }
+        ],
+        "revision_refs": [
+          {
+            "resource": {
+              "instance_id": "00000001-1111-4111-8111-000000000001",
+              "resource_kind": "node",
+              "id": "00000002-1111-4111-8111-000000000002"
+            },
+            "revision_id": "00000004-1111-4111-8111-000000000004",
+            "revision": 1
+          }
+        ],
+        "kind": "committed_event"
+      },
+      "delivery_state": "pending",
+      "attempts": -1,
+      "kind": "outbox_record",
+      "schema_version": "1.0.0"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "minimum",
+      "path": [
+        "attempts"
+      ]
+    }
+  },
+  {
+    "name": "receipt-uncommitted-status",
+    "schema": "transaction",
+    "instance": {
+      "schema_version": "1.0.0",
+      "status": "prepared",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "transaction_id": "00000004-1111-4111-8111-000000000004",
+      "idempotency_key": "batch-fixture",
+      "request_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "actor": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "committed_at": "2026-10-22T12:34:56Z",
+      "results": [
+        {
+          "request_id": "00000066-1111-4111-8111-000000000066",
+          "operation": "node.update",
+          "resources": [
+            {
+              "instance_id": "00000001-1111-4111-8111-000000000001",
+              "resource_kind": "node",
+              "id": "00000002-1111-4111-8111-000000000002"
+            }
+          ],
+          "revisions": [
+            {
+              "resource": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000002-1111-4111-8111-000000000002"
+              },
+              "revision_id": "00000004-1111-4111-8111-000000000004",
+              "revision": 1
+            }
+          ],
+          "kind": "operation_result",
+          "schema_version": "1.0.0"
+        }
+      ],
+      "kind": "committed_receipt"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "const",
+      "path": [
+        "status"
+      ]
+    }
+  },
+  {
+    "name": "owner-caller-editable-boolean",
+    "schema": "control",
+    "instance": {
+      "kind": "owner_registration",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "principal": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "registered_at": "2026-10-22T12:34:56Z",
+      "authority_evidence": "verified-local-bootstrap",
+      "is_owner": true
+    },
+    "valid": false,
+    "error": {
+      "keyword": "additionalProperties",
+      "path": []
+    }
+  },
+  {
+    "name": "grant-bad-capability-format",
+    "schema": "control",
+    "instance": {
+      "kind": "capability_grant",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "principal": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "capabilities": [
+        "READ"
+      ],
+      "scope": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "cluster_ids": [
+          "00000003-1111-4111-8111-000000000003"
+        ]
+      },
+      "conditions": {},
+      "issued_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "issued_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "pattern",
+      "path": [
+        "capabilities",
+        0
+      ]
+    }
+  },
+  {
+    "name": "asset-zero-bytes",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "asset",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "media_type": "image/png",
+      "digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "size_bytes": 0,
+      "storage": {
+        "provider": "git",
+        "object_key": "opaque-handle"
+      },
+      "scope": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "cluster_ids": [
+          "00000003-1111-4111-8111-000000000003"
+        ]
+      },
+      "provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "referenced_by": [
+        {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "external-check-optional-preserved",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "external_reference",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "scope": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "cluster_ids": [
+          "00000003-1111-4111-8111-000000000003"
+        ]
+      },
+      "source": {
+        "source_id": "00000005-1111-4111-8111-000000000005",
+        "locator": "https://example.invalid/source"
+      },
+      "provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "last_check": {
+        "checked_at": "2026-10-22T12:34:56Z",
+        "checked_by": {
+          "principal_id": "00000001-1111-4111-8111-000000000001"
+        },
+        "outcome": "unknown",
+        "locator_digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "evidence": []
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "transaction-unknown-kind",
+    "schema": "transaction",
+    "instance": {
+      "schema_version": "1.0.0",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "transaction_id": "00000004-1111-4111-8111-000000000004",
+      "idempotency_key": "batch-fixture",
+      "expected_generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "operations": [
+        {
+          "schema_version": "1.0.0",
+          "operation": "node.create",
+          "operation_version": "1.0.0",
+          "request_id": "00000064-1111-4111-8111-000000000064",
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "payload": {
+            "target_cluster_id": "00000003-1111-4111-8111-000000000003",
+            "content": {
+              "node_type": "note",
+              "title": "Independent fixture",
+              "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+              "properties": {
+                "topics": [
+                  "science",
+                  "дані"
+                ],
+                "priority": 1,
+                "pinned": false
+              },
+              "provenance": [
+                {
+                  "record_id": "00000005-1111-4111-8111-000000000005"
+                }
+              ],
+              "node_type_version": "1.0.0"
+            }
+          },
+          "idempotency_key": "fixture:node.create",
+          "expectations": [
+            {
+              "resource": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000002-1111-4111-8111-000000000002"
+              },
+              "expected_revision": 1
+            }
+          ]
+        },
+        {
+          "schema_version": "1.0.0",
+          "operation": "relation.create",
+          "operation_version": "1.0.0",
+          "request_id": "00000076-1111-4111-8111-000000000076",
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "payload": {
+            "relation": {
+              "kind": "relation",
+              "id": "00000002-1111-4111-8111-000000000002",
+              "schema_version": "1.0.0",
+              "revision": 1,
+              "owner_cluster_id": "00000003-1111-4111-8111-000000000003",
+              "source": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000002-1111-4111-8111-000000000002"
+              },
+              "target": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000005-1111-4111-8111-000000000005"
+              },
+              "predicate": "supports",
+              "provenance": [
+                {
+                  "record_id": "00000005-1111-4111-8111-000000000005"
+                }
+              ],
+              "lifecycle": "active",
+              "predicate_version": "1.0.0"
+            }
+          },
+          "idempotency_key": "fixture:relation.create",
+          "expectations": [
+            {
+              "resource": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000002-1111-4111-8111-000000000002"
+              },
+              "expected_revision": 1
+            }
+          ]
+        }
+      ],
+      "kind": "unknown_transaction"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "const",
+      "path": [
+        "kind"
+      ]
+    }
+  },
+  {
+    "name": "timestamp-year-zero",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "0000-01-01T00:00:00Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "pattern",
+      "path": [
+        "updated_at"
+      ]
+    }
+  },
+  {
+    "name": "timestamp-terminal-newline",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:00:00Z\n"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "not",
+      "path": [
+        "updated_at"
+      ]
+    }
+  },
+  {
+    "name": "capability-terminal-newline",
+    "schema": "control",
+    "instance": {
+      "kind": "capability_grant",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "principal": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "capabilities": [
+        "node.read\n"
+      ],
+      "scope": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "cluster_ids": [
+          "00000003-1111-4111-8111-000000000003"
+        ]
+      },
+      "conditions": {},
+      "issued_by": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "issued_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "not",
+      "path": [
+        "capabilities",
+        0
+      ]
+    }
+  },
+  {
+    "name": "proposal-operation-terminal-newline",
+    "schema": "governance",
+    "instance": {
+      "kind": "proposal",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "operation": "node.update\n",
+      "operation_version": "1.0.0",
+      "subject": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "target_scope": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "cluster_ids": [
+          "00000003-1111-4111-8111-000000000003"
+        ]
+      },
+      "payload_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "expectations": [
+        {
+          "resource": {
+            "instance_id": "00000001-1111-4111-8111-000000000001",
+            "resource_kind": "node",
+            "id": "00000002-1111-4111-8111-000000000002"
+          },
+          "expected_revision": 1
+        }
+      ],
+      "proposer": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "proposed_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "not",
+      "path": [
+        "operation"
+      ]
+    }
+  },
+  {
+    "name": "extension-namespace-terminal-newline",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "extensions": {
+          "org.example\n": {
+            "version": "1.0.0",
+            "properties": {}
+          }
+        },
+        "node_type_version": "1.0.0"
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "not",
+      "path": [
+        "content",
+        "extensions"
+      ]
+    }
+  },
+  {
+    "name": "node-missing-type-version",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "content": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ]
+      },
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "lifecycle": "active",
+      "created_at": "2026-10-22T12:34:56Z",
+      "updated_at": "2026-10-22T12:34:56Z"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "required",
+      "path": [
+        "content"
+      ]
+    }
+  },
+  {
+    "name": "relation-missing-predicate-version",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "relation",
+      "id": "00000002-1111-4111-8111-000000000002",
+      "schema_version": "1.0.0",
+      "revision": 1,
+      "owner_cluster_id": "00000003-1111-4111-8111-000000000003",
+      "source": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "resource_kind": "node",
+        "id": "00000002-1111-4111-8111-000000000002"
+      },
+      "target": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "resource_kind": "node",
+        "id": "00000005-1111-4111-8111-000000000005"
+      },
+      "predicate": "supports",
+      "provenance": [
+        {
+          "record_id": "00000005-1111-4111-8111-000000000005"
+        }
+      ],
+      "lifecycle": "active"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "required",
+      "path": []
+    }
+  }
+]

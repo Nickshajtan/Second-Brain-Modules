@@ -11,12 +11,16 @@ from tempfile import TemporaryDirectory
 
 from tools.example_validation import ExampleValidator
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "packages/python"))
+from second_brain_contracts import ContractValidator  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUTS = ("packages/python/generated", "packages/typescript/generated")
 
 
 def generate(destination: Path) -> None:
     ExampleValidator(ROOT).check_schemas()
+    ContractValidator(ROOT)
     python_out, typescript_out = (destination / p for p in OUTPUTS)
     python_out.mkdir(parents=True)
     for name in ("node", "cluster"):
@@ -45,6 +49,35 @@ def generate(destination: Path) -> None:
             cwd=ROOT,
             check=True,
         )
+    subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "datamodel_code_generator",
+            "--input",
+            "contracts/schemas/v1",
+            "--input-file-type",
+            "jsonschema",
+            "--output-model-type",
+            "pydantic_v2.BaseModel",
+            "--target-python-version",
+            "3.12",
+            "--use-union-operator",
+            "--strict-nullable",
+            "--disable-timestamp",
+            "--use-title-as-name",
+            "--strict-refs",
+            "--type-mappings",
+            "string+date-time=string",
+            "--formatters",
+            "black",
+            "isort",
+            "--output",
+            str(python_out / "v1"),
+        ],
+        cwd=ROOT,
+        check=True,
+    )
     node = shutil.which("node")
     if node is None:
         raise RuntimeError("Node is required; install the locked npm development dependencies")
@@ -54,8 +87,9 @@ def generate(destination: Path) -> None:
         check=True,
     )
     for directory in (python_out, typescript_out):
-        for output in directory.iterdir():
-            output.write_bytes(output.read_bytes().replace(b"\r\n", b"\n"))
+        for output in directory.rglob("*"):
+            if output.is_file():
+                output.write_bytes(output.read_bytes().replace(b"\r\n", b"\n"))
     inputs = [
         ROOT / "requirements-dev.lock",
         ROOT / "package-lock.json",
@@ -65,11 +99,29 @@ def generate(destination: Path) -> None:
         ROOT / "tools/generate_typescript.mjs",
     ]
     inputs += sorted((ROOT / "docs/architecture/examples").glob("*.schema.json"))
+    inputs += sorted((ROOT / "contracts/schemas/v1").glob("*.schema.json"))
+    inputs += [ROOT / "contracts/registry/v1.json"]
     manifest = {
         p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in inputs
     }
     (python_out / "source-hashes.json").write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
+    )
+    artifacts = {
+        p.relative_to(destination).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+        for directory in (python_out / "v1", typescript_out / "v1")
+        for p in sorted(directory.rglob("*"))
+        if p.is_file()
+    }
+    production_manifest = {
+        "contract_version": "1.0.0",
+        "source_hashes": {k: v for k, v in manifest.items() if k.startswith("contracts/")},
+        "artifact_hashes": artifacts,
+    }
+    (python_out / "v1/manifest.json").write_text(
+        json.dumps(production_manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+        newline="\n",
     )
 
 
@@ -106,7 +158,7 @@ def main() -> None:
             target = ROOT / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(content)
-        print(f"Generated {len(expected)} illustrative artifacts")
+        print(f"Generated {len(expected)} illustrative and production artifacts")
 
 
 if __name__ == "__main__":

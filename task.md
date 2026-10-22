@@ -1,332 +1,794 @@
-# Second Brain — Phase 1.1: Lean Architecture Validation
+# Second Brain — Phase 2: Production Domain Contracts
 
-**Status:** Research and design validation  
 **Repository:** `Nickshajtan/Second-Brain-Modules`  
-**Objective:** Reduce architectural uncertainty and implementation cost before production contracts and Core development.
+**Phase:** First production contract implementation  
+**Status:** Ready for implementation  
+**Scope:** Canonical domain schemas, Python/TypeScript generation, contract validation and evolution.
 
-## 1. Context
+## 1. Objective
 
-Phase 1 produced the domain model, glossary, operations catalog, reuse assessment, Obsidian integration assessment, architecture alternatives, and four proposed PoCs (P01–P04).
+Convert the accepted Second Brain domain design into production-ready, versioned, language-neutral contracts.
 
-The research phase is accepted as a useful baseline.
+Use the existing repository architecture and contract toolchain.
 
-However, the proposed experimental phase is disproportionately expensive relative to the decisions we currently need to make.
+The deliverable is a **contract-first foundation**, not an implementation of the Second Brain runtime.
 
-We do not want to deploy multiple external systems merely to determine whether an architecture is reasonable.
+Required outcome:
 
-**This task replaces the four-PoC plan with a narrow, evidence-first feasibility assessment.**
+1. Canonical JSON Schema Draft 2020-12 contracts.
+2. Generated Python/Pydantic v2 domain models.
+3. Generated TypeScript domain types.
+4. Shared runtime validation against canonical schemas.
+5. Structural and behavioral contract documentation.
+6. Explicit compatibility and evolution rules.
+7. Deterministic code generation.
+8. CI gates preventing contract drift.
+9. Portable fixtures proving Python/TypeScript compatibility.
 
-The goal is to make architectural decisions, not to demonstrate production readiness.
+The next implementation phase must be able to consume these artifacts rather than redefine domain structures.
 
-## 2. Hard constraints
+## 2. Existing authoritative inputs
 
-1. **Do not implement production functionality.**
-2. **Do not deploy Basic Memory, Cognee, Graphiti, OpenFGA or other complete platforms.**
-3. **Do not require Docker, VPS, cloud infrastructure or external databases.**
-4. **Do not call paid LLM APIs or use model inference as part of tests.**
-5. **Do not install Obsidian plugins or modify the owner's actual vault.**
-6. **Do not add dependencies unless a minimal experiment is demonstrably necessary.**
-7. **Do not run broad integration, load, performance or crash-test suites.**
-8. **Do not modify previously accepted business requirements without documenting the proposed change.**
-9. **Do not introduce generalized frameworks, workflows or abstractions to support this research task.**
-10. **Do not create an implementation backlog disguised as a research deliverable.**
+Inspect the current repository before writing code.
 
-Prefer existing Phase 1 evidence, official documentation, source inspection, reasoning from concrete fixtures, and small executable examples.
+Read, at minimum:
 
-No new internet research is required unless an essential architectural question remains unanswered by the available evidence.
+- `docs/domain/glossary.md`
+- `docs/domain/domain-model.md`
+- `docs/domain/operations-catalog.md`
+- `docs/domain/open-decisions.md`
+- `docs/architecture/contracts-spec.md`
+- `docs/architecture/contract-toolchain-spec.md`
+- `docs/architecture/decision-provenance.md`
+- `docs/architecture/reconciliation-register.md`
+- `docs/research/phase-1-1/architecture-decision.md`
+- `docs/research/phase-1-1/obsidian-fit.md`
+- `docs/research/phase-1-1/open-decisions.md`
+- Relevant ADRs and existing schema examples/tests.
 
-### Budget
+Apply the latest confirmed decisions and explicit supersession notices.
 
-- Target: one focused research pass.
-- Maximum: one minimal local spike, only if static analysis cannot resolve a decision.
-- The spike must use existing tooling wherever possible.
-- No paid inference.
-- No large dependency installations.
-- No infrastructure deployment.
+Do not treat illustrative example schemas as production contracts.
 
-If a question cannot be resolved within these constraints, mark it **UNVERIFIED** and describe the smallest future experiment that would settle it.
+Do not silently resolve contradictions between old architecture proposals and newer accepted domain decisions.
 
-Do not expand the scope to eliminate every uncertainty.
+## 3. Architectural principles
 
-## 3. Confirmed architectural constraints
+### 3.1 Canonical contract authority
 
-Treat the following as established requirements:
+JSON Schema Draft 2020-12 is authoritative for:
 
-- Second Brain Core is passive and agent-independent.
-- Canonical knowledge uses Git-backed Markdown/YAML.
-- Obsidian is intended as a first-class human authoring environment.
-- AI agents interact with Second Brain **exclusively through authenticated MCP**.
-- Agent environments must not access canonical files, Git history, secrets or private indexes directly.
-- Physical isolation is a deployment responsibility, using an isolated container, VM, VPS or equivalent boundary.
-- Core enforces capabilities and cluster-specific policies.
-- Shared and multi-cluster protection are distinct concepts.
-- Relations are independent, Git-versioned domain entities.
-- Context compilation and token budgeting belong to the external agent harness.
-- Background processing, AI-based review, cleanup and freshness evaluation remain outside Core.
-- Production contracts use the existing JSON Schema 2020-12 toolchain.
-- Existing confirmed business/domain decisions remain authoritative unless the owner explicitly changes them.
+- Structural types.
+- Required and optional fields.
+- Allowed values.
+- Validation constraints.
+- Schema references.
+- Tagged unions.
+- Structural compatibility.
 
-Do not reinterpret MCP as a security sandbox. Evaluate the authenticated API boundary and OS/deployment isolation separately.
+Markdown specifications are authoritative for:
 
-## 4. Required assessment
+- Business semantics.
+- Authorization obligations.
+- State transitions.
+- Cross-aggregate invariants.
+- Transaction behavior.
+- Operation preconditions and postconditions.
 
-### A. Obsidian feasibility — highest priority
+Generated Python and TypeScript representations are derivative artifacts.
 
-Determine whether the confirmed domain model can support a reasonable native Obsidian workflow without a large custom plugin.
+Never reverse-generate canonical schemas from Pydantic, TypeScript or OpenAPI.
 
-Evaluate only these scenarios:
+### 3.2 Preserve transport independence
 
-**A1. Human Node editing**
+Domain contracts must not depend on:
 
-A person creates or edits a Markdown Node using Obsidian Properties and the Markdown editor.
+- MCP SDK types.
+- HTTP request/response frameworks.
+- Obsidian APIs.
+- Git implementation objects.
+- AI provider SDKs.
+- Agent harness abstractions.
 
-Core is not necessarily running.
+MCP is the exclusive external agent ingress in the intended deployment, but domain contracts must remain independent from transport.
 
-Determine the minimal reconciliation requirements and whether standard files remain sufficient.
+Do not implement an MCP server in this phase.
 
-**A2. Standalone Relations**
+### 3.3 Preserve the passive Core boundary
 
-A Relation belongs to its own Cluster and has an independent revision.
+Do not add AI-specific behavior to domain entities.
 
-Evaluate:
+Context compilation, model inference, summarization, scheduling, fetching and automated decision-making remain external.
 
-- Standalone Markdown Relation notes with links to endpoint Nodes.
-- Native Obsidian Graph and backlink behavior.
-- Editing Relations through Properties.
-- Whether two-hop navigation is an acceptable initial compromise.
-- Whether an Obsidian sidebar is genuinely necessary.
+Represent their results as structured domain data only where required.
 
-Do not implement a sidebar.
+### 3.4 Do not create a framework
 
-**A3. Logical Collections**
+Avoid:
 
-A Node can appear in multiple private Collections without creating physical duplicates.
+- Custom schema DSLs.
+- A universal entity runtime.
+- Dynamic plugin loaders.
+- Generic workflow engines.
+- Custom authorization expression languages.
+- Universal transport translators.
+- Manually synchronized language-specific DTOs.
 
-Evaluate whether ordinary Markdown Collection notes containing Node links can represent this adequately.
+Use the existing toolchain and explicit schemas.
 
-Do not design a virtual filesystem.
+## 4. Production contract families
 
-**A4. Protected revisions**
+Implement a coherent, production-oriented structural contract baseline covering the confirmed domain model.
 
-Human drafts and approved Shared revisions must remain distinguishable.
+Keep schemas small and composable.
 
-Identify the smallest workable representation and the limitations of offline editing.
+### 4.1 Shared primitives
 
-#### Expected result
+Define reusable types for:
 
-A clear answer:
+- Brain Instance identity.
+- Entity ID.
+- Schema version.
+- Entity revision.
+- Immutable revision reference.
+- UTC timestamps.
+- Principal reference.
+- Resource reference.
+- Cluster-scoped resource reference.
+- Provenance reference.
+- Source reference.
+- Content digest/checksum.
+- Operation identifier.
+- Correlation ID.
+- Idempotency key.
+- Structured domain error.
+- Capability identifier and resource scope.
 
-- **NATIVE:** Obsidian can handle the workflow directly.
-- **THIN ADAPTER:** A small command, projection or plugin extension is needed.
-- **PLATFORM GAP:** The workflow is impractical without substantially changing the architecture.
+Use stable, unambiguous naming.
 
-Include the reason and supporting evidence for each classification.
+Avoid embedding filenames, paths or human-readable titles into identity semantics.
 
-### B. Storage and transaction feasibility
+### 4.2 Knowledge contracts
 
-Review the proposed Git-backed transaction architecture without implementing it.
+Cover:
 
-Focus on one scenario:
+**Node**
 
-> Create two Nodes and one Relation atomically; preserve the previous committed state if the operation fails.
+- Identity and type.
+- Content metadata.
+- Revision reference.
+- Markdown content representation.
+- Lifecycle state.
+- Validity interval.
+- Provenance.
+- Optional schema-defined typed metadata.
 
-Determine:
+Use Markdown-first semantics with flat Obsidian-compatible authoring properties.
 
-1. What guarantees Git already provides.
-2. What guarantees Git does not provide.
-3. Which responsibilities require a durable application journal or equivalent mechanism.
-4. Whether canonical authority can be simplified without violating offline Obsidian editing.
-5. Whether a minimal single-writer design is sufficient initially.
+Do not duplicate canonical content in frontmatter.
 
-Distinguish:
+**Node Revision**
 
-- Atomicity of committed Core state.
-- Visibility of raw working-directory files in Obsidian.
-- Durability after process crash.
-- Durability after OS or storage failure.
+- Immutable logical revision.
+- Content digest.
+- Schema version.
+- Recorded actor/time.
+- Provenance.
+- Previous revision reference where applicable.
 
-These are not equivalent guarantees.
+A Git commit hash is not a substitute for the logical revision ID.
 
-Do not implement a crash matrix.
+**Node Type Definition**
 
-**Important:** If exact multi-resource atomicity creates disproportionate complexity, propose a simpler domain/storage design that preserves the required user-visible guarantees.
+- Registered type identity/version.
+- Associated canonical metadata schema.
+- Validation metadata.
 
-A reasoned architecture with known limitations is acceptable at this stage.
+Do not invent a universal ontology.
 
-### C. Authorization and MCP boundary
+**Cluster**
 
-Evaluate the simplest implementable security architecture given that agents have no direct filesystem access.
+- Stable identity.
+- Ownership.
+- Policy reference/version.
+- Lifecycle and configuration metadata.
 
-Assess:
+Do not hardcode a universal hierarchy of Shared/Private permissions.
 
-- Authenticated MCP ingress.
-- Principal binding and capability enforcement.
-- Cluster-scoped policies.
-- Non-discovery of inaccessible resources.
-- Owner administrative access.
-- External service identities.
-- Container/VM/VPS isolation assumptions.
+**Membership**
 
-Compare only:
+- Cluster and Node identity.
+- Admission provenance.
+- Membership lifecycle.
+- Applicable approved revision selection where relevant.
 
-1. A small custom authorization implementation using existing primitives.
-2. PyCasbin as an embedded policy evaluator.
+Membership is distinct from Node content and Collection organization.
 
-Do not evaluate OpenFGA further unless the current domain model demonstrably requires it.
+**Collection**
 
-Do not deploy infrastructure or simulate hostile containers.
+- Identity.
+- Exactly one owning Cluster.
+- Optional parent Collection.
+- Organizational references to Nodes.
+- Independent structural revision.
 
-Provide a **deployment security checklist** rather than an executable penetration-test plan.
+No duplicate Node files or implicit membership changes.
 
-### D. Basic Memory adoption decision
+**Relation**
 
-Use the existing upstream evidence from Phase 1.
+- Independent stable identity.
+- Exactly one owner Cluster.
+- Source and target Node references.
+- Registered predicate/type.
+- Independent revision.
+- Provenance and optional validity metadata.
 
-Determine whether Basic Memory should be:
+Relation changes must not revise endpoint Nodes.
 
-- Adopted as a bounded indexing/search dependency.
-- Retained as an optional future adapter.
-- Rejected for the initial version in favor of SQLite FTS5 and existing Markdown tooling.
+Relations must not be embedded in Node as canonical mutable state.
 
-The primary criterion is:
+**Relation Type Definition**
 
-**Does Basic Memory remove more necessary implementation complexity than its integration adds?**
+- Registered predicate.
+- Directionality/symmetry.
+- Supported endpoint constraints.
+- Versioned validation rules.
 
-Consider its release maturity, identity model, relation semantics, dependency/runtime footprint, licensing and read-only integration.
+No full ontology engine.
 
-Do not install or run Basic Memory.
+### 4.3 Supporting knowledge resources
 
-Do not repeat the full tool-market assessment.
+**Asset**
 
-### E. Approved graph semantics
+- Stable identity.
+- Media type.
+- Content checksum.
+- Size and budget-relevant metadata.
+- Storage-provider reference.
+- Provenance.
+- Access-related resource scope.
 
-Resolve or narrow this specific architectural question:
+Git is the initial storage provider, but domain contracts must not be coupled to Git.
 
-> Node content and Relations have independent revisions. What exactly does an approved Shared knowledge snapshot guarantee?
+**External Reference**
 
-Compare only:
+- Passive locator.
+- Resource identity.
+- Source metadata.
+- Provenance.
+- Optional checksum.
+- Last externally reported verification data.
 
-1. Approved Node revision, with Relations resolved under current authorized graph state.
-2. Approved Node revision plus explicitly selected Relation revisions.
-3. A larger immutable graph snapshot.
+No fetching or caching implementation.
 
-Assess consistency, complexity and expected user behavior.
+**Review**
 
-Prefer the smallest semantics that satisfy our confirmed Shared/approval requirements.
+- Independent immutable record identity.
+- Review type.
+- Reviewed subject and exact revision.
+- Reviewer identity.
+- Outcome.
+- Evidence/provenance references.
+- Timestamp.
 
-Do not design an immutable snapshot engine without justification.
+Types include freshness, publication, quality and disposal, with versioned extension where appropriate.
 
-## 5. Architecture simplification mandate
+**Proposal**
 
-Actively search for unnecessary complexity in the current documents.
+- Exact proposed operation.
+- Subject resource/revision.
+- Target scope.
+- Versioned operation payload or payload digest.
+- Relevant CAS expectations.
+- Proposer.
+- Status/reference metadata.
 
-For each proposed simplification, identify:
+**Approval**
 
-- The requirement it preserves.
-- The abstraction or component it removes.
-- The trade-off introduced.
-- Whether the simplification is reversible.
+- Exact Proposal reference.
+- Approver.
+- Decision.
+- Approved operation digest.
+- Timestamp and relevant validity conditions.
 
-Prioritize removal of unnecessary infrastructure, duplicate indexes, generalized workflows, extra API surfaces, custom Obsidian UI and premature extensibility.
+Revocation is separately recorded; do not rewrite historical Approval records.
 
-Do not recommend a dependency merely because it implements a similar feature.
+A positive Review is not Approval.
 
-## 6. Optional minimal spike
+**Disposal**
 
-A spike is permitted **only if**:
+- Deletion/disposal request.
+- Original ownership and location snapshot.
+- Routing decision.
+- Trash disposition or Global Archive preservation reference.
+- Retention and preservation state.
+- Restore-relevant metadata.
 
-1. A critical architectural decision cannot be resolved from existing evidence.
-2. The result could change the recommended design.
-3. The experiment is small, deterministic and offline.
-4. No external service, plugin installation or paid model is required.
-5. The code remains outside production modules.
+Do not encode `node.delete` as unconditional physical deletion.
 
-Maximum one spike.
+**Access Request**
 
-Prefer a self-contained Python fixture demonstrating a narrow storage/transaction or Relation representation invariant.
+- Requesting principal.
+- Requested purpose/scope.
+- Status and decision metadata.
+- No implicit grant.
 
-If no such experiment is essential, perform **zero spikes**.
+### 4.4 Control and authorization data
 
-## 7. Deliverables
+Define structural records for:
 
-Create or update a compact set of Markdown documents:
+- Principal registration.
+- Capability grant.
+- Capability scope/conditions.
+- Cluster policy definition/reference.
+- Policy version.
+- Explicit resource restrictions.
+- Approval revocation.
+- Access decision/request references.
 
-### `docs/research/phase-1-1/architecture-decision.md`
+Support granular capability combinations rather than a role hierarchy.
 
-The primary document.
+Instance Owner is a privileged verified identity, not a caller-editable boolean granting authority.
 
-Include:
+Do not implement the policy evaluator in this phase.
 
-- Recommended architecture.
-- Justification.
-- Changes relative to Phase 1.
-- Accepted compromises.
-- Critical remaining uncertainties.
-- Clear **GO / CONDITIONAL GO / NO-GO** recommendation.
+### 4.5 Operations and committed effects
 
-### `docs/research/phase-1-1/obsidian-fit.md`
+Define typed envelopes and reusable payload contracts for domain operations.
 
-Concise assessment of A1–A4.
+At minimum cover:
 
-Include the minimum necessary Obsidian integration surface and whether a custom plugin is needed for the initial version.
+- Node create/read/update/archive/delete/restore/copy/fork.
+- Node revision proposals and publication.
+- Cluster configuration.
+- Membership attach/detach.
+- Collection management.
+- Relation create/update/delete/read.
+- Asset registration/reference.
+- Knowledge query/search.
+- Proposal/Review/Approval/revocation.
+- Disposal routing/preservation.
+- Access requests.
+- Import/export snapshot metadata.
+- Transaction batch submission.
+- Idempotent operation result/receipt.
+- Committed domain event.
 
-### `docs/research/phase-1-1/simplification-register.md`
+Use explicit operation discriminators and versioned payloads.
 
-A table of proposed simplifications with benefit, cost, risk and reversibility.
+Do not implement handlers.
 
-### `docs/research/phase-1-1/open-decisions.md`
+Operation request schemas describe structure. Authorization, state transitions, multi-resource admission, CAS and atomicity remain semantic obligations outside JSON Schema validation.
 
-Only owner-level architectural decisions that genuinely cannot be inferred from the confirmed requirements.
+Avoid generating a separate schema for every trivial operation if a smaller reusable contract family expresses the same wire semantics without losing type safety.
 
-Do not repeat technical implementation choices that can safely be delegated to an engineer.
+## 5. Schema design constraints
 
-Aim for no more than five owner decisions.
+Follow the existing repository generation profile.
 
-## 8. Existing document reconciliation
+- Draft 2020-12.
+- Stable `$id`.
+- Explicit `$schema`.
+- Reusable `$defs` and local references.
+- Closed structural objects where appropriate.
+- Required discriminators for tagged unions.
+- Explicit omission-versus-null semantics.
+- No unknown core fields.
+- Versioned, bounded extension fields where required.
+- Portable formats and regular expressions.
+- Safe JavaScript integer bounds.
+- Deterministic serialization rules.
 
-Read the current Phase 1 artifacts and previous architecture documents.
+Do not add custom schema keywords requiring proprietary runtime interpretation.
 
-Do not rewrite the entire specification.
+Business constraints that cannot be accurately expressed in the existing generation profile must be documented and tested as semantic contract rules, not hidden in arbitrary JSON.
 
-If Phase 1.1 changes a recommendation, record:
+Do not weaken canonical schemas to accommodate generator limitations.
 
-- Original assumption.
-- New recommendation.
-- Supporting evidence.
-- Affected document.
-- Whether an ADR amendment is necessary.
+## 6. Python and TypeScript generation
 
-Preserve all confirmed business decisions.
+Reuse the currently pinned toolchain.
 
-Do not silently promote an analyst recommendation into an owner-approved requirement.
+### Python
 
-## 9. Acceptance criteria
+Generate Pydantic v2 models.
 
-The task is complete when:
+Requirements:
 
-- We can choose the initial Knowledge Foundation architecture.
-- We understand whether Obsidian can remain our main human editor.
-- We know the minimal MCP and authorization boundary.
-- We have a credible Git/Markdown consistency strategy with explicitly bounded guarantees.
-- We know whether Basic Memory is worth integrating initially.
-- We have a proposed interpretation of approved Node/Relation state.
-- Remaining unknowns are explicitly identified without requiring full-system prototypes.
-- No production code, deployment, paid inference or unnecessary dependencies were introduced.
+- Importable modules.
+- Stable naming and export surface.
+- Strict canonical ingress validation.
+- Alias-preserving serialization.
+- Round-trip preservation of meaningful optional fields.
+- No silent coercion or removal of unknown fields.
+- Canonical output revalidation.
 
-A technically justified **UNVERIFIED** result is better than an expensive demonstration or an unsupported claim.
+Generated Pydantic validation alone is not the canonical JSON Schema validator.
 
-## 10. Final response format
+### TypeScript
 
-Provide a short executive summary:
+Generate TypeScript declarations/types using the existing generator.
 
-1. **Recommended architecture:** one paragraph.
-2. **What we should reuse:** concrete components.
-3. **What we must build:** genuinely custom domain responsibilities.
-4. **What we should drop or defer:** unnecessary complexity.
-5. **Obsidian verdict:** native editor, thin adapter or platform mismatch.
-6. **Critical unresolved decisions:** maximum five.
-7. **Next implementation slice:** the smallest useful vertical slice, without beginning implementation.
+Requirements:
 
-**Do not implement the next slice during this task.**
+- Strict compilation.
+- Correct tagged unions.
+- Exact optional-property handling.
+- No unnecessary `any`.
+- Stable import/export paths.
+- No runtime assumptions hidden in type declarations.
 
-The objective is to make the next engineering decision cheaper and better informed — not to obtain experimental certainty about every future failure mode.
+Generated TypeScript types are not runtime validators.
+
+Use the existing Ajv Draft 2020-12 validation path for runtime payload validation.
+
+### Generated artifacts
+
+Generated files must carry appropriate autogenerated markers.
+
+Never hand-edit them.
+
+Do not duplicate generated definitions in handwritten domain modules.
+
+If a semantic wrapper is needed, it must import the generated type rather than copy its fields.
+
+## 7. Contract-first consumption
+
+This is a mandatory architectural outcome.
+
+Production consumers must be able to depend on:
+
+1. Canonical schemas for language-neutral validation.
+2. Generated Python models.
+3. Generated TypeScript types.
+4. Stable contract IDs and versions.
+5. Well-defined serialization and compatibility behavior.
+
+Document the public import surfaces for both languages.
+
+Distinguish source-development layout from future package publishing.
+
+Do not introduce a package registry, release server or dynamic contract distribution mechanism without an actual consumer requirement.
+
+The reusable monorepo remains a pinned dependency of independent Second Brain instances.
+
+## 8. Contract evolution
+
+Contract changes are expected and must be first-class.
+
+Define a policy distinguishing:
+
+- Additive backward-compatible changes.
+- Potentially breaking structural changes.
+- Semantic changes without schema shape changes.
+- Enum expansion.
+- Required-field additions.
+- Field removal or renaming.
+- Discriminator/operation changes.
+- Schema reference and identifier changes.
+- Revision and resource identity migrations.
+
+Use explicit versioning.
+
+Do not assume every SemVer bump is automatically safe for all existing clients.
+
+### Compatibility guarantees
+
+A consuming runtime must be able to identify:
+
+- Which contract version it understands.
+- Whether an incoming payload uses a supported version.
+- Whether its generated models match canonical schema sources.
+- Whether a persisted record needs an explicit migration.
+
+Never silently migrate knowledge during read or validation.
+
+No network fetch of unknown schema definitions.
+
+Unknown versions fail predictably with typed errors.
+
+### Compatibility testing
+
+Create representative previous/current-version fixtures or a small synthetic compatibility baseline when no production release exists yet.
+
+Do not claim backward compatibility with hypothetical released contracts.
+
+Document future release gates separately from what can actually be validated now.
+
+## 9. Deterministic generation
+
+Extend the existing generation workflow rather than replacing it.
+
+Requirements:
+
+- Single reproducible generation command.
+- Independent check-only mode.
+- Fixed generator and dependency versions.
+- Offline schema reference resolution.
+- Stable ordering.
+- Stable UTF-8/LF output.
+- No machine-dependent absolute paths.
+- No timestamps in generated output.
+- No generated artifact edits during `--check`.
+- No unexpected generated files.
+- Explicit failure on stale output.
+
+The expected developer workflow remains conceptually:
+
+```bash
+python -m tools.generate_contracts
+python -m tools.generate_contracts --check
+python -m pytest -q
+npm run typecheck
+npm run parity
+```
+
+Adapt commands only when necessary to preserve the existing tooling contracts.
+
+## 10. Cross-runtime parity
+
+Extend shared fixtures from illustrative schemas to production contracts.
+
+Test at least:
+
+- Valid and invalid Node.
+- Valid and invalid Relation.
+- Valid and invalid Membership.
+- Missing versus null.
+- Unknown field rejection.
+- Registered versus unknown discriminator.
+- Invalid enum values.
+- Exact revision reference.
+- Date/time format.
+- Safe integer limits.
+- Unicode Markdown content.
+- Namespaced extensions.
+- Proposal/Approval payload consistency at the structural level.
+- Valid and invalid operation envelopes.
+- Unsupported schema version.
+- Preservation of serialized optional values.
+
+Python JSON Schema and TypeScript Ajv must agree on structural validity.
+
+Valid canonical payloads must survive generated Python model round-trips without semantic data loss.
+
+Negative semantic cases belong in explicit conformance fixtures/documentation; they must not be falsely reported as schema-validation guarantees.
+
+## 11. Behavioral contract documentation
+
+For each operation family, document:
+
+- Operation identifier and version.
+- Required capability.
+- Resource and policy scope.
+- Request and response schema references.
+- Precondition.
+- Postcondition.
+- CAS/idempotency obligation where applicable.
+- Relevant invariant IDs.
+- Success event.
+- Stable error codes.
+- Direct or governed mode.
+
+The operations catalog remains the semantic specification until executable services exist.
+
+Do not implement dummy operation handlers solely to satisfy documentation.
+
+Do not create a generalized operation execution engine.
+
+## 12. Unresolved decisions
+
+The Phase 1.1 register contains Owner-level decisions O1–O4.
+
+Do not silently freeze their proposed defaults.
+
+### O1 — Obsidian synchronization
+
+Schema contracts should distinguish committed state, unmanaged authoring input, candidate/conflict state and accepted revisions.
+
+Do not promise immediate synchronization.
+
+### O2 — Approval scope
+
+Do not encode whole-graph approval as mandatory.
+
+Node Revision approval must be supported.
+
+Keep Relation approval/selection semantically independent, and preserve future support for bounded approved Relation sets without requiring a graph snapshot engine now.
+
+### O3 — Retention and revocation
+
+Provide sufficient structured data for explicit revocation, retention and disposal decisions.
+
+Do not specify irreversible physical erasure or a final retention duration without Owner approval.
+
+### O4 — Multi-cluster read-policy composition
+
+Support selected Cluster view and explicit resource-level restrictions structurally.
+
+Do not bake an unapproved global union/intersection rule into generated models.
+
+The runtime policy algorithm remains a separately approved semantic contract.
+
+If other unresolved questions block a schema, isolate that small family or represent only confirmed structure.
+
+Do not resolve policy questions by inventing defaults.
+
+## 13. Transaction contracts
+
+Define only the data shapes needed for future atomic operations:
+
+- Batch request.
+- Typed operation entries.
+- Expected revisions.
+- Idempotency identity.
+- Transaction ID.
+- Committed-generation reference.
+- Operation result.
+- Durable receipt.
+- Error response.
+- Event/outbox record.
+
+The intended architecture uses one managed Git commit/ref boundary with commit-critical state co-located.
+
+This remains a backend recommendation rather than a reason to encode Git-specific internals in every domain contract.
+
+Do not implement Git commits, locks, journal, transaction coordinator, or recovery logic now.
+
+## 14. Recommended repository organization
+
+Respect existing conventions.
+
+A possible target is:
+
+```text
+contracts/
+  schemas/
+    v1/
+      common/
+      knowledge/
+      governance/
+      operations/
+      events/
+  registry/
+
+packages/
+  python/
+    generated/
+  typescript/
+    generated/
+
+tests/
+  fixtures/
+    contracts/
+  contract_parity/
+
+docs/
+  contracts/
+    README.md
+    operations.md
+    compatibility.md
+    evolution.md
+```
+
+This is illustrative.
+
+Inspect actual repository structure and adapt to it rather than creating redundant directories.
+
+Keep previous illustrative schemas clearly separated from production contracts.
+
+Avoid introducing a new package layout unless necessary.
+
+## 15. Validation and CI
+
+Extend existing contract checks to cover production schemas.
+
+Required gates:
+
+1. Canonical schema syntax and reference resolution.
+2. No network schema dependencies.
+3. Python generation succeeds.
+4. TypeScript generation succeeds.
+5. Generated-file drift detection.
+6. Python canonical validation.
+7. Ajv parity.
+8. Valid payload round-trip.
+9. TypeScript strict typecheck.
+10. Documentation references and schema registry consistency.
+11. No accidental changes to old illustrative fixtures.
+12. No duplicate handwritten domain DTO definitions.
+
+Do not introduce paid infrastructure or heavyweight application-test frameworks.
+
+Retain Windows/macOS/Linux CI compatibility.
+
+## 16. Implementation strategy
+
+Implement contracts in dependency order:
+
+**Stage A — Shared primitives and registry**
+
+Stable identifiers, revisions, schema references, common errors, principals and resource references.
+
+**Stage B — Knowledge aggregates**
+
+Node, Relation, Cluster, Membership, Collection and type registries.
+
+**Stage C — Governance/supporting records**
+
+Assets, External References, Proposal, Review, Approval, capabilities, policy records and disposal metadata.
+
+**Stage D — Operation envelopes and results**
+
+Typed operations, batches, receipts, errors, events and snapshot metadata.
+
+**Stage E — Generation, parity and evolution gates**
+
+Finish cross-language output, tests, documentation and reproducibility.
+
+These are internal implementation stages of one contract-focused task, not authorization to build runtime functionality.
+
+If a proposed schema is blocked by unresolved semantics, document it and continue with independent families. Never invent the missing business rule merely to complete a checklist.
+
+## 17. Explicit exclusions
+
+Do not implement:
+
+- Knowledge CRUD services.
+- Storage repositories.
+- Git commit protocol.
+- SQLite indexing.
+- Authorization evaluator.
+- MCP server.
+- Obsidian integration/plugin.
+- Cleanup services.
+- Scheduler.
+- Agent memory or harness.
+- Context compilation.
+- Search engine.
+- Semantic retrieval.
+- Real migrations of existing knowledge.
+- Packaging/publication infrastructure without a consumer.
+
+Only contracts, generated artifacts, tests and supporting documentation.
+
+## 18. Acceptance criteria
+
+The phase is complete when:
+
+1. Production canonical contracts are separated from examples.
+2. Confirmed stable domain structures have generated Python and TypeScript representations.
+3. Structural validators share the same authoritative schemas.
+4. Generated artifacts are reproducible and checked into the repository following existing conventions.
+5. CI detects schema/model drift.
+6. Contract changes have an explicit versioning and compatibility policy.
+7. Business invariants are traceable from documentation to affected contract families.
+8. No runtime implementation was introduced.
+9. Open Owner decisions remain visible and are not silently resolved.
+10. A future Core implementation can import generated models without rewriting the same domain structures.
+
+Do not create superficial placeholder schemas to claim coverage.
+
+If a family cannot be safely finalized, report it as incomplete with its exact blocking decision.
+
+## 19. Final report
+
+Provide:
+
+- Implemented contract families.
+- Canonical schema inventory.
+- Generated Python and TypeScript artifact paths.
+- Public import/validation examples.
+- Tests and CI results.
+- Compatibility/evolution policy summary.
+- Outstanding semantic decisions.
+- Explicit list of deferred contract families, if any.
+- Changes to existing architecture documents.
+- Any generator limitations or approximations.
+- Confirmation that no runtime services were implemented.
+
+Use actual repository paths and results.
+
+Do not describe unexecuted tests as passed.
+
+**Success means we can confidently build Second Brain on top of these contracts without maintaining three independent models.**
