@@ -8,8 +8,7 @@ from uuid import uuid4
 
 import pytest
 from generated.v1.knowledge_schema import Node, Relation
-from second_brain_contracts import ContractValidator
-from second_brain_core import Core, CoreError, GitStore, InstanceContext, TrustedPrincipal
+from second_brain_core import Core, CoreError, GitStore, TrustedPrincipal
 from second_brain_core.codec import decode, encode
 from second_brain_core.git_store import StorageError
 
@@ -20,82 +19,6 @@ def uid():
 
 def ref(instance, identifier, kind="node"):
     return dict(instance_id=instance, resource_kind=kind, id=identifier)
-
-
-@pytest.fixture(scope="module")
-def contracts():
-    return ContractValidator()
-
-
-@pytest.fixture
-def core(tmp_path, contracts):
-    path = tmp_path / "managed repo with spaces"
-    path.mkdir()
-    subprocess.run(["git", "init", "--quiet", str(path)], check=True, capture_output=True)
-    instance, principal, cluster = uid(), uid(), uid()
-    grants = frozenset(
-        (cluster, a)
-        for a in (
-            "node.create",
-            "membership.admit",
-            "node.read",
-            "relation.create",
-            "relation.read",
-        )
-    )
-    context = InstanceContext(
-        instance, path, "refs/heads/brain", TrustedPrincipal(principal, grants, True)
-    )
-    app = Core(context, GitStore(path, context.managed_ref), contracts)
-    records = [
-        dict(
-            kind="cluster",
-            id=cluster,
-            schema_version="1.0.0",
-            revision=1,
-            name="Приватний",
-            owner={"principal_id": principal},
-            policy={"policy_id": uid(), "version": 1},
-            publication_mode="private",
-            lifecycle="active",
-        ),
-        dict(
-            kind="node_type_definition",
-            id=uid(),
-            schema_version="1.0.0",
-            revision=1,
-            type_key="note",
-            type_version="1.0.0",
-            metadata_schema_id="local:note:1",
-            description="Fabricated note",
-            flat_properties_required=True,
-        ),
-        dict(
-            kind="relation_type_definition",
-            id=uid(),
-            schema_version="1.0.0",
-            revision=1,
-            predicate="supports",
-            type_version="1.0.0",
-            symmetric=False,
-            source_node_types=["note"],
-            target_node_types=["note"],
-            self_links_allowed=False,
-            description="Fabricated predicate",
-        ),
-    ]
-    app.bootstrap(
-        records,
-        {
-            "local:note:1": {
-                "type": "object",
-                "properties": {"status": {"type": "string"}},
-                "required": ["status"],
-                "additionalProperties": False,
-            }
-        },
-    )
-    return app, cluster
 
 
 def operation(app, action, payload):
@@ -274,7 +197,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(sys.argv[1]) / 'packages/python'))
 from second_brain_core import Core, GitStore, InstanceContext, TrustedPrincipal
 from second_brain_core.codec import decode, encode
-config, request = decode(sys.stdin.buffer.read())
+from second_brain_contracts import decode_json
+config, request = decode_json(sys.stdin.buffer.read())
 principal = TrustedPrincipal(config['principal'], frozenset(map(tuple, config['grants'])))
 context = InstanceContext(config['instance'], Path(config['repository']), config['ref'], principal)
 core = Core(context, GitStore(context.repository, context.managed_ref))

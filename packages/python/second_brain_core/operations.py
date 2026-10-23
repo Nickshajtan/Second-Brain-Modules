@@ -1,10 +1,14 @@
 """Concrete M1 operation strategies; no runtime plugin registration."""
 
-from .boundary import VERSION, digest, timestamp, uid
+from .access import AccessControl
+from .boundary import VERSION, ContractBoundary, digest, timestamp, uid
+from .domain import DomainRules
 
 
 class NodeCreateStrategy:
-    def __init__(self, boundary, access, domain):
+    def __init__(
+        self, boundary: ContractBoundary, access: AccessControl, domain: DomainRules
+    ) -> None:
         self.boundary = boundary
         self.access = access
         self.domain = domain
@@ -96,7 +100,9 @@ class NodeCreateStrategy:
 
 
 class RelationCreateStrategy:
-    def __init__(self, boundary, access, domain):
+    def __init__(
+        self, boundary: ContractBoundary, access: AccessControl, domain: DomainRules
+    ) -> None:
         self.boundary = boundary
         self.access = access
         self.domain = domain
@@ -148,7 +154,7 @@ class RelationCreateStrategy:
 
 
 class NodeReadStrategy:
-    def __init__(self, boundary, access):
+    def __init__(self, boundary: ContractBoundary, access: AccessControl) -> None:
         self.boundary = boundary
         self.access = access
 
@@ -162,7 +168,7 @@ class NodeReadStrategy:
 
 
 class RelationReadStrategy:
-    def __init__(self, access):
+    def __init__(self, access: AccessControl) -> None:
         self.access = access
 
     def read(self, selection, records):

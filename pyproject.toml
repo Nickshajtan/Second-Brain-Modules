@@ -10,7 +10,7 @@ include = ["tools/**/*.py", "tests/**/*.py", "packages/python/**/*.py", "pyproje
 extend-exclude = ["packages/python/generated"]
 
 [tool.ruff.lint]
-select = ["E4", "E7", "E9", "F", "I", "UP"]
+select = ["E4", "E7", "E9", "F", "I", "UP", "B", "SIM", "PIE", "RET", "RUF"]
 
 [tool.ruff.format]
 line-ending = "lf"

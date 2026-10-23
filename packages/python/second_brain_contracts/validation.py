@@ -8,10 +8,13 @@ import hashlib
 import importlib
 import json
 import math
+from collections.abc import Iterator
 from pathlib import Path
+from typing import NoReturn
 from urllib.parse import urljoin
 
 from jsonschema import Draft202012Validator, FormatChecker
+from pydantic import BaseModel, RootModel
 from referencing import Registry, Resource
 
 
@@ -28,27 +31,52 @@ def _unique(pairs):
     return result
 
 
-def _nonfinite(value):
+def _nonfinite(value: str) -> NoReturn:
     raise ValueError(f"Non-JSON numeric constant: {value}")
 
 
-def _finite_float(value):
+def _finite_float(value: str) -> float:
     parsed = float(value)
     if not math.isfinite(parsed):
         raise ValueError(f"Non-finite JSON number: {value}")
     return parsed
 
 
-def load_json(path):
+def load_json(path: str | Path) -> object:
+    return decode_json(Path(path).read_bytes())
+
+
+def decode_json(raw: str | bytes) -> object:
+    """Decode strict UTF-8 JSON; reject duplicate keys and non-finite numbers.
+
+    No YAML extensions, implicit coercion or Unicode normalization is performed.
+    The returned value still requires canonical schema validation before use.
+    """
+    if isinstance(raw, bytes):
+        raw = raw.decode("utf-8")
     return json.loads(
-        Path(path).read_text(encoding="utf-8"),
+        raw,
         object_pairs_hook=_unique,
         parse_constant=_nonfinite,
         parse_float=_finite_float,
     )
 
 
-def walk(value):
+def encode_json(value: object) -> bytes:
+    """Encode deterministic UTF-8 JSON, preserving Unicode and rejecting nonfinite values."""
+    return json.dumps(
+        value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False
+    ).encode("utf-8")
+
+
+def _object(value: object) -> dict:
+    """Narrow a decoded document; canonical schemas validate its dynamic fields."""
+    if not isinstance(value, dict):
+        raise ValueError("Expected JSON object")
+    return value
+
+
+def walk(value: object) -> Iterator[dict]:
     if isinstance(value, dict):
         yield value
         for child in value.values():
@@ -61,11 +89,11 @@ def walk(value):
 class ContractValidator:
     """Validate packaged schemas with jsonschema; unknown references fail offline."""
 
-    def __init__(self, root=None, *, version="1.0.0"):
+    def __init__(self, root: str | Path | None = None, *, version: str = "1.0.0") -> None:
         if version != "1.0.0":
             raise UnsupportedContractVersion(version)
         self.root = Path(root or Path(__file__).resolve().parents[3]).resolve()
-        self.manifest = load_json(self.root / "contracts/registry/v1.json")
+        self.manifest = _object(load_json(self.root / "contracts/registry/v1.json"))
         if self.manifest["contract_version"] != version:
             raise UnsupportedContractVersion(self.manifest["contract_version"])
         self.entries = {entry["name"]: entry for entry in self.manifest["schemas"]}
@@ -75,7 +103,7 @@ class ContractValidator:
             path = (self.root / entry["path"]).resolve()
             if not path.is_relative_to(self.root / "contracts/schemas/v1"):
                 raise ValueError("Schema path escapes production bundle")
-            schema = load_json(path)
+            schema = _object(load_json(path))
             Draft202012Validator.check_schema(schema)
             if schema["$id"] != entry["id"] or schema["$id"] in ids:
                 raise ValueError("Registry/schema identity mismatch")
@@ -115,7 +143,7 @@ class ContractValidator:
             for name, schema in self.schemas.items()
         }
 
-    def validate(self, family, payload):
+    def validate[T](self, family: str, payload: T) -> T:
         """Validate without mutation/coercion; return the caller's original JSON value."""
         if isinstance(payload, dict) and payload.get("schema_version", "1.0.0") != "1.0.0":
             raise UnsupportedContractVersion(payload["schema_version"])
@@ -123,22 +151,33 @@ class ContractValidator:
         self.validators[family].validate(payload)
         return payload
 
-    def parse(self, family, payload):
+    def parse(self, family: str, payload: object) -> BaseModel:
         """Validate canonical JSON before constructing the generated root model."""
         self.validate(family, payload)
         entry = self.entries[family]
         module = importlib.import_module(entry["python_module"])
-        return getattr(module, entry["python_type"]).model_validate(payload)
+        model = getattr(module, entry["python_type"]).model_validate(payload)
+        if not isinstance(model, BaseModel):
+            raise TypeError("Registry factory did not produce a generated model")
+        return model
 
-    def dump(self, family, model):
+    def parse_as[T: BaseModel](self, family: str, payload: object, model_type: type[T]) -> T:
+        """Canonically parse a registry root and narrow its generated alternative."""
+        parsed = self.parse(family, payload)
+        record = parsed.root if isinstance(parsed, RootModel) else parsed
+        if not isinstance(record, model_type):
+            raise ValueError("Unexpected contract alternative")
+        return record
+
+    def dump(self, family: str, model: BaseModel) -> dict[str, object]:
         """Preserve aliases and supplied optional values, then revalidate canonically."""
         payload = model.model_dump(mode="json", by_alias=True, exclude_unset=True)
         self.validate(family, payload)
         return payload
 
-    def verify_generated(self):
+    def verify_generated(self) -> None:
         """Check the pinned checkout's canonical-source and generated-artifact hashes."""
-        manifest = load_json(self.root / "packages/python/generated/v1/manifest.json")
+        manifest = _object(load_json(self.root / "packages/python/generated/v1/manifest.json"))
         if manifest["contract_version"] != self.manifest["contract_version"]:
             raise UnsupportedContractVersion(manifest["contract_version"])
         for group in ("source_hashes", "artifact_hashes"):

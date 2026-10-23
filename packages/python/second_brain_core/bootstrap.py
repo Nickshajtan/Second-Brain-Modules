@@ -1,11 +1,20 @@
 """Trusted fixture/bootstrap initialization, separate from public operations."""
 
-from .boundary import GENERATION
+from .boundary import GENERATION, ContractBoundary
 from .codec import decode, encode
+from .domain import DomainRules
+from .ports import CommitStore
+from .repository import KnowledgeRepository
 
 
 class BootstrapInitializer:
-    def __init__(self, boundary, store, repository, domain):
+    def __init__(
+        self,
+        boundary: ContractBoundary,
+        store: CommitStore,
+        repository: KnowledgeRepository,
+        domain: DomainRules,
+    ) -> None:
         self.boundary = boundary
         self.store = store
         self.repository = repository

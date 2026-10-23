@@ -23,7 +23,7 @@ Version 1.0.0 is an unreleased contract baseline; illustrative 0.1.0 examples re
 
 ## Development
 
-Use Python 3.12 and Node 22.19+; create/activate a local virtual environment.
+Use Python 3.12 and Node 22.19 through 24; create/activate a local virtual environment.
 All commands below run from this Git root:
 
 ```text
@@ -36,14 +36,13 @@ Then:
 ```text
 python -m pip install --require-hashes -r requirements-dev.lock
 npm ci --ignore-scripts --no-audit --no-fund
-python -m tools.validate_examples
-python -m tools.validate_contracts
-python -m pytest -q
-python -m ruff check .
-python -m ruff format --check .
-npm run typecheck
-python -m tools.generate_contracts --check
+python -m tools.check full
 ```
+
+Use `python -m tools.check quality`, `contracts` or `core` for focused checks.
+See [engineering standards](docs/engineering/standards.md),
+[hygiene inventory](docs/engineering/repository-hygiene.md) and
+[executed results](docs/engineering/quality-validation.md).
 
 Regenerate with `python -m tools.generate_contracts`. Generated files are committed,
 never edited by hand. The checker compares bytes and the complete file set in a
@@ -56,7 +55,7 @@ Python API: `ExampleValidator(root).run()` from `tools.example_validation` retur
 an immutable `ValidationReport` and raises on failure without printing. Individual
 check methods are callable. The CLI supports `--root PATH`, works from other working
 directories and returns nonzero with diagnostics on failure. Development dependencies
-are required; consuming schema JSON or TS declarations does not import future runtime modules.
+are required; consuming schema JSON or TS declarations does not import Core runtime modules.
 
 ## Architecture and consumption
 

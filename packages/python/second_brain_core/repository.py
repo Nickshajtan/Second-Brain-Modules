@@ -2,12 +2,24 @@
 
 import hashlib
 
-from .boundary import GENERATION, CoreError, digest, uid
+from jsonschema.exceptions import SchemaError, ValidationError
+
+from .boundary import GENERATION, ContractBoundary, CoreError, digest, uid
 from .codec import decode, encode
+from .domain import DomainRules
+from .git_store import StorageError
+from .ports import CommitStore
+from .receipts import ReceiptStore
 
 
 class KnowledgeRepository:
-    def __init__(self, boundary, store, domain, receipts):
+    def __init__(
+        self,
+        boundary: ContractBoundary,
+        store: CommitStore,
+        domain: DomainRules,
+        receipts: ReceiptStore,
+    ) -> None:
         self.boundary = boundary
         self.store = store
         self.domain = domain
@@ -73,5 +85,18 @@ class KnowledgeRepository:
             self.domain.validate(records, metadata)
             self.receipts.validate_results(files, records)
             return commit, files, generation, records, metadata
-        except Exception as exc:
+        except (
+            CoreError,
+            StorageError,
+            OSError,
+            ValueError,
+            KeyError,
+            TypeError,
+            ValidationError,
+            SchemaError,
+        ) as exc:
             raise CoreError(self.boundary.contracts, "REPAIR_REQUIRED") from exc
+        except Exception as exc:
+            # Last application boundary: sanitize unexpected defects, but retain
+            # their cause and distinguish them from corrupt accepted content.
+            raise CoreError(self.boundary.contracts, "INTERNAL") from exc

@@ -4,10 +4,13 @@ import hashlib
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import NoReturn
 from uuid import uuid4
 
+from generated.v1.common_schema import DomainError
 from jsonschema.exceptions import ValidationError
-from pydantic import BaseModel
+from pydantic import BaseModel, RootModel
+from second_brain_contracts import ContractValidator
 
 from .codec import decode, encode
 
@@ -15,22 +18,22 @@ VERSION = "1.0.0"
 GENERATION = "control/generation.json"
 
 
-def uid():
+def uid() -> str:
     return str(uuid4())
 
 
-def digest(value):
+def digest(value: object) -> dict[str, str]:
     return {"algorithm": "sha256", "value": hashlib.sha256(encode(value)).hexdigest()}
 
 
-def timestamp():
+def timestamp() -> str:
     return datetime.now(UTC).isoformat(timespec="microseconds").replace("+00:00", "Z")
 
 
 class CoreError(Exception):
     """Sanitized failure carrying the generated, canonical DomainError model."""
 
-    def __init__(self, contracts, code):
+    def __init__(self, contracts: ContractValidator, code: str) -> None:
         payload = dict(
             schema_version=VERSION,
             code=code,
@@ -38,7 +41,7 @@ class CoreError(Exception):
             retryable=code == "REVISION_CONFLICT",
             correlation_id=uid(),
         )
-        self.error = contracts.parse("common", payload)
+        self.error = contracts.parse_as("common", payload, DomainError)
         self.code = code
         super().__init__(code)
 
@@ -55,7 +58,7 @@ class TrustedPrincipal:
     grants: frozenset[tuple[str, str]] = frozenset()
     bootstrap: bool = False
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         object.__setattr__(self, "grants", frozenset(self.grants))
 
 
@@ -69,20 +72,26 @@ class InstanceContext:
 
 
 class ContractBoundary:
-    def __init__(self, context, contracts):
+    def __init__(self, context: InstanceContext, contracts: ContractValidator) -> None:
         self.context = context
         self.contracts = contracts
 
-    def fail(self, code):
+    def fail(self, code: str) -> NoReturn:
         raise CoreError(self.contracts, code)
 
-    def resource(self, kind, identifier):
-        value = {"instance_id": self.context.instance_id, "resource_kind": kind, "id": identifier}
+    def resource(self, kind: str, identifier: str) -> dict[str, object]:
+        value: dict[str, object] = {
+            "instance_id": self.context.instance_id,
+            "resource_kind": kind,
+            "id": identifier,
+        }
         schema = self.contracts.schemas["common"]["$defs"]["ResourceRef"]
         self.contracts.validators["common"].evolve(schema=schema).validate(value)
         return value
 
-    def ingest(self, family, payload):
+    def ingest(
+        self, family: str, payload: BaseModel | dict[str, object] | str | bytes
+    ) -> BaseModel:
         try:
             if isinstance(payload, BaseModel):
                 payload = payload.model_dump(mode="json", by_alias=True, exclude_unset=True)
@@ -91,9 +100,14 @@ class ContractBoundary:
             elif isinstance(payload, bytes):
                 payload = decode(payload)
             # Deep copy freezes caller-owned dictionaries before execution.
-            return self.contracts.parse(family, decode(encode(payload))).root
+            model = self.contracts.parse(family, decode(encode(payload)))
+            if not isinstance(model, RootModel):
+                raise ValueError("Expected generated root contract")
+            if not isinstance(model.root, BaseModel):
+                raise ValueError("Expected generated record alternative")
+            return model.root
         except (ValueError, TypeError, KeyError, ValidationError) as exc:
             raise CoreError(self.contracts, "VALIDATION_FAILED") from exc
 
-    def dump(self, family, model):
+    def dump(self, family: str, model: BaseModel) -> dict:
         return self.contracts.dump(family, model)

@@ -1,624 +1,576 @@
-# Second Brain — Core M1: Knowledge Storage Foundation
+# Second Brain — M1.1: Engineering Quality & Repository Hygiene
 
 **Repository:** `Nickshajtan/Second-Brain-Modules`  
-**Milestone:** M1 — First executable Core vertical slice  
-**Status:** Implementation specification  
-**Primary language:** Python 3.12+  
-**Scope:** Domain validation, managed Git storage, atomic batches, immutable revisions, committed reads.
+**Baseline:** Latest `main`, following Core M1 implementation  
+**Status:** Implementation task  
+**Scope:** Code quality, static analysis, engineering standards, CI hardening and evidence-based repository cleanup.
 
 ## 1. Objective
 
-Implement the smallest useful executable Second Brain Core foundation on top of the existing production contracts.
+Establish a consistent, enforceable engineering quality baseline before continuing Second Brain Core development.
 
-The implementation must prove this workflow:
+The repository now contains:
+
+- Canonical JSON Schema 2020-12 contracts.
+- Generated Python/Pydantic and TypeScript artifacts.
+- Contract validators and generation/build tools.
+- Python Core M1.
+- Git-backed atomic transaction storage.
+- Tests, architectural documentation and historical research artifacts.
+
+The next development phases will introduce mutable revisions, reconciliation, governance and MCP.
+
+Before expanding the codebase, improve its maintainability and remove demonstrably unnecessary repository artifacts.
+
+**This task is primarily hardening and cleanup, not feature development.**
+
+## 2. Non-negotiable constraints
+
+1. Do not change accepted domain semantics.
+2. Do not implement M2 or new domain operations.
+3. Do not change persisted record formats without an explicit compatibility justification.
+4. Do not manually edit generated artifacts.
+5. Do not replace the existing contract toolchain.
+6. Do not introduce a second formatter or overlapping linting framework without justification.
+7. Do not introduce heavyweight architectural abstractions.
+8. Do not delete files merely because they are old.
+9. Do not rewrite Git history or force-push.
+10. Do not delete untracked or user-authored files without establishing their purpose and obtaining explicit approval when uncertain.
+11. Do not suppress lint/typecheck findings globally merely to produce a green build.
+12. Do not perform broad mechanical refactors unrelated to confirmed quality issues.
+
+Prefer minimal changes with measurable quality improvements.
+
+## 3. Initial repository audit
+
+Before modifying the repository, inspect:
+
+- Current Git status and tracked files.
+- Existing CI workflow.
+- Dependency lockfiles.
+- Python/TypeScript package structure.
+- Canonical schemas and generated outputs.
+- Build/distribution workflow.
+- Existing documentation hierarchy.
+- Development tooling.
+- Ignore rules.
+- Test fixtures and temporary artifacts.
+- Relevant ADRs and supersession notices.
+
+Establish the difference between:
+
+- Tracked source files.
+- Tracked generated distribution artifacts.
+- Ignored build outputs.
+- Untracked working files.
+- Historical architectural records.
+- Active production contracts.
+- Obsolete documentation.
+- Redundant or unused implementation code.
+
+Do not assume that an unused file is safe to remove.
+
+### Required audit output
+
+Produce a repository hygiene inventory:
+
+| Path | Classification | Evidence | Recommended action | Risk |
+|---|---|---|---|---|
+| Example | Source/generated/historical/temp | Actual references and consumers | Keep/move/remove/ignore | Low/medium/high |
+
+Use actual paths and evidence.
+
+Avoid listing every legitimate source file. Concentrate on cleanup candidates and inconsistencies.
+
+## 4. Safe cleanup
+
+### 4.1 Automatically eligible cleanup
+
+Files may be removed or ignored when their purpose and disposal safety are demonstrated.
+
+Examples:
+
+- Accidentally tracked Python caches.
+- Temporary test output.
+- Reproducible build caches.
+- Redundant local reports.
+- Accidentally committed virtual environments.
+- Orphaned temporary development files.
+- Obsolete generated duplicates not required by the current distribution model.
+- Stale build output unintentionally tracked outside the intended distribution policy.
+
+Before removal, confirm they are not referenced by tests, scripts, documentation or consumers.
+
+### 4.2 Cleanup requiring architectural review
+
+Do not automatically delete:
+
+- Historical ADRs.
+- Contract migration/evolution documentation.
+- Earlier schema examples used by parity tests.
+- Domain glossary and operation catalogue.
+- Research and evidence ledgers.
+- User-authored notes or specifications.
+- Current generated models required by Git-submodule consumers.
+- Existing fixtures or snapshots without proving redundancy.
+- Source compatibility adapters.
+
+For these, recommend consolidation, relocation, archival or supersession markers where appropriate.
+
+### 4.3 Documentation cleanup
+
+Identify:
+
+- Duplicate README content.
+- Broken relative links.
+- Contradictory active guidance.
+- Superseded development instructions.
+- Outdated implementation status.
+- Repeated command documentation.
+- Historical proposals presented as current decisions.
+
+Create or update a concise documentation entry point.
+
+Suggested structure:
 
 ```text
-Typed operation
-    ↓
-Canonical JSON Schema validation
-    ↓
-Generated Python model
-    ↓
-Domain invariant checks
-    ↓
-Git transaction preparation
-    ↓
-Atomic committed-generation publication
-    ↓
-Committed read / durable receipt
+README.md
+docs/
+  architecture/
+  contracts/
+  core/
+  domain/
+  engineering/
+  research/
 ```
 
-M1 must establish reliable state ownership and demonstrate that multiple related knowledge resources can be committed as one logical operation.
+Adapt to the existing structure.
 
-**Do not implement the entire Second Brain platform.**
+Do not reorganize for aesthetics alone.
 
-Success means the next milestone can add governance, reconciliation and MCP without replacing the storage foundation.
+Preserve historical decision provenance.
 
-## 2. Mandatory repository inspection
+Prefer adding a current-document pointer to rewriting previous ADRs.
 
-Before implementation:
+### 4.4 Git hygiene
 
-1. Read the latest `main` branch.
-2. Review current production schemas and generated Python models.
-3. Read the existing contract generation and validation APIs.
-4. Review ADR-010 and the Phase 1.1 architecture decision.
-5. Review the confirmed domain invariants and operations catalog.
-6. Inspect the current build/distribution hardening.
-7. Check whether the principal-review fixes have already been committed.
+Review `.gitignore` for:
 
-Relevant sources:
+- Python caches.
+- Virtual environments.
+- Test/coverage output.
+- Typechecker caches.
+- Node dependencies.
+- Build/distribution output.
+- Editor-specific temporary files.
+- Local secrets/configuration.
+- Temporary Git repositories used in tests.
+- Local research caches.
 
-- `contracts/schemas/v1/`
-- `contracts/registry/v1.json`
-- `packages/python/second_brain_contracts/`
-- `packages/python/generated/v1/`
-- `docs/domain/domain-model.md`
-- `docs/domain/operations-catalog.md`
-- `docs/research/phase-1-1/architecture-decision.md`
-- `docs/contracts/README.md`
-- `docs/architecture/decisions/ADR-010-production-contract-baseline.md`
+Ensure ignore rules do not conceal canonical schemas, test fixtures or source code.
 
-Use the repository's actual interfaces and field names.
+Do not indiscriminately ignore all generated code while Git-submodule compatibility still depends on tracked artifacts.
 
-Do not invent a parallel domain model when a generated contract already exists.
+## 5. Python quality standard
 
-If a required contract is missing or structurally wrong, document and correct the canonical schema first, then regenerate artifacts through the existing toolchain.
+Use Ruff as the primary linter and formatter.
 
-Avoid modifying schemas merely to accommodate implementation convenience.
+Retain the current Python baseline and line-length conventions unless a concrete issue requires change.
 
-## 3. Strict scope
+### 5.1 Ruff
 
-### Implement
+Review the existing profile and gradually enable useful rule families.
 
-- Instance-scoped Core composition.
-- Canonical contract ingestion.
-- Minimal Node and standalone Relation domain operations.
-- Cluster/Membership validation necessary for safe creation.
-- Git-backed canonical persistence.
-- Immutable logical revisions.
-- Optimistic concurrency control.
-- Atomic same-instance batches.
-- Durable idempotency receipts.
-- Committed-state reads.
-- Focused failure and recovery tests.
+Recommended candidates:
 
-### Explicitly exclude
+- `E4`, `E7`, `E9`
+- `F`
+- `I`
+- `UP`
+- `B`
+- `SIM`
+- `C4`
+- `PIE`
+- `RET`
+- Selected `RUF` rules.
 
-- MCP server or client adapter.
-- Obsidian plugin or editor automation.
-- Full human-file reconciliation.
-- SQLite search/graph index.
-- General authorization policy engine.
-- Publication/Approval workflow.
-- Trash, Global Archive and purge.
-- External services or background jobs.
-- Agent orchestration.
-- Context compilation.
-- HTTP APIs.
-- General workflow or event execution engine.
-- Distributed transactions.
-- Dynamic module loading.
+Do not enable every rule blindly.
 
-Do not create placeholder implementations for excluded subsystems.
+Inspect violations before applying fixes.
 
-## 4. Architectural boundaries
+Use narrow per-file exceptions only with documented reasons.
 
-Implement a small modular monolith.
+Avoid global ignores that hide defects.
 
-Suggested boundaries:
+### 5.2 Formatting
 
-```text
-Application
-  ├── Operation coordination
-  ├── Minimal authorization
-  └── Transaction boundary
-           │
-           ▼
-Domain
-  ├── Node invariants
-  ├── Relation invariants
-  └── Membership invariants
-           │
-           ▼
-Ports
-  ├── Knowledge repository
-  └── Commit store
-           ▲
-           │
-Git Adapter
-```
+Use Ruff format as the sole handwritten Python formatter.
 
-These are logical responsibilities, not mandatory separate packages.
+Exclude generator-owned Python output from handwritten formatting enforcement.
 
-Do not introduce a dependency injection framework.
+Do not run multiple competing formatters over the same files.
 
-Use constructor injection or explicit function parameters.
+Generated output reproducibility is controlled by generation checks.
 
-The domain/application code must not import subprocess Git commands directly.
+### 5.3 Static typing
 
-Git implementation details belong behind a narrow storage boundary.
+Introduce **Pyright** for handwritten production Python.
 
-## 5. Contract-first implementation
+Targets:
 
-### 5.1 Canonical input pipeline
+- `second_brain_core`
+- `second_brain_contracts`
+- Relevant handwritten tooling where practical.
 
-All externally supplied operation payloads must follow:
+Generated Python models may be imported as dependencies but should not be manually rewritten to satisfy handwritten typing rules.
 
-1. Decode strict JSON when raw JSON is supplied.
-2. Validate against canonical JSON Schema.
-3. Construct the corresponding generated Pydantic model.
-4. Apply business/domain validation.
-5. Execute the operation.
-6. Serialize the generated result.
-7. Validate outgoing payload against the canonical schema.
+Adopt a strictness policy that is realistic for the current codebase.
 
-Where an internal typed entry point accepts an already validated generated model, document precisely where the canonical validation occurred.
+Suggested direction:
 
-No handwritten DTO copies.
+- New public production APIs: fully typed.
+- Internal boundary interfaces: typed.
+- Domain operation input/output: generated contract types.
+- Infrastructure ports: narrow typed interfaces or Protocols where useful.
+- Existing dynamic internals: progressively improved.
 
-Do not use direct Pydantic model validation as a substitute for canonical structural validation.
+Avoid introducing handwritten DTO copies of generated domain contracts.
 
-### 5.2 Generated types
+Do not introduce `Any`, `cast`, `type: ignore` or blanket diagnostic suppression without a concrete justification.
 
-All domain objects must use the actual generated types.
+If full strict Pyright would cause excessive unrelated refactoring, establish an explicit transitional baseline with documented diagnostics.
 
-Thin helpers may wrap generated models but must not redefine:
+### 5.4 Error handling
 
-- Node fields.
-- Relation fields.
-- Membership fields.
-- Revision references.
-- Transaction envelopes.
-- Structured errors.
+Review broad exception handling in security- and storage-sensitive paths.
 
-Do not modify generated artifacts manually.
+Distinguish:
 
-Keep generated type usage independent of the chosen deployment location.
+- Invalid caller input.
+- Authorization denial.
+- Revision/CAS conflicts.
+- Corrupt committed state.
+- Storage failures.
+- Programmer defects.
 
-## 6. Instance context
+Maintain sanitized external error envelopes.
 
-Create an explicit runtime instance context containing the minimum information required for M1.
+Preserve useful internal diagnostics without leaking sensitive content.
 
-At minimum:
+Do not expose Git stderr or private paths to untrusted callers.
 
+Do not add a generic exception framework.
+
+## 6. Contract runtime boundary
+
+Inspect dependencies between Core and `second_brain_contracts`.
+
+Eliminate inappropriate imports of private implementation helpers.
+
+In particular, review strict JSON encoding/decoding helpers currently imported by Core from private functions in the validation module.
+
+Prefer one documented public strict JSON API with predictable semantics.
+
+Do not duplicate parsers and validation logic across packages.
+
+Preserve:
+
+- Duplicate-key rejection.
+- Non-finite number rejection.
+- Canonical input/output validation.
+- Unicode round-tripping.
+- Existing generated-model behavior.
+
+Add focused regression tests for any changed boundary.
+
+## 7. Git and receipt correctness review
+
+Perform a limited correctness review of existing M1 code.
+
+Focus on:
+
+- Conditional Git ref publication.
+- Path safety.
+- Subprocess invocation and environment isolation.
+- Canonical snapshot validation.
 - Instance identity.
-- Canonical Git repository location.
-- Managed Git ref name.
-- Contract version.
-- Runtime configuration.
-- Trusted principal context.
-- Paths for permitted M1 local runtime state, if necessary.
+- CAS behavior.
+- Idempotency replay.
+- Receipt integrity.
+- Corruption handling.
+- Process restart.
 
-Never infer instance identity from directory name, current working directory or Git remote.
+Do not redesign the storage backend.
 
-Avoid global mutable state.
+### 7.1 Historical receipt compatibility
 
-Two independent instances must be usable in the same Python process without overlapping storage state or locks.
+Before implementing future mutable revisions, review whether receipt validation assumes that a historical operation result must still match the current resource head.
 
-Do not create credentials, grants or secret material inside the reusable module repository.
+Identify the exact coupling.
 
-## 7. Git canonical authority
+If the current M1 implementation is correct only because all supported resources are create-only, document this limitation.
 
-### 7.1 Core principle
+Prefer a small forward-compatible correction only if it can be implemented without changing existing domain semantics or persisted formats.
 
-**The accepted state of Second Brain is a committed Git tree selected by one managed ref.**
+Do not implement Node update in this task.
 
-The human-editable working directory is not automatically authoritative.
+### 7.2 Snapshot complexity
 
-Core reads must resolve the managed ref and read only validated committed content.
+Current committed reads may validate the entire Git tree.
 
-Do not read uncommitted working-directory bytes as accepted knowledge.
+Treat this as an accepted M1 performance trade-off.
 
-### 7.2 Initial canonical storage
+Do not introduce SQLite indexing or caching solely to optimize the current tiny corpus.
 
-Use stable-ID-based paths for the initial managed resources.
+Document the performance characteristics and the future immutable-snapshot caching boundary.
+
+Do not relax authorization checks when introducing future caching.
+
+## 8. TypeScript and JavaScript quality
+
+Inspect handwritten TypeScript/JavaScript files, particularly:
+
+- Runtime contract validation.
+- Contract generation tooling.
+- Build tooling.
+- Tests and TypeScript consumer fixtures.
+
+Introduce a small ESLint configuration only if it offers meaningful coverage not already supplied by TypeScript and existing tests.
+
+Prefer:
+
+- Correctness-focused rules.
+- Import hygiene.
+- Explicit handling of unchecked runtime inputs.
+- No unnecessary `any`.
+- No accidental use of Node-specific globals in portable consumers.
+
+Do not introduce Prettier unless a concrete formatting need cannot be met by the existing workflow.
+
+Do not lint generated `.d.ts` artifacts as handwritten source.
+
+Keep ESLint dependencies and configuration minimal.
+
+## 9. Generated code policy
+
+Establish clear file ownership boundaries.
+
+| Category | Source of truth | Required checks |
+|---|---|---|
+| Canonical schemas | Handwritten JSON Schema | Schema validation, offline refs, compatibility |
+| Python generated models | Canonical schemas + generator | Deterministic generation, import/round-trip tests |
+| TypeScript generated types | Canonical schemas + generator | Deterministic generation, TS consumer typecheck |
+| Python runtime adapters | Handwritten source | Ruff, Pyright, tests |
+| JS/TS runtime adapters | Handwritten source | Typecheck/lint/tests |
+| Build/distribution output | Reproducible build | Integrity, reproducibility, packaging checks |
+
+Do not format generated models after generation.
+
+Do not patch generated declarations manually.
+
+Respect the current distribution policy and future dist-free transition.
+
+Make build artifacts disposable while preserving the current documented consumption model.
+
+## 10. Engineering standards
+
+Introduce a concise root `AGENTS.md`.
+
+It must guide Codex and other coding agents without becoming an oversized architectural document.
+
+Required rules:
+
+1. Read current domain contracts and ADRs before changing behavior.
+2. Use canonical JSON Schema as the structural authority.
+3. Never hand-edit generated artifacts.
+4. Reuse generated Python/TS models rather than defining duplicate DTOs.
+5. Keep domain semantics independent of storage and transports.
+6. Require canonical validation at untrusted boundaries.
+7. Write regression tests for confirmed defects.
+8. Type new public APIs.
+9. Use Ruff formatting for handwritten Python.
+10. Preserve fail-closed authorization behavior.
+11. Do not invent Owner policy decisions.
+12. Do not add dependencies or abstractions without a concrete need.
+13. Run relevant tests and quality checks.
+14. Report what was actually tested and what remains unverified.
+15. Preserve existing user changes and avoid destructive repository operations.
+
+Put detailed standards under `docs/engineering/` only where useful.
+
+Link to existing contract, architecture and testing documentation rather than duplicating it.
+
+## 11. Unified local quality command
+
+Provide a convenient, documented developer-facing entry point.
 
 For example:
 
-```text
-knowledge/
-  nodes/
-    <node-id>.md
-  relations/
-    <relation-id>.md
-  clusters/
-    <cluster-id>.yaml
-  memberships/
-    <cluster-id>.yaml
-
-control/
-  receipts/
-    <receipt-id>.json
-```
-
-The actual layout may differ if required by current contracts.
-
-Keep canonical knowledge in Markdown/YAML.
-
-Commit-critical control records may be JSON if supported by existing contract definitions.
-
-Do not use filesystem paths as domain identities.
-
-### 7.3 Git storage adapter
-
-The adapter must support:
-
-- Resolve current committed generation.
-- Read a record from a specified generation.
-- Construct an isolated candidate tree.
-- Write Git objects without publishing them.
-- Create a commit with the previous committed generation as parent.
-- Publish through an expected-old-value ref update.
-- Recover or inspect the outcome of an uncertain operation.
-
-Do not stage arbitrary working-directory content.
-
-Do not invoke Git commands against a shared mutable process working directory.
-
-Avoid global `chdir`.
-
-Use explicit repository paths and controlled subprocess arguments.
-
-No shell interpolation.
-
-A lower-level Git library may be used only if it genuinely simplifies the implementation without undermining Git's conditional ref publication semantics.
-
-## 8. Minimal domain operations
-
-Implement only the operations required for the first vertical slice.
-
-### 8.1 Node creation
-
-Provide a typed `node.create` operation.
-
-Required behavior:
-
-- Validate the registered Node type.
-- Validate required Node metadata.
-- Assign or verify a stable identifier.
-- Establish an initial logical revision.
-- Require an explicit valid target Cluster.
-- Atomically create the required initial membership.
-- Record the creating principal/provenance.
-- Reject collisions.
-- Reject ownerless or unscoped Nodes.
-
-Direct creation into an authorized target Cluster is sufficient for M1.
-
-Do not implement staging workflows yet.
-
-### 8.2 Node read
-
-Provide committed `node.read`.
-
-Required behavior:
-
-- Select one committed generation.
-- Resolve Node identity through that generation.
-- Validate the committed record.
-- Return the requested permitted selection.
-- Never substitute uncommitted files.
-- Never expose unrelated Cluster details.
-
-Historical revision enumeration is deferred.
-
-### 8.3 Relation creation
-
-Provide typed `relation.create`.
-
-Required behavior:
-
-- Independent Relation identity.
-- Exactly one owner Cluster.
-- Explicit source and target Node IDs.
-- Registered predicate and predicate version.
-- Independent initial revision.
-- Endpoint existence validation.
-- No modification of endpoint Node revisions.
-- No implicit creation of inverse Relations.
-
-Relation endpoints may reference Nodes outside the owning Cluster, subject to the relevant access checks.
-
-### 8.4 Relation read
-
-Read the Relation from one committed generation.
-
-Require that its own record and both referenced endpoints are accessible to the current principal.
-
-No raw access to unrelated records.
-
-### 8.5 Cluster and Membership
-
-M1 must support enough Cluster/Membership state to guarantee valid initial Node admission.
-
-Support explicit trusted fixture/bootstrap creation of a Cluster if full administrative operations are not yet implemented.
-
-Membership must remain separate from Collection organization.
-
-Do not interpret Node references or Relation links as membership grants.
-
-## 9. Minimal authorization
-
-M1 does not implement the full capability system.
-
-However, it must not establish an unsafe public operation surface.
-
-Provide explicit trusted principal binding and a minimal, deny-by-default authorization boundary sufficient for supported operations.
-
-Required constraints:
-
-- No caller-provided Owner impersonation.
-- No mutation without an authorized principal.
-- No implicit access to every Cluster.
-- No unauthorized Relation endpoint reads.
-- No unauthorized resource existence disclosure.
-- No accidental bypass through direct application methods.
-
-A fixture-only or bootstrap-managed grant representation is acceptable if its scope is clearly documented.
-
-**Do not hardcode a universal allow-all policy.**
-
-Do not introduce PyCasbin or a custom policy DSL.
-
-If full O4 multi-cluster policy semantics are needed for an operation, limit the supported M1 case rather than silently adopting an unapproved policy-composition rule.
-
-## 10. Atomic batch
-
-Implement one-instance atomic domain batches using the existing generated transaction contracts.
-
-Mandatory acceptance scenario:
-
-```text
-Batch:
-  1. Create Node A
-  2. Create Node B
-  3. Create Relation R: A → B
-
-Expected:
-  Either all three resources and required
-  memberships become committed,
-  or none do.
-```
-
-The batch must support referencing newly created entities within the same batch.
-
-Use an explicit temporary-ID/reference mapping or another documented mechanism compatible with the canonical operation contracts.
-
-Avoid a general workflow DSL.
-
-### Commit protocol
-
-1. Resolve committed generation `C0`.
-2. Acquire the instance writer lock.
-3. Validate the complete batch against `C0`.
-4. Check current capabilities, memberships, type registrations and all preconditions.
-5. Construct isolated after-state bytes.
-6. Create Git objects and candidate commit `C1`.
-7. Include commit-critical receipt/control state in the candidate tree.
-8. Publish `C1` with one conditional expected-old-ref update.
-9. Return the committed result/receipt.
-
-Creating prepared Git objects is not the same as committing a domain effect.
-
-Core readers must see either `C0` or `C1`, never a mixed state.
-
-Do not create independent commits for nested operations.
-
-### Batch failures
-
-An invalid operation must invalidate the entire batch.
-
-A stale expected revision must reject the entire batch.
-
-A permission denial must reject the entire batch.
-
-There must be no independently visible partial success.
-
-## 11. Revisions and CAS
-
-Committed Node and Relation revisions are immutable.
-
-Use logical revisions as defined by the generated contracts.
-
-Do not substitute Git hashes for entity revision identifiers.
-
-When mutation or bootstrap conditions require an expected revision, validate it against the selected committed state.
-
-Return a typed conflict when it no longer matches.
-
-Do not silently resolve conflicts by overwriting newer data.
-
-In M1, only implement the revision operations actually exercised by supported create/update paths.
-
-Do not build full historical revision browsing or approval promotion.
-
-## 12. Idempotency and durable receipts
-
-Mutation requests require an idempotency key and a normalized payload digest.
-
-Store successful commit receipts durably within the chosen canonical commit boundary.
-
-Requirements:
-
-- Same key and same payload must not create duplicate resources.
-- Same key and different payload returns an idempotency conflict.
-- Restart must be able to identify whether a previously submitted operation committed.
-- A timeout after ref publication must not trigger a second commit.
-- Receipt access requires current authorization.
-- No successful receipt may be returned for a transaction that did not commit.
-
-Idempotency scope must include instance identity, authenticated principal and operation identity/version.
-
-Do not silently invent a retention duration.
-
-The initial implementation may retain receipts indefinitely within its explicitly documented test/development scope pending O3.
-
-## 13. Failure and recovery semantics
-
-Support process-level recovery by treating the managed Git ref as the authoritative commit decision.
-
-At restart:
-
-- Resolve the committed ref.
-- Verify required objects and records.
-- Recover the observable outcome of committed operations through durable receipts.
-- Ignore prepared but unpublished Git objects as accepted state.
-- Reject serving unsafe or corrupt canonical state.
-
-Do not use Git reset as automatic conflict resolution.
-
-Do not claim crash-safe fsync or power-loss guarantees unless actually demonstrated on the relevant filesystems.
-
-The initial goal is logical atomicity and consistent restart behavior, not certification of storage hardware durability.
-
-## 14. Canonical serialization and Obsidian compatibility
-
-Use the constrained YAML/Markdown rules already defined in the contracts.
-
-Requirements:
-
-- Preserve Markdown body bytes/content according to the accepted codec rules.
-- Reject duplicate YAML keys and unsupported tags.
-- Do not permit arbitrary executable YAML objects.
-- Reject invalid metadata types.
-- Keep author-editable properties flat.
-- Keep Relation ownership and endpoints authoritative in one record.
-- Use stable IDs instead of human-readable filenames as identities.
-
-Do not implement a live file watcher.
-
-Do not modify a human's existing Obsidian vault.
-
-All tests must use fabricated disposable repositories.
-
-## 15. Testing strategy
-
-Use focused tests that establish M1 guarantees.
-
-### A. Contract ingestion
-
-- Valid Node and Relation accepted.
-- Invalid payload rejected by canonical validation.
-- Generated Python round-trip preserved.
-- Unknown fields/versions rejected.
-- No direct Pydantic-only ingress bypass.
-
-### B. Domain invariants
-
-- Node cannot exist without valid Cluster admission.
-- Relation cannot point to missing endpoints.
-- Relation has exactly one owner Cluster.
-- Relation mutation does not alter Node revision.
-- Unauthorized resources are concealed.
-- Cross-instance references are not silently accepted.
-
-### C. Atomicity
-
-- Two Nodes plus Relation commit successfully.
-- Invalid final operation causes zero committed effects.
-- Stale generation causes CAS conflict.
-- Retry of same transaction returns original result.
-- Retry with changed payload returns conflict.
-
-### D. Recovery
-
-- Prepared Git objects without ref update are invisible.
-- Failure before ref publication leaves previous generation.
-- Failure after ref publication can be recognized as committed.
-- Missing committed object fails closed.
-
-### E. Instance isolation
-
-- Two instances have separate refs and state.
-- Operations cannot accidentally cross instances.
-- No process-global mutable current instance.
-- Direct application calls enforce authorization.
-
-### F. Serialization
-
-- Ukrainian and Unicode content.
-- YAML duplicate keys.
-- Missing versus null.
-- Stable IDs through path/title changes.
-- Independent Relation serialization.
-
-Prefer tests at real application boundaries over mocking Git behavior.
-
-Do not implement a large artificial crash-test framework.
-
-## 16. CI and quality
-
-Retain the existing contract generation/parity tests.
-
-Add M1 tests without modifying generated files manually.
-
-Run:
-
 ```bash
-python -m tools.generate_contracts --check
-python -m tools.validate_contracts
-python -m pytest -q
-npm run typecheck
-npm run parity
+python -m tools.check
 ```
 
-Also run applicable lint and formatting checks.
+The exact command may differ if the repository already has a better convention.
 
-Preserve Windows/macOS/Linux compatibility.
+Support a reasonable separation between:
 
-If hosted CI cannot be executed, report that limitation.
+- Fast source quality checks.
+- Contract generation/validation checks.
+- Core tests.
+- Full verification.
 
-Do not claim power-loss durability or production-level filesystem isolation from passing unit tests.
+Avoid creating a task-runner framework.
 
-## 17. Deliverables
+The local workflow and CI must use the same underlying commands.
 
-Expected output:
+Do not duplicate lint/test logic in multiple scripts.
 
-1. Minimal executable Python Core package/module.
-2. Domain validation for Node, Relation and required Membership/Cluster state.
-3. Git-backed committed-state adapter.
-4. Atomic batch application service.
-5. Durable receipt and idempotency handling.
-6. Committed-state read API.
-7. Focused conformance and recovery tests.
-8. Short architecture/usage documentation.
-9. Clear limitations and next-slice recommendations.
+## 12. CI hardening
 
-Do not implement additional feature families merely because their contracts already exist.
+Preserve the existing Windows/macOS/Linux CI matrix.
 
-## 18. Acceptance criteria
+Organize checks conceptually into:
 
-M1 is complete when:
+### Quality Gate
 
-- The implemented Core imports generated contract models.
-- Canonical structural validation occurs at ingress and output.
-- No parallel handwritten domain DTO model exists.
-- Supported operations enforce their documented invariants.
-- Accepted state is identified by one managed Git ref.
-- Reads never mix committed and uncommitted state.
-- Two Nodes and one Relation commit atomically with memberships.
-- Retry and CAS behavior are deterministic.
-- Failed operations do not partially commit.
-- Restart can distinguish committed and uncommitted outcomes.
-- Tests use isolated, disposable Git repositories.
-- Existing contract toolchain remains stable.
-- No MCP, Obsidian plugin, SQLite indexing or full governance engine has been introduced.
+- Python Ruff lint.
+- Python Ruff formatting.
+- Pyright.
+- TypeScript/JavaScript lint, if adopted.
+- Syntax/import checks.
 
-## 19. Final implementation report
+### Contract Gate
 
-Provide:
+- Canonical schema validation.
+- Reference resolution.
+- Generated artifact drift.
+- Python/Ajv parity.
+- Distribution integrity.
+- Cross-language consumer compatibility.
 
-- Implemented modules and their responsibilities.
-- Exact generated types and validators used.
-- Supported domain operations.
-- Git commit/ref publication approach.
-- Atomic batch and idempotency guarantees.
-- Relevant tests and actual results.
-- Known limitations.
-- Any contract changes and regenerated artifacts.
-- Unresolved questions requiring Owner approval.
-- Recommended next vertical slice.
+### Core Gate
 
-**Do not present implementation recommendations as completed functionality.**
+- M1 functional tests.
+- Domain invariant tests.
+- Git atomicity.
+- CAS/idempotency.
+- Recovery.
+- Instance isolation.
 
-The goal is to establish a small, verifiably consistent foundation upon which the rest of Second Brain can evolve.
+These may remain steps in the same workflow.
+
+Avoid multiplying CI jobs without measurable benefit.
+
+Pin new tools in the existing dependency-locking mechanism.
+
+Do not weaken existing gates merely to make the build pass.
+
+## 13. Test and coverage policy
+
+Keep existing tests and fixtures.
+
+Add targeted tests only where changes introduce new failure risks.
+
+Introduce coverage reporting if useful, preferably through the existing pytest ecosystem.
+
+Coverage should help locate untested critical code rather than serve as an arbitrary percentage target.
+
+Prioritize:
+
+- Authorization-denial paths.
+- Transaction failure boundaries.
+- Corrupt committed state.
+- Retry and receipt replay.
+- Contract validation.
+- Error sanitization.
+- Serialization.
+
+Do not require 100% coverage.
+
+Do not create test-only abstractions without concrete reuse.
+
+## 14. Scope control and execution order
+
+Perform the task in this order:
+
+1. Audit repository and classify cleanup candidates.
+2. Record current quality baseline.
+3. Fix verified contract/Core boundary defects.
+4. Introduce incremental lint/typecheck standards.
+5. Make only necessary focused refactors.
+6. Add or adjust regression tests.
+7. Harden CI and local commands.
+8. Perform safe repository cleanup.
+9. Update current documentation and agent instructions.
+10. Run complete relevant validation.
+11. Report findings and remaining risks.
+
+Use separate commits for quality tooling and cleanup if practical.
+
+Do not mix unrelated cosmetic changes into correctness fixes.
+
+## 15. Deliverables
+
+Produce:
+
+- Updated Ruff configuration.
+- Pyright configuration and documented strictness baseline.
+- Minimal ESLint setup, if justified.
+- Root `AGENTS.md`.
+- Updated CI/local quality workflow.
+- Contract runtime boundary hardening.
+- Focused M1 correctness fixes, only when substantiated.
+- Repository hygiene inventory.
+- Safe removal or ignore-rule updates.
+- Updated engineering documentation.
+- Relevant regression tests.
+- Final validation report.
+
+Suggested document paths:
+
+```text
+docs/engineering/
+  standards.md
+  repository-hygiene.md
+  quality-validation.md
+```
+
+Adapt to existing conventions.
+
+## 16. Acceptance criteria
+
+The task is complete when:
+
+- Handwritten production Python has an enforceable lint/format standard.
+- Static typing is checked with a documented baseline.
+- Generated artifacts are not treated as handwritten source.
+- The contract-runtime boundary has no inappropriate private API dependencies.
+- Local checks and CI agree.
+- Existing Core and contract functionality remains unchanged.
+- The repository has been audited for obsolete, duplicate and temporary content.
+- Only demonstrably safe cleanup has been applied.
+- Historical architecture and contract evidence remains accessible.
+- No unnecessary dependency/framework proliferation was introduced.
+- Relevant tests pass.
+- The final report clearly distinguishes actual verification from assumptions.
+
+Do not declare cleanup complete merely because the working tree is clean.
+
+## 17. Final report
+
+Report:
+
+1. Initial quality findings and severity.
+2. Tooling/configuration changes.
+3. Confirmed defects fixed.
+4. Refactors performed and justification.
+5. Files removed, moved or ignored, with reasons.
+6. Cleanup candidates intentionally retained.
+7. Updated CI gates.
+8. Executed commands and actual results.
+9. Remaining quality risks.
+10. Recommended next development milestone.
+
+Include a short before/after repository inventory summary.
+
+**The goal is a clean, consistently maintained engineering foundation — not maximum lint-rule coverage or the smallest possible file count.**

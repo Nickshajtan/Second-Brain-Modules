@@ -1,5 +1,10 @@
 # Architecture decisions
 
+Current implementation: [production contracts](../../contracts/README.md),
+[Core M1 scope](../../core/m1.md) and [engineering gates](../../engineering/standards.md).
+The dated status text below records decision provenance; it is not a current
+inventory of implemented features. Preserve individual ADRs and supersession notes.
+
 Recorded 2026-10-20. “Task-mandated” records an explicit requirement from the supplied spec; “proposed detail” remains a recommendation awaiting review. None of these records asserts an implemented runtime.
 
 | ADR | Decision | Status |

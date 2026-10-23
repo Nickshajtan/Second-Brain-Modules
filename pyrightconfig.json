@@ -1,0 +1,7 @@
+{
+  "include": ["packages/python/second_brain_core", "packages/python/second_brain_contracts", "tools/check.py"],
+  "exclude": ["packages/python/generated", "node_modules", ".venv", ".cache", "dist"],
+  "extraPaths": ["packages/python"],
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "basic"
+}

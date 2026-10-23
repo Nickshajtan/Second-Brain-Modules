@@ -1,5 +1,9 @@
 # Domain contract baseline
 
+Current implementation pointers: [production structural contracts](../contracts/README.md)
+and [Core M1 supported subset](../core/m1.md). The original assessment status below
+is historical; the invariant register remains the semantic baseline.
+
 Status: confirmed semantics from brief §2, with explicitly proposed persistence details. No production schemas. [Glossary](glossary.md) defines terms; [catalogue](operations-catalog.md) defines operations; [provenance](../architecture/decision-provenance.md) separates authority levels.
 
 Phase 1.1 precedence: the Owner now requires agents to use **authenticated MCP exclusively**, with physical deployment isolation and no access to canonical files, Git history, secrets or private indexes. Scoped filesystem projections are no longer an allowed agent interface. The [lean assessment](../research/phase-1-1/architecture-decision.md) replaces the four-PoC gate and proposes a simpler committed-state strategy; its storage/approval defaults are analyst recommendations, not changes to the invariants below.

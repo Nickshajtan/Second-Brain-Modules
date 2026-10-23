@@ -1,10 +1,12 @@
 """Deny-by-default access to supported private Cluster selections."""
 
-from .boundary import digest
+from functools import partial
+
+from .boundary import ContractBoundary, digest
 
 
 class AccessControl:
-    def __init__(self, boundary):
+    def __init__(self, boundary: ContractBoundary) -> None:
         self.boundary = boundary
 
     def allowed(self, cluster_id, action):
@@ -54,9 +56,9 @@ class AccessControl:
                 self.boundary.fail("NOT_FOUND")
             kind, identifier = resource["resource_kind"], resource["id"]
             selectors = {
-                "cluster": lambda: self.cluster(records, identifier, operation["operation"]),
-                "node": lambda: self.node(records, identifier),
-                "relation": lambda: self.relation(records, identifier),
+                "cluster": partial(self.cluster, records, identifier, operation["operation"]),
+                "node": partial(self.node, records, identifier),
+                "relation": partial(self.relation, records, identifier),
             }
             selector = selectors.get(kind)
             if selector is None:

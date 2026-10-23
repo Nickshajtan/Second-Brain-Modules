@@ -20,3 +20,10 @@ build/
 /coverage.xml
 /htmlcov/
 /.coverage
+.coverage.*
+.mypy_cache/
+.pyright/
+*.tsbuildinfo
+*.swp
+*.swo
+*~

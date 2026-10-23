@@ -1,15 +1,17 @@
 """Instance composition and one atomic transaction boundary for M1 operations."""
 
+from collections.abc import Iterable
 from pathlib import Path
 
 from generated.v1.operations_schema import NodeCreate, NodeRead, RelationCreate, RelationRead
 from generated.v1.transaction_schema import BatchRequest, CommittedReceipt, ReadResult
 from jsonschema.exceptions import ValidationError
+from pydantic import BaseModel
 from second_brain_contracts import ContractValidator
 
 from .access import AccessControl
 from .bootstrap import BootstrapInitializer
-from .boundary import GENERATION, VERSION, ContractBoundary, CoreError, digest
+from .boundary import GENERATION, VERSION, ContractBoundary, CoreError, InstanceContext, digest
 from .codec import encode
 from .domain import DomainRules
 from .git_store import PublicationConflict, StorageError
@@ -19,12 +21,18 @@ from .operations import (
     RelationCreateStrategy,
     RelationReadStrategy,
 )
+from .ports import CommitStore
 from .receipts import ReceiptStore
 from .repository import KnowledgeRepository
 
 
 class Core:
-    def __init__(self, context, store, contracts=None):
+    def __init__(
+        self,
+        context: InstanceContext,
+        store: CommitStore,
+        contracts: ContractValidator | None = None,
+    ) -> None:
         self.context = context
         self.store = store
         self.contracts = contracts or ContractValidator(version=context.contract_version)
@@ -54,13 +62,15 @@ class Core:
         self.repository = KnowledgeRepository(self.boundary, store, self.domain, self.receipts)
         self.initializer = BootstrapInitializer(self.boundary, store, self.repository, self.domain)
 
-    def bootstrap(self, records, metadata_schemas):
+    def bootstrap(
+        self, records: Iterable[BaseModel | dict[str, object]], metadata_schemas: dict[str, object]
+    ) -> dict[str, object]:
         return self.initializer.initialize(records, metadata_schemas)
 
-    def generation(self):
+    def generation(self) -> dict[str, object]:
         return self.repository.snapshot()[2]
 
-    def submit(self, payload: BatchRequest | dict | str | bytes) -> CommittedReceipt:
+    def submit(self, payload: BatchRequest | dict[str, object] | str | bytes) -> CommittedReceipt:
         batch = self.boundary.ingest("transaction", payload)
         if not isinstance(batch, BatchRequest):
             self.boundary.fail("VALIDATION_FAILED")
@@ -71,7 +81,8 @@ class Core:
                 return self._commit(request)
         except PublicationConflict as exc:
             raise CoreError(self.contracts, "REVISION_CONFLICT") from exc
-        except StorageError as exc:
+        except (StorageError, OSError) as exc:
+            # Lock-file failures can occur before a Git subprocess is started.
             raise CoreError(self.contracts, "REPAIR_REQUIRED") from exc
         except ValidationError as exc:
             raise CoreError(self.contracts, "VALIDATION_FAILED") from exc
@@ -134,7 +145,9 @@ class Core:
         )
 
     def execute(
-        self, payload: NodeCreate | RelationCreate | dict | str | bytes, expected_generation
+        self,
+        payload: NodeCreate | RelationCreate | dict[str, object] | str | bytes,
+        expected_generation: dict[str, object],
     ) -> CommittedReceipt:
         """Canonically revalidate typed inputs; keep the original generation on retry."""
         operation = self.boundary.ingest("operations", payload)
@@ -156,7 +169,9 @@ class Core:
             )
         )
 
-    def read(self, payload: NodeRead | RelationRead | dict | str | bytes) -> ReadResult:
+    def read(
+        self, payload: NodeRead | RelationRead | dict[str, object] | str | bytes
+    ) -> ReadResult:
         operation = self.boundary.ingest("operations", payload)
         wire = self.boundary.dump("operations", operation)
         if wire["instance_id"] != self.context.instance_id:
@@ -173,6 +188,6 @@ class Core:
             generation=generation,
             records=[record],
         )
-        model = self.contracts.parse("transaction", result).root
+        model = self.contracts.parse_as("transaction", result, ReadResult)
         self.boundary.dump("transaction", model)
         return model

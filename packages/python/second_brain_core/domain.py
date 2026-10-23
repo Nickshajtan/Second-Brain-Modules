@@ -4,11 +4,11 @@ from datetime import datetime
 
 from jsonschema import Draft202012Validator, FormatChecker
 
-from .boundary import digest
+from .boundary import ContractBoundary, digest
 
 
 class DomainRules:
-    def __init__(self, boundary):
+    def __init__(self, boundary: ContractBoundary) -> None:
         self.boundary = boundary
 
     def interval(self, value):

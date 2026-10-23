@@ -4,6 +4,10 @@ Status: **implemented, unreleased contract baseline**, not a running Core or a p
 
 ## Canonical inventory and public surfaces
 
+This page describes contract-package guarantees. The executable
+[Core M1](../core/m1.md) separately implements a bounded create/read subset;
+the 34 structural operation alternatives do not imply 34 runtime handlers.
+
 The [registry](../../contracts/registry/v1.json) maps exact logical resource IDs, paths and generated Python root types. IDs use the Owner's GitHub repository namespace plus exact `1.0.0`; they are **identifiers**, not a promise that schemas are hosted at those URLs. Validation never fetches them. Publication/tag/distribution remains separate work.
 
 | Resource | Root / meaningful contained definitions | Generated Python module |
@@ -51,6 +55,15 @@ if (record.kind === 'node') {
 The runtime adapter uses Ajv2020/ajv-formats and accepts parsed JSON, not arbitrary objects/host-language instances. Raw transport parsers must reject duplicate keys and non-JSON numbers; the Python `load_json` helper does so for packaged JSON. Do not substitute generated Pydantic parsing or TS static assignment for canonical validation. Known unsupported top-level contract versions raise `UNSUPPORTED_VERSION`; canonical nested version/discriminator constraints also reject invalid values. No read-time migration or network schema loading occurs.
 
 ## Serialization and structure
+
+Python consumers may import `decode_json(raw: str | bytes)` and
+`encode_json(value: object)` from `second_brain_contracts`. Decoding returns an
+object requiring schema validation and rejects duplicate keys, invalid UTF-8,
+NaN/Infinity and exponent overflow. Encoding emits sorted compact UTF-8 JSON with
+finite numbers, preserving Unicode spelling. Core uses this public API rather than
+private decoder callbacks. `parse_as(family, payload, GeneratedType)` canonically
+validates and then narrows the generated alternative; it does not replace the
+registry or create parallel DTOs. See [typing policy](../engineering/standards.md).
 
 UTF-8/LF artifacts, no generated timestamps or absolute paths. Entity identity is UUID v4 text with no path/title meaning. Logical immutable revisions use an independent revision ID plus resource/revision number; Git hashes are not the revision ID. Digests are explicit SHA-256 algorithm/value pairs; generation references are backend-neutral IDs/digests. Bodies are Markdown wire strings, **not duplicated authoring frontmatter**. `Node.content.properties` permits bounded flat JSON scalars/lists, no nested arbitrary metadata blobs. Instance-defined metadata schema IDs require a registered local schema and semantic validation in the future Core.
 

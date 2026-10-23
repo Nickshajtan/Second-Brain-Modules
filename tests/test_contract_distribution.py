@@ -106,15 +106,24 @@ def test_consumers_outside_checkout(bundles, tmp_path):
 import json, pathlib, sys
 root = pathlib.Path(sys.argv[1])
 sys.path.insert(0, str(root / 'packages/python'))
-from second_brain_contracts import ContractValidator
+from second_brain_contracts import ContractValidator, decode_json, encode_json
 validator = ContractValidator()
 validator.verify_generated()
+assert decode_json(encode_json({'unicode': 'Знання', 'omitted': None})) == {'unicode': 'Знання', 'omitted': None}
+try:
+    decode_json('{"duplicate": 1, "duplicate": 2}')
+except ValueError:
+    pass
+else:
+    raise AssertionError('Public strict decoder accepted duplicate keys')
 for case in json.loads(pathlib.Path(sys.argv[2]).read_text()):
     valid = validator.validators[case['schema']].is_valid(case['instance'])
     assert valid == case['valid'], case['name']
     if valid:
         model = validator.parse(case['schema'], case['instance'])
         assert validator.dump(case['schema'], model) == case['instance']
+        if case['schema'] == 'knowledge':
+            assert validator.parse_as('knowledge', case['instance'], type(model.root)) == model.root
 assert not any(n.startswith(('tools', 'datamodel_code_generator')) for n in sys.modules)
 """
     subprocess.run(

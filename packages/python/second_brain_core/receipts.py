@@ -2,12 +2,12 @@
 
 from generated.v1.transaction_schema import BatchRequest, CommittedReceipt
 
-from .boundary import VERSION, digest, timestamp
+from .boundary import VERSION, ContractBoundary, digest, timestamp
 from .codec import decode, encode
 
 
 class ReceiptStore:
-    def __init__(self, boundary, strategies):
+    def __init__(self, boundary: ContractBoundary, strategies) -> None:
         self.boundary = boundary
         self.strategies = strategies
 
@@ -31,7 +31,7 @@ class ReceiptStore:
             self.strategies[result["operation"]].authorize_replay(result, records)
         if receipt["request_digest"] != digest(request):
             self.boundary.fail("IDEMPOTENCY_CONFLICT")
-        return self.boundary.contracts.parse("transaction", receipt).root
+        return self.boundary.contracts.parse_as("transaction", receipt, CommittedReceipt)
 
     @staticmethod
     def operation_keys(request):
@@ -71,25 +71,25 @@ class ReceiptStore:
             committed_at=timestamp(),
             results=results,
         )
-        model = self.boundary.contracts.parse("transaction", receipt).root
+        model = self.boundary.contracts.parse_as("transaction", receipt, CommittedReceipt)
         path = self.for_request(request)
         files[path] = encode(self.boundary.dump("transaction", model))
         files[self.request_path(path)] = encode(request)
         return model
 
     def validate_pair(self, path, files):
-        receipt = self.boundary.contracts.parse("transaction", decode(files[path])).root
-        if not isinstance(receipt, CommittedReceipt):
-            self.boundary.fail("REPAIR_REQUIRED")
+        receipt = self.boundary.contracts.parse_as(
+            "transaction", decode(files[path]), CommittedReceipt
+        )
         wire = self.boundary.dump("transaction", receipt)
         if wire["instance_id"] != self.boundary.context.instance_id or path != self.path(
             wire["actor"]["principal_id"], wire["idempotency_key"]
         ):
             self.boundary.fail("REPAIR_REQUIRED")
         request_path = self.request_path(path)
-        request = self.boundary.contracts.parse("transaction", decode(files[request_path])).root
-        if not isinstance(request, BatchRequest):
-            self.boundary.fail("REPAIR_REQUIRED")
+        request = self.boundary.contracts.parse_as(
+            "transaction", decode(files[request_path]), BatchRequest
+        )
         request_wire = self.boundary.dump("transaction", request)
         if (
             digest(request_wire) != wire["request_digest"]
