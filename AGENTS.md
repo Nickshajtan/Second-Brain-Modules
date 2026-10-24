@@ -18,3 +18,82 @@
 - Preserve user changes. Do not remove uncertain/user-authored material, rewrite
   history, force-push or perform destructive cleanup. Historical evidence stays
   accessible; generated submodule-consumer artifacts remain tracked.
+
+## Mandatory Delegation Protocol
+
+For every nontrivial production-code change, the coordinator MUST use the configured `implementer` and `reviewer` subagents.
+This M1.1 protocol covers behavior, authorization, persistence, contracts,
+generation, distribution and compatibility changes. The coordinator owns
+integration and deterministic verification. Exceptions are defined below;
+explicit user requests for delegation still apply.
+Do not replace independent review with the implementer's self-review. Subagents must not delegate.
+
+### Execution sequence
+
+1. **Delegate implementation.**
+   - Invoke the `implementer` subagent.
+   - Provide the task scope, relevant contracts and acceptance criteria.
+   - The coordinator must not silently replace this step by implementing everything itself.
+
+2. **Delegate independent review.**
+   - After implementation, invoke the `reviewer` subagent.
+   - Provide the completed diff and original requirements.
+   - The reviewer must inspect the actual changes, not only the implementer's summary.
+   - The reviewer must not edit any files.
+
+3. **Resolve findings.**
+   - P0/P1 findings block completion.
+   - Confirmed P2 findings require a fix or explicit documented acceptance.
+   - Delegate corrections to the implementer.
+   - Allow at most one automatic implementer correction and one reviewer recheck.
+   - Escalate unresolved P0/P1 findings and confirmed P2 findings without explicit
+     user acceptance; stop rather than looping.
+   - Any substantive post-review change requires review of the final diff. If
+     the automatic cycle is exhausted, report `DELEGATION_BLOCKED` and seek user direction.
+
+4. **Verify quality gates.**
+   - Run applicable lint, typecheck, contract and test commands.
+   - Report actual results.
+   - CI remains the authoritative deterministic quality gate and does not trust
+     agent self-reporting.
+
+### Required execution evidence
+
+The final report MUST include:
+
+- Implementer: invoked / unavailable / skipped.
+- Reviewer: invoked / unavailable / skipped.
+- Actual configured role names, agent/session IDs, task scopes, completion status
+  and available tool/trace references for both delegations.
+- Reviewer verdict and findings.
+- Corrections performed.
+- Quality-gate results.
+- Any bypassed steps and reasons.
+- Remaining risks and verification limits.
+
+Never claim that a subagent ran unless an actual delegation occurred.
+A task label or final-message claim alone is not execution evidence.
+
+### Failure policy
+
+If a configured role cannot be discovered/invoked, a delegation fails, or trace
+evidence is unavailable:
+
+- Report `DELEGATION_BLOCKED`.
+- Do not substitute a self-review and describe it as independent.
+- Do not mark the task as fully reviewed.
+- Preserve completed work and explain the remaining verification requirement.
+- Include the exact failure reason and escalate unresolved blockers to the user.
+
+Instructions do not guarantee delegation or reviewer filesystem isolation.
+See [configuration and evidence](docs/engineering/codex-workflow.md) for the
+native configuration, smoke-test limitations and proposed enforcement gate.
+
+### Exceptions
+
+Trivial spelling, mechanical formatting, documentation-only or pure
+generated-artifact updates may skip delegation if the reason is recorded.
+The generated-artifact exception applies only to mechanical regeneration with
+no contract, generator, runtime behavior, distribution or compatibility change.
+
+The coordinator must not classify a production behavior change as trivial merely to avoid delegation.
