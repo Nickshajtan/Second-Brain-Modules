@@ -52,7 +52,7 @@ The controlled smoke prompt requested only a disposable typed addition function
 under `.cache/codex-smoke/`, implementer completion, then independent review.
 No production changes were authorized by that prompt.
 
-Result: **DELEGATION_BLOCKED**, not a passing smoke test.
+Initial result before session relaunch: **DELEGATION_BLOCKED**, not a passing smoke test.
 
 - Initial sandbox invocation encountered TLS certificate validation errors.
 - An escalated strict invocation rejected an unrelated existing global field,
@@ -81,9 +81,42 @@ Two concurrent threads cap concurrency, not cumulative token cost. Narrow scopes
 sequential handoff, trivial-change exemptions and the bounded correction cycle
 reduce cost without promising a fixed monetary limit.
 
-To complete validation, use a trusted native client exposing configured agent
+For a blocked client, use a trusted native client exposing configured agent
 selection; repeat the same disposable task with no production edits, capture both
 actual spawn/completion events and identities, inspect reviewer actions for writes,
-and independently verify the scratch result. Until then, configured roles are
-present on disk but runtime discovery/invocation remains unverified. Do not replace
+and independently verify the scratch result. In that initial session, configured roles
+were present on disk but runtime discovery/invocation remained unverified. Do not replace
 this check with two default agents renamed implementer and reviewer.
+
+## Successful retry after session relaunch
+
+The relaunched session exposed native `collaboration.spawn_agent` with `agent_type`
+selection, including configured `implementer` and `reviewer`. The controlled retry
+completed in order, using actual configured role selection rather than task labels:
+
+| Role | Native agent identifier | Result |
+| --- | --- | --- |
+| `implementer` | `/root/delegation_smoke_implementer` | Completed scratch implementation; three assertions passed |
+| `reviewer` | `/root/delegation_smoke_reviewer` | Completed independent inspection; PASS, no confirmed findings; four in-memory cases passed |
+
+Evidence is the current conversation's two native `collaboration.spawn_agent`
+calls with explicit `agent_type`, their returned canonical task identifiers, and
+the corresponding agent completion messages. Reviewer invocation occurred after
+implementer completion. Both agents confirmed receipt of a distinctive instruction
+from their respective configured role; this confirmation is self-report, while
+the invocation calls and completion events are independently visible tool evidence.
+No separate numeric session IDs or per-agent token counters were exposed.
+
+Only ignored `.cache/codex-smoke-relaunch/add.py` was implemented. Its SHA256 is
+`B414E3E8A1CC84D091471727544C353F60DB59FC2BEA10EE562ECE77410915BE`.
+The coordinator independently read it and passed three assertions using `.venv`.
+Tracked status was clean before and after agent execution; only this subsequent
+documentation update changes a tracked file. No corrections were needed.
+
+Result: **PASS for this bounded delegation smoke test**. The reviewer reported
+read-only inspection and no edits; observed tracked state remained unchanged.
+This does not prove filesystem write isolation, guaranteed future delegation,
+production correctness, or the two-thread limit under load. The parent trace
+does not expose every reviewer action, so its detailed command list remains
+agent-reported. No production suite was required or run for this disposable test.
+The earlier blocked result remains historical evidence of a different session.
