@@ -16,23 +16,37 @@ The coordinator supplies a bounded assignment, waits for implementation, then
 supplies the final diff and requirements to a different reviewer agent. Both roles
 must be invoked by configured identity, not merely by a task label.
 
-At most one automatic correction and one recheck are allowed. Unresolved blocking
-P0/P1/P2 correctness findings or missing execution evidence stop the workflow with
-`DELEGATION_BLOCKED`; report the reason and seek explicit user direction. Report
-agent IDs, role names, actual completion and trace references. CI remains the
-authoritative deterministic gate; no CI job calls an LLM or trusts its verdict.
+At most one automatic correction and one recheck are allowed. Follow the root
+protocol for blocking findings and explicit acceptance. `DELEGATION_UNAVAILABLE`
+means a required agent could not be invoked or finish; `EVIDENCE_INCOMPLETE` means
+the available evidence cannot establish completion. Missing optional IDs alone
+do not invalidate otherwise verified delegation. A completed review with no
+remaining blockers allows normal completion after applicable quality gates pass.
+Report role names, completion and available evidence, with limits disclosed.
 
 Reviewer read-only instructions are behavioral constraints, not filesystem
 isolation. Current native agents inherit the parent's permissions; custom agent
 files cannot replace them. Do not advertise a separate read-only sandbox.
 
-No documented native setting guarantees implementer-before-reviewer execution or
-forces the coordinator to delegate. AGENTS.md is a protocol, not enforcement.
-If a hard gate becomes necessary, the smallest proposed external addition is a
-required merge check consuming trusted harness events: verify distinct configured
-implementer/reviewer IDs, ordered completion, review tied to the final diff hash,
-and no unresolved blockers, alongside existing CI. Missing events fail closed.
-That proposal is not implemented here and cannot prove semantic review quality.
+This is soft orchestration, not guaranteed enforcement: repository instructions
+define expected behavior, Codex executes the workflow, and CI enforces deterministic
+quality checks independently of agent self-reporting. HCC Harness may eventually
+enforce delegation externally, for example by checking trusted completion events
+against the final diff. No harness integration, hooks or trace validator are
+implemented here; even an external gate would not prove semantic review quality.
+
+## Minimal failure diagnosis
+
+1. Record the failing step, exact error and available native tool capabilities.
+   Check whether configured role selection is exposed, rather than renaming a default agent.
+2. Parse the project TOML, check the two role names and instruction files, and
+   check project trust and installed-client compatibility without changing global settings.
+3. If configuration was added during a session, retry in a fresh trusted session.
+   Distinguish permission, transport and authentication failures from configuration errors.
+4. Use existing invocation/completion evidence first. Only if needed, request a
+   bounded disposable smoke test; do not repeat expensive tests for documentation edits.
+   Report unavailable execution separately from incomplete evidence, and never
+   present user confirmation alone as independently captured runtime traces.
 
 ## Verification on 2026-10-24
 
@@ -90,6 +104,11 @@ this check with two default agents renamed implementer and reviewer.
 
 ## Successful retry after session relaunch
 
+The user confirmed successful configured subagent invocation in a fresh session.
+That confirmation is user-provided evidence, separate from the captured native
+tool calls and completion messages described below. The earlier failure was
+session-specific and is not a persistent configuration failure.
+
 The relaunched session exposed native `collaboration.spawn_agent` with `agent_type`
 selection, including configured `implementer` and `reviewer`. The controlled retry
 completed in order, using actual configured role selection rather than task labels:
@@ -99,7 +118,7 @@ completed in order, using actual configured role selection rather than task labe
 | `implementer` | `/root/delegation_smoke_implementer` | Completed scratch implementation; three assertions passed |
 | `reviewer` | `/root/delegation_smoke_reviewer` | Completed independent inspection; PASS, no confirmed findings; four in-memory cases passed |
 
-Evidence is the current conversation's two native `collaboration.spawn_agent`
+Runtime evidence was the retry conversation's two native `collaboration.spawn_agent`
 calls with explicit `agent_type`, their returned canonical task identifiers, and
 the corresponding agent completion messages. Reviewer invocation occurred after
 implementer completion. Both agents confirmed receipt of a distinctive instruction

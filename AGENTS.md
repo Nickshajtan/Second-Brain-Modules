@@ -50,6 +50,8 @@ Do not replace independent review with the implementer's self-review. Subagents 
      user acceptance; stop rather than looping.
    - Any substantive post-review change requires review of the final diff. If
      the automatic cycle is exhausted, report `DELEGATION_BLOCKED` and seek user direction.
+   - A completed review with no remaining blocking findings allows normal task
+     completion once applicable quality gates pass; no extra review cycle is required.
 
 4. **Verify quality gates.**
    - Run applicable lint, typecheck, contract and test commands.
@@ -63,8 +65,8 @@ The final report MUST include:
 
 - Implementer: invoked / unavailable / skipped.
 - Reviewer: invoked / unavailable / skipped.
-- Actual configured role names, agent/session IDs, task scopes, completion status
-  and available tool/trace references for both delegations.
+- Actual configured role names, task scopes and completion status for both
+  delegations, plus agent/session IDs and tool/trace references where available.
 - Reviewer verdict and findings.
 - Corrections performed.
 - Quality-gate results.
@@ -76,14 +78,18 @@ A task label or final-message claim alone is not execution evidence.
 
 ### Failure policy
 
-If a configured role cannot be discovered/invoked, a delegation fails, or trace
-evidence is unavailable:
-
-- Report `DELEGATION_BLOCKED`.
-- Do not substitute a self-review and describe it as independent.
-- Do not mark the task as fully reviewed.
-- Preserve completed work and explain the remaining verification requirement.
-- Include the exact failure reason and escalate unresolved blockers to the user.
+- Report `DELEGATION_UNAVAILABLE` when a configured role cannot be discovered or
+  invoked, or its execution fails. Disclose the exact failure and incomplete step;
+  preserve completed work and seek user direction if required delegation cannot finish.
+- Report `EVIDENCE_INCOMPLETE` when the available evidence cannot establish that
+  the required delegation or review completed. Identify what is verified and what
+  is missing; do not mark an unverified review as completed.
+- Missing optional trace/session IDs alone must not block otherwise verified
+  invocation and completion. State that limitation and complete normally if the
+  review has no blocking findings and applicable quality gates pass.
+- Never substitute self-review and describe it as independent. Reserve
+  `DELEGATION_BLOCKED` for unresolved blocking findings or an exhausted correction
+  budget; escalate those blockers to the user.
 
 Instructions do not guarantee delegation or reviewer filesystem isolation.
 See [configuration and evidence](docs/engineering/codex-workflow.md) for the
