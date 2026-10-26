@@ -73,9 +73,39 @@ class DomainRules:
             "node": self._node,
             "node_revision": self._node_revision,
             "relation": self._relation,
+            "relation_revision": self._relation_revision,
+            "node_revision_snapshot": self._node_snapshot,
         }
         definitions = {"node_type_definition", "relation_type_definition"}
+        identities, sequences, supplements = set(), set(), set()
         for (kind, _), record in records.items():
+            if kind in {"node_revision", "relation_revision"}:
+                resource = record["node_id"] if kind == "node_revision" else record["relation_id"]
+                sequence = (kind, resource, record["logical_revision"])
+                if record["id"] in identities or sequence in sequences:
+                    self.boundary.fail("REPAIR_REQUIRED")
+                identities.add(record["id"])
+                sequences.add(sequence)
+                previous = record.get("previous")
+                if record["logical_revision"] == 1:
+                    if previous is not None:
+                        self.boundary.fail("REPAIR_REQUIRED")
+                else:
+                    prior = records.get((kind, previous["revision_id"])) if previous else None
+                    resource_kind = "node" if kind == "node_revision" else "relation"
+                    if (
+                        not prior
+                        or previous["resource"] != self.boundary.resource(resource_kind, resource)
+                        or previous["revision"] != record["logical_revision"] - 1
+                        or prior["logical_revision"] != previous["revision"]
+                        or prior.get("node_id", prior.get("relation_id")) != resource
+                    ):
+                        self.boundary.fail("REPAIR_REQUIRED")
+            if kind == "node_revision_snapshot":
+                revision_id = record["revision_ref"]["revision_id"]
+                if revision_id in supplements:
+                    self.boundary.fail("REPAIR_REQUIRED")
+                supplements.add(revision_id)
             validator = validators.get(kind)
             if validator is not None:
                 validator(record, records, metadata)
@@ -141,7 +171,46 @@ class DomainRules:
     def _relation(self, record, records, metadata):
         if ("cluster", record["owner_cluster_id"]) not in records:
             self.boundary.fail("REPAIR_REQUIRED")
+        # Public M2.1 remains create-only. Isolated future-head tests exercise the
+        # historical verifier directly, not a relaxed public snapshot profile.
+        histories = [
+            r
+            for (kind, _), r in records.items()
+            if kind == "relation_revision" and r["relation_id"] == record["id"]
+        ]
+        if (
+            record["revision"] != 1
+            or record["lifecycle"] != "active"
+            or (histories and (len(histories) != 1 or histories[0]["snapshot"] != record))
+        ):
+            self.boundary.fail("REPAIR_REQUIRED")
         self.relation(record, records)
+
+    def _relation_revision(self, record, records, metadata):
+        snapshot = record["snapshot"]
+        if (
+            snapshot["id"] != record["relation_id"]
+            or snapshot["revision"] != record["logical_revision"]
+            or record["digest"] != digest(snapshot)
+            or ("relation", record["relation_id"]) not in records
+        ):
+            self.boundary.fail("REPAIR_REQUIRED")
+        self.interval(snapshot)
+
+    def _node_snapshot(self, record, records, metadata):
+        ref = record["revision_ref"]
+        revision = records.get(("node_revision", ref["revision_id"]))
+        if (
+            not revision
+            or "snapshot" in revision
+            or ref["resource"] != self.boundary.resource("node", revision["node_id"])
+            or ref["revision"] != revision["logical_revision"]
+            or record["source_generation"]["instance_id"] != self.boundary.context.instance_id
+            or record["digest"] != revision["digest"]
+            or record["digest"] != digest(record["snapshot"])
+        ):
+            self.boundary.fail("REPAIR_REQUIRED")
+        self.content(record["snapshot"], records, metadata)
 
     def metadata(self, metadata):
         if not isinstance(metadata, dict):

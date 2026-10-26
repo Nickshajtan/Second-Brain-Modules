@@ -17,7 +17,8 @@ export type KnowledgeRecord =
   | Asset
   | ExternalReference
   | ProvenanceRecord
-  | RelationRevision;
+  | RelationRevision
+  | NodeRevisionSnapshot;
 
 export interface Node {
   kind: 'node';
@@ -322,4 +323,23 @@ export interface RelationRevision {
   recorded_by: PrincipalRef;
   recorded_at: string;
   previous?: RevisionRef;
+}
+export interface NodeRevisionSnapshot {
+  kind: 'node_revision_snapshot';
+  id: string;
+  schema_version: '1.0.0';
+  revision_ref: NodeRevisionRef;
+  snapshot: NodeContent;
+  digest: Digest;
+  source_generation: GenerationRef;
+}
+export interface NodeRevisionRef {
+  resource: NodeRef;
+  revision_id: string;
+  revision: number;
+}
+export interface GenerationRef {
+  instance_id: string;
+  generation_id: string;
+  digest: Digest;
 }

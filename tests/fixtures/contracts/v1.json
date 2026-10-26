@@ -5443,5 +5443,336 @@
       }
     },
     "valid": false
+  },
+  {
+    "name": "m21-node-revision-supplement",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node_revision_snapshot",
+      "schema_version": "1.0.0",
+      "id": "22222222-2222-4222-8222-222222222222",
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "snapshot": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "source_generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "m21-history-fresh-baseline",
+    "schema": "transaction",
+    "instance": {
+      "kind": "history_baseline",
+      "schema_version": "1.0.0",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "mode": "fresh",
+      "actor": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "additions": [],
+      "effects_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "m21-history-migrated-baseline",
+    "schema": "transaction",
+    "instance": {
+      "kind": "history_baseline",
+      "schema_version": "1.0.0",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "mode": "migrated",
+      "actor": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "additions": [],
+      "effects_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "source_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "source_generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "plan_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "m21-supplement-wrong-resource",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node_revision_snapshot",
+      "schema_version": "1.0.0",
+      "id": "22222222-2222-4222-8222-222222222222",
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "relation",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "snapshot": {
+        "node_type": "note",
+        "title": "Independent fixture",
+        "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+        "properties": {
+          "topics": [
+            "science",
+            "дані"
+          ],
+          "priority": 1,
+          "pinned": false
+        },
+        "provenance": [
+          {
+            "record_id": "00000005-1111-4111-8111-000000000005"
+          }
+        ],
+        "node_type_version": "1.0.0"
+      },
+      "digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "source_generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    },
+    "valid": false,
+    "error": {
+      "keyword": "const",
+      "path": [
+        "revision_ref",
+        "resource",
+        "resource_kind"
+      ]
+    }
+  },
+  {
+    "name": "m21-supplement-missing-snapshot",
+    "schema": "knowledge",
+    "instance": {
+      "kind": "node_revision_snapshot",
+      "schema_version": "1.0.0",
+      "id": "22222222-2222-4222-8222-222222222222",
+      "revision_ref": {
+        "resource": {
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "resource_kind": "node",
+          "id": "00000002-1111-4111-8111-000000000002"
+        },
+        "revision_id": "00000004-1111-4111-8111-000000000004",
+        "revision": 1
+      },
+      "digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "source_generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    },
+    "valid": false,
+    "error": {
+      "keyword": "required",
+      "path": []
+    }
+  },
+  {
+    "name": "m21-migration-missing-source",
+    "schema": "transaction",
+    "instance": {
+      "kind": "history_baseline",
+      "schema_version": "1.0.0",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "mode": "migrated",
+      "actor": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "additions": [],
+      "effects_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "source_generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "plan_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    },
+    "valid": false,
+    "error": {
+      "keyword": "required",
+      "path": []
+    }
+  },
+  {
+    "name": "m21-migration-invalid-commit",
+    "schema": "transaction",
+    "instance": {
+      "kind": "history_baseline",
+      "schema_version": "1.0.0",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "mode": "migrated",
+      "actor": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "additions": [],
+      "effects_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "source_commit": "../private/repo",
+      "source_generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "plan_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    },
+    "valid": false,
+    "error": {
+      "keyword": "pattern",
+      "path": [
+        "source_commit"
+      ]
+    }
+  },
+  {
+    "name": "m21-fresh-forbids-migration-source",
+    "schema": "transaction",
+    "instance": {
+      "kind": "history_baseline",
+      "schema_version": "1.0.0",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "mode": "fresh",
+      "actor": {
+        "principal_id": "00000001-1111-4111-8111-000000000001"
+      },
+      "additions": [],
+      "effects_digest": {
+        "algorithm": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "source_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    },
+    "valid": false,
+    "error": {
+      "keyword": "not",
+      "path": []
+    }
   }
 ]

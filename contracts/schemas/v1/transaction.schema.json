@@ -23,6 +23,9 @@
     },
     {
       "$ref": "#/$defs/OutboxRecord"
+    },
+    {
+      "$ref": "#/$defs/HistoryBaseline"
     }
   ],
   "$defs": {
@@ -335,6 +338,134 @@
         "delivery_state",
         "attempts",
         "schema_version"
+      ]
+    },
+    "HistoryBaseline": {
+      "title": "HistoryBaseline",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "history_baseline"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "fresh",
+            "migrated"
+          ]
+        },
+        "actor": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        },
+        "source_commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}([0-9a-f]{24})?$"
+        },
+        "source_generation": {
+          "$ref": "common.schema.json#/$defs/GenerationRef"
+        },
+        "plan_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "additions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "effects_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "generation": {
+          "$ref": "common.schema.json#/$defs/GenerationRef"
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "instance_id",
+        "mode",
+        "actor",
+        "additions",
+        "effects_digest",
+        "generation"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "migrated"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "source_commit",
+              "source_generation",
+              "plan_digest"
+            ],
+            "properties": {
+              "source_commit": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{40}([0-9a-f]{24})?$"
+              },
+              "source_generation": {
+                "$ref": "common.schema.json#/$defs/GenerationRef"
+              },
+              "plan_digest": {
+                "$ref": "common.schema.json#/$defs/Digest"
+              }
+            }
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "source_commit"
+                  ],
+                  "properties": {
+                    "source_commit": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{40}([0-9a-f]{24})?$"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "source_generation"
+                  ],
+                  "properties": {
+                    "source_generation": {
+                      "$ref": "common.schema.json#/$defs/GenerationRef"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "plan_digest"
+                  ],
+                  "properties": {
+                    "plan_digest": {
+                      "$ref": "common.schema.json#/$defs/Digest"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
       ]
     }
   }

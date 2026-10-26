@@ -46,3 +46,13 @@ if (operation.operation === 'node.create') {
 // @ts-expect-error immutable Relation snapshot must retain exact Relation fields
 const missingSnapshot: RelationRevision = {kind: 'relation_revision'};
 void [historicalPredicate, historicalBody, missingSnapshot];
+
+import type {NodeRevisionSnapshot} from './generated/v1/knowledge.js';
+import type {HistoryBaseline} from './generated/v1/transaction.js';
+declare const supplement: NodeRevisionSnapshot;
+declare const historyBaseline: HistoryBaseline;
+const recoveredBody: string = supplement.snapshot.body;
+const sourceCommit: string | undefined = historyBaseline.source_commit;
+// @ts-expect-error a snapshot supplement cannot point at a Relation revision
+const wrongHistoryKind: NodeRevisionSnapshot['revision_ref']['resource']['resource_kind'] = 'relation';
+void [recoveredBody, sourceCommit, wrongHistoryKind];

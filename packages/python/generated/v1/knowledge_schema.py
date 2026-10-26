@@ -294,6 +294,19 @@ class RelationRevision(BaseModel):
     previous: common_schema.RevisionRef | None = None
 
 
+class NodeRevisionSnapshot(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    kind: Literal['node_revision_snapshot']
+    id: common_schema.EntityId
+    schema_version: common_schema.SchemaVersion
+    revision_ref: common_schema.NodeRevisionRef
+    snapshot: NodeContent
+    digest: common_schema.Digest
+    source_generation: common_schema.GenerationRef
+
+
 class KnowledgeRecord(
     RootModel[
         Node
@@ -308,6 +321,7 @@ class KnowledgeRecord(
         | ExternalReference
         | ProvenanceRecord
         | RelationRevision
+        | NodeRevisionSnapshot
     ]
 ):
     root: (
@@ -323,4 +337,5 @@ class KnowledgeRecord(
         | ExternalReference
         | ProvenanceRecord
         | RelationRevision
+        | NodeRevisionSnapshot
     ) = Field(..., title='KnowledgeRecord')

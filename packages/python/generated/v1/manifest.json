@@ -5,19 +5,19 @@
     "packages/python/generated/v1/common_schema.py": "3eec1d635c69f96f24770cdd284a6d7665ee1eee7360c1ec52462633642b1239",
     "packages/python/generated/v1/control_schema.py": "7da4dca4ad7040aa82e1d72779b286d685a73999fcee58f814ecbbcd02f48090",
     "packages/python/generated/v1/governance_schema.py": "7bef18bb22b3e6ab08daab6c9ba922558af142946877943b99a1f6669989c75e",
-    "packages/python/generated/v1/knowledge_schema.py": "d2df540308841cf9481a0b476fe4ba54551e1a6d6c4d2ff4c399a1e40a698c60",
+    "packages/python/generated/v1/knowledge_schema.py": "7db5e927b085676b442c541265f1f16c2167173fba9a34741076b9aac4a23094",
     "packages/python/generated/v1/operations_schema.py": "0097e33dd086658e2f46d8a2bb122aedc8f99e0541e9fd6e8054cdb7937c0a74",
     "packages/python/generated/v1/snapshots_schema.py": "e8ea2b1708aa7097623860bed6842e615e93664a4f6eaaaef00d4d67a1626afc",
-    "packages/python/generated/v1/transaction_schema.py": "4f734da91d620856abf2d2b5f3db4eb9cf01a5204748be1c150ce5a224147bc2",
+    "packages/python/generated/v1/transaction_schema.py": "5fd286fde6f6106449547fc6f203ecb8296fb2784b900eee773e70ad5584298b",
     "packages/typescript/generated/v1/authoring.d.ts": "d516b59f6c888227b3a412d8b59b8415caf126338c89f8a18243d12de9d30e7c",
     "packages/typescript/generated/v1/common.d.ts": "70653339b1c7537aba5a5395940c74061c464a589f539a0b282960e29a69f8ae",
     "packages/typescript/generated/v1/control.d.ts": "e3ef7a6c1f58dfae79fbc259cfee8865cd591f6cef031844c10a0fabdfba95a6",
     "packages/typescript/generated/v1/governance.d.ts": "70d13540e403108be15e32d878e0ba4ef07c165545aa7d43b21409f7a352ed36",
     "packages/typescript/generated/v1/index.d.ts": "f0841c554bf48c139edc6edd469ed3a0f081368e51c3f1895ef05c8c107e4853",
-    "packages/typescript/generated/v1/knowledge.d.ts": "726f076ce08cac4746b10f9d6b38231e586fd4b496da5cc0d23ff5bdd18eb83b",
+    "packages/typescript/generated/v1/knowledge.d.ts": "55150a1a9d7eb61953f273285b83c6b15e0a4bf8d9186d990957c6fce1fe317d",
     "packages/typescript/generated/v1/operations.d.ts": "a2e9367b58f176ba85f5040caaf606dc7ef20fe0c93fe0f2a0b1dc8363b94906",
     "packages/typescript/generated/v1/snapshots.d.ts": "2d9cf9af185e8e4be45df44549859310525c7080ebfdfb34ca5c187b236e16c0",
-    "packages/typescript/generated/v1/transaction.d.ts": "cd9afa413abe20715b2049377714b3808be83237d93e019d6952fb5e4ce12fa7"
+    "packages/typescript/generated/v1/transaction.d.ts": "91ff4426f494ac563962585031f5820c10730fdf6ed41034620d864d56e22d62"
   },
   "contract_version": "1.0.0",
   "source_hashes": {
@@ -26,9 +26,9 @@
     "contracts/schemas/v1/common.schema.json": "19a55c5af9653b84930c6bfc0b6e79d8d89d8abefd1a5ec4a55143ff12cf1499",
     "contracts/schemas/v1/control.schema.json": "c5a461ea87b630f737a8c13dd54d5870b9e632e51fe8c1c929cdad9279a13a91",
     "contracts/schemas/v1/governance.schema.json": "ed0f417f08be3173690b0a85f7b7b38acaffd8d64d5c40322fed70137943accf",
-    "contracts/schemas/v1/knowledge.schema.json": "f28f755d55eef9ae62ea06d1e360a3707a217a78d5801da9088e967e4dc8ac8b",
+    "contracts/schemas/v1/knowledge.schema.json": "daceba8822497d2afeaf3ae81420c1e7f2d112322bc48ddb50e963c8317588af",
     "contracts/schemas/v1/operations.schema.json": "bf41fe2b38e74a07c7613335dd68f441851507834255344ba8807a953aaef98a",
     "contracts/schemas/v1/snapshots.schema.json": "bc7af8683ac47c51b5da6b2a9e51a5fdbfb1d8a8f60692813d95b4313e4d72fa",
-    "contracts/schemas/v1/transaction.schema.json": "4f5d9b9289a11bb7d3e31c863d0149499edb2b6c8c31f3fb3b617cdb7cbaac95"
+    "contracts/schemas/v1/transaction.schema.json": "4306928f95633a4505c6a465791ff6f5af50242ddda1a5b34e583230d80e9cbf"
   }
 }

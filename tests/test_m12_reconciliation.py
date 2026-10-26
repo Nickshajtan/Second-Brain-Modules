@@ -70,12 +70,13 @@ def test_node_revision_snapshot_restart_integrity_and_legacy(core, mode):
     elif mode == "tampered":
         revision["snapshot"]["body"] += "changed historical bytes"
     files[path] = encode(revision)
-    generation = decode(files["control/generation.json"])
-    generation["digest"] = app.repository.generation(files)["digest"]
+    generation = app.repository.generation(files)
     files["control/generation.json"] = encode(generation)
     app.store.publish(app.store.prepare(files, parent), parent)
     restarted = Core(app.context, app.store, app.contracts)
-    if mode == "tampered":
+    # Removing a snapshot from a newly marked history is corruption, not legacy.
+    # Actual metadata-only legacy origins are covered by the M2.1 migration suite.
+    if mode in {"tampered", "legacy"}:
         error("REPAIR_REQUIRED", restarted.generation)
     else:
         assert restarted.generation()
@@ -92,7 +93,7 @@ def test_m12_catalogue_and_canonical_coverage_references():
     covered = set(re.findall(r"\| CAP-\d+ \| `([^`]+)`", matrix))
     assert names <= covered
     ids = re.findall(r"\| (CAP-\d+) \|", matrix)
-    assert len(ids) == len(set(ids)) == 99
+    assert len(ids) == len(set(ids)) == 101
     operations = json.loads((ROOT / "contracts/schemas/v1/operations.schema.json").read_text())
     for definition in operations["$defs"].values():
         operation = definition.get("properties", {}).get("operation", {}).get("const")

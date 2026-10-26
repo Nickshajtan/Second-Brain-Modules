@@ -78,7 +78,15 @@ class NodeCreateStrategy:
         ]
         if (
             node["content"] != operation["payload"]["content"]
+            or node["revision"] != 1
+            or revision["logical_revision"] != 1
+            or revision["id"] != node["revision_ref"]["revision_id"]
+            or revision["node_id"] != node["id"]
+            or revision["digest"] != digest(operation["payload"]["content"])
+            or revision["provenance"] != operation["payload"]["content"]["provenance"]
             or member["cluster_id"] != operation["payload"]["target_cluster_id"]
+            or member["revision"] != 1
+            or member["admitted_at"] != node["created_at"]
             or member["admitted_by"] != receipt["actor"]
             or (revision["recorded_by"] != receipt["actor"])
             or (result["resources"] != expected)
@@ -89,13 +97,14 @@ class NodeCreateStrategy:
     def authorize_replay(self, result, records):
         action = result["operation"]
         resource = result["resources"][0]
-        member = next(
-            (
-                r
-                for (k, _), r in records.items()
-                if k == "membership" and r["node_id"] == resource["id"]
-            )
-        )
+        members = [
+            r
+            for (k, _), r in records.items()
+            if k == "membership" and r["node_id"] == resource["id"] and r["lifecycle"] == "active"
+        ]
+        if len(members) != 1 or ("node", resource["id"]) not in records:
+            self.boundary.fail("NOT_FOUND")
+        member = members[0]
         self.access.cluster(records, member["cluster_id"], action)
         self.access.cluster(records, member["cluster_id"], "membership.admit")
 
@@ -123,7 +132,6 @@ class RelationCreateStrategy:
         self.domain.relation(relation, records)
         if relation["revision"] != 1 or relation["lifecycle"] != "active":
             self.boundary.fail("VALIDATION_FAILED")
-        additions = [relation]
         revisions = [
             {
                 "resource": self.boundary.resource("relation", relation["id"]),
@@ -131,6 +139,18 @@ class RelationCreateStrategy:
                 "revision": 1,
             }
         ]
+        history = dict(
+            kind="relation_revision",
+            id=revisions[0]["revision_id"],
+            schema_version=VERSION,
+            relation_id=relation["id"],
+            logical_revision=1,
+            snapshot=relation,
+            digest=digest(relation),
+            recorded_by={"principal_id": self.boundary.context.principal.principal_id},
+            recorded_at=timestamp(),
+        )
+        additions = [relation, history]
         return additions, revisions
 
     def verify_result(self, operation, result, receipt, records):
@@ -142,6 +162,12 @@ class RelationCreateStrategy:
             or len(result["revisions"]) != 1
             or (result["revisions"][0]["resource"] != reference)
             or (result["revisions"][0]["revision"] != relation["revision"])
+            or relation["revision"] != 1
+        ):
+            self.boundary.fail("REPAIR_REQUIRED")
+        history = records.get(("relation_revision", result["revisions"][0]["revision_id"]))
+        if history is not None and (
+            history["snapshot"] != relation or history["recorded_by"] != receipt["actor"]
         ):
             self.boundary.fail("REPAIR_REQUIRED")
 

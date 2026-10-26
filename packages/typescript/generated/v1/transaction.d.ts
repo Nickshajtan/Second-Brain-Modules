@@ -6,7 +6,14 @@
  */
 
 export type TransactionRecord =
-  BatchRequest | OperationResult | CommittedReceipt | ErrorResponse | ReadResult | CommittedEvent | OutboxRecord;
+  | BatchRequest
+  | OperationResult
+  | CommittedReceipt
+  | ErrorResponse
+  | ReadResult
+  | CommittedEvent
+  | OutboxRecord
+  | HistoryBaseline;
 export type MutationOperation =
   | NodeCreate
   | NodeUpdate
@@ -51,7 +58,9 @@ export type KnowledgeRecord =
   | Asset
   | ExternalReference
   | ProvenanceRecord
-  | RelationRevision;
+  | RelationRevision
+  | NodeRevisionSnapshot;
+export type HistoryBaseline = HistoryBaseline1;
 
 export interface BatchRequest {
   kind: 'batch_request';
@@ -1144,6 +1153,20 @@ export interface RelationRevision {
   recorded_at: string;
   previous?: RevisionRef;
 }
+export interface NodeRevisionSnapshot {
+  kind: 'node_revision_snapshot';
+  id: string;
+  schema_version: '1.0.0';
+  revision_ref: NodeRevisionRef;
+  snapshot: NodeContent;
+  digest: Digest;
+  source_generation: GenerationRef;
+}
+export interface NodeRevisionRef {
+  resource: NodeRef;
+  revision_id: string;
+  revision: number;
+}
 export interface CommittedEvent {
   kind: 'committed_event';
   schema_version: '1.0.0';
@@ -1169,4 +1192,17 @@ export interface OutboxRecord {
   attempts: number;
   delivered_at?: string;
   schema_version: '1.0.0';
+}
+export interface HistoryBaseline1 {
+  kind: 'history_baseline';
+  schema_version: '1.0.0';
+  instance_id: string;
+  mode: 'fresh' | 'migrated';
+  actor: PrincipalRef;
+  source_commit?: string;
+  source_generation?: GenerationRef;
+  plan_digest?: Digest;
+  additions: string[];
+  effects_digest: Digest;
+  generation: GenerationRef;
 }

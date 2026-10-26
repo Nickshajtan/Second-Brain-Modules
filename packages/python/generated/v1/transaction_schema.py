@@ -73,6 +73,32 @@ class OutboxRecord(BaseModel):
     schema_version: common_schema.SchemaVersion
 
 
+class Mode(StrEnum):
+    fresh = 'fresh'
+    migrated = 'migrated'
+
+
+class Addition(RootModel[constr(min_length=1)]):
+    root: constr(min_length=1)
+
+
+class HistoryBaseline(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    kind: Literal['history_baseline']
+    schema_version: common_schema.SchemaVersion
+    instance_id: common_schema.BrainInstanceId
+    mode: Mode
+    actor: common_schema.PrincipalRef
+    source_commit: constr(pattern=r'^[0-9a-f]{40}([0-9a-f]{24})?$') | None = None
+    source_generation: common_schema.GenerationRef | None = None
+    plan_digest: common_schema.Digest | None = None
+    additions: list[Addition]
+    effects_digest: common_schema.Digest
+    generation: common_schema.GenerationRef
+
+
 class BatchRequest(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
@@ -120,6 +146,7 @@ class TransactionRecord(
         | ReadResult
         | CommittedEvent
         | OutboxRecord
+        | HistoryBaseline
     ]
 ):
     root: (
@@ -130,4 +157,5 @@ class TransactionRecord(
         | ReadResult
         | CommittedEvent
         | OutboxRecord
+        | HistoryBaseline
     ) = Field(..., title='TransactionRecord')

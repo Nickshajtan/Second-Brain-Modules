@@ -5,8 +5,8 @@ This register classifies domain/API gaps, not a request to implement every handl
 ## Confirmed M1.2 structural corrections
 
 1. `NodeCreate.payload.node_id` separates stable resource identity from request identity. It is optional only for unreleased M1 compatibility; omission preserves the exact original allocation rule and persisted request hashes. Runtime honors explicit identity; request identity remains durable operation evidence. No copy/fork/import handler is implied.
-2. `knowledge#/$defs/RelationRevision` records immutable identity, logical revision, full exact Relation snapshot (including predicate version/endpoints/lifecycle), digest and recorder. Shape cannot prove digest equality, relation identity equality, previous-revision linkage or immutability. M1 does not yet persist these records.
-3. Historical receipt validation is correct for create-only M1 and would reject evolved current heads/admission state. This is a confirmed **M2 prerequisite**, not a currently reachable mutation defect. Never weaken current integrity checks. Before enabling updates, persist immutable full Node/Relation effect bytes and original admission under logical RevisionRefs; verify receipt against those effects, then separately authorize replay under current policy. Migrate old committed create effects explicitly from their original committed trees; missing bytes fail closed.
+2. `knowledge#/$defs/RelationRevision` records immutable identity, logical revision, full exact Relation snapshot (including predicate version/endpoints/lifecycle), digest and recorder. Shape cannot prove digest equality, relation identity equality, previous-revision linkage or immutability. M2.1 now persists and validates these records; mutation/history delivery remain absent.
+3. Historical receipt validation in M1.2 depended on current heads/admission. M2.1 resolves original committed effects and exact admission, separately authorizes replay, and provides explicit legacy migration. This foundation is implemented; mutation and authorized history delivery are separate M2.2/M2.3 prerequisites. Never weaken current integrity checks. Before enabling updates, persist immutable full Node/Relation effect bytes and original admission under logical RevisionRefs; verify receipt against those effects, then separately authorize replay under current policy. Migrate old committed create effects explicitly from their original committed trees; missing bytes fail closed.
 4. NodeRevision now permits an immutable exact `snapshot: NodeContent`; new M1 creations populate and digest-check it. Legacy metadata-only records lack historical body. Git retention is not a public historical read contract. M2 must pin complete old content and type/schema versions, CAS heads independently, preserve original receipt effects and test retry after two later revisions/revocation/restart.
 5. Membership currently distinguishes Node head from optional Cluster `approved_revision`/`approval_id`; candidate NodeRevision and Proposal are separate records. Publication snapshot has separate manifest. Cross-record equality/exact selection is semantic; O2 Relation breadth/O4 read composition remain open. There is no ambiguous claim that mutable Node head equals an approved selection.
 
@@ -33,7 +33,7 @@ Catalogue `node.search` versus wire `knowledge.search`; catalogue `relation.reti
 
 **Immutable revisions; first target M2.** Reason: runtime outside create/read M1 safe subset; structural shapes are not executable semantics.
 
-Prerequisites: Persist full immutable Node/Relation effect bytes and admission evidence, bind receipt verification to historical effects, add current-policy history guards.
+Prerequisites: M2.1 immutable snapshots, original admission/receipt resolution and explicit backfill are implemented. M2.2/M2.3 must add mutation CAS and current-policy historical delivery guards; migrate legacy state before activation.
 
 Owner decision: none for basic immutable history; O2/O4 only if approved graphs or multi-membership are included.
 
@@ -218,3 +218,16 @@ Each row is an explicit deferral. Its linked profile is part of the row and supp
 | CAP-097 | `trash.expire` | absent runtime | [DF-M7](#df-m7); operation-specific rights and exact requested effect must pass profile conformance | M7 |
 | CAP-098 | `trash.list` | absent runtime | [DF-M7](#df-m7); operation-specific rights and exact requested effect must pass profile conformance | M7 |
 | CAP-099 | `trash.read` | absent runtime | [DF-M7](#df-m7); operation-specific rights and exact requested effect must pass profile conformance | M7 |
+
+## M2.1 trusted maintenance coverage
+
+`inspect_history` and `apply_history_migration` are trusted-host Python functions,
+not wire OperationRequest alternatives. Their canonical durable result is
+`transaction.schema.json#/$defs/HistoryBaseline` (generated Python
+`generated.v1.transaction_schema.HistoryBaseline`, TS `transaction.js:HistoryBaseline`).
+They require the existing trusted bootstrap binding, deterministic dry-run/source
+fence, retained original history and exact plan validation. See
+[M2.1](../core/m2-1-immutable-history.md); no agent migration ingress is defined.
+
+| CAP-100 | `history.inspect`; trusted-host inventory | implemented bounded host API | No public operation; any future agent/service exposure needs M4 authenticated maintenance authority and a separate reviewed protocol | M2.1 host; M8 external |
+| CAP-101 | `history.migrate`; trusted-host backfill | implemented bounded host API | No public operation; any future agent/service exposure needs M4 authority, source fence, exact plan and retained ancestry conformance | M2.1 host; M8 external |

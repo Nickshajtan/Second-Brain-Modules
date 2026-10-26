@@ -13,7 +13,7 @@ The [coverage matrix](contract-coverage-matrix.md) is the exact operation invent
 | Errors | Canonical DomainError vocabulary, sanitized messages; inaccessible existence is concealed. Unknown supported-version operation fails finite dispatch. No revision/Git/path leak. |
 | Read authority | Current resource permission is distinct from history/list/search; selected approved view is not blanket history. Current policy rechecked before replay/delivery; relation plus endpoints needed. |
 | Transfer authority | Source disclosure plus destination admission; imported grants never trusted; provenance itself may be sensitive. |
-| Transactions | One instance, all-or-none managed-ref CAS. Prepared objects invisible. Exact retry validates durable original effects and current authority; conflicting normalized request rejects. M1 create-only receipt checks must change against immutable evidence before M2 updates. |
+| Transactions | One instance, all-or-none managed-ref CAS. Prepared objects invisible. Exact retry validates durable original effects and current authority; conflicting normalized request rejects. M2.1 resolves immutable original committed effects/admission; explicit legacy backfill precedes future M2.2/M2.3 updates. |
 | Selection | Node head, immutable candidate, Cluster Membership approved pointer and publication snapshot are distinct. O2/O4 not decided by optional fields. |
 | Evolution | Structural and behavioral compatibility assessed separately, no silent read-time migration. New frozen versions require explicit registry/bundle/persisted-record migration support. |
 

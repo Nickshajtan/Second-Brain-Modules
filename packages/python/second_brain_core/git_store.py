@@ -88,6 +88,15 @@ class GitStore(CommitStore):
             files[name] = self._run_bytes("cat-file", "blob", oid)
         return files
 
+    def ancestry(self, commit: str) -> list[str]:
+        """Require a complete linear managed history, ignoring replacement objects."""
+        if self.run("rev-parse", "--is-shallow-repository").strip() != "false":
+            raise StorageError("Incomplete managed history")
+        rows = self.run("rev-list", "--parents", commit).splitlines()
+        if any(len(row.split()) > 2 for row in rows):
+            raise StorageError("Nonlinear managed history")
+        return [row.split()[0] for row in rows]
+
     def prepare(self, files: Files, parent: str | None) -> str:
         tree = self._write_tree(files)
         return self._write_commit(tree, parent)

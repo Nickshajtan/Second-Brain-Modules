@@ -29,10 +29,34 @@ The Owner requested M2-blocking contract completion before release. This is an e
 |---|---|---|---|
 | Optional NodeCreate.payload.node_id | Accepts omission with exactly legacy request_id allocation | Rejects emitted new field | Original stored requests/digests unchanged; explicit identity used by new requests; no ID rewrite |
 | Optional NodeRevision.snapshot | Accepts old metadata-only record | Rejects emitted full snapshot field | New M1 creations persist exact content and validate digest; legacy rows remain readable but require explicit original-byte backfill before M2 updates/history |
-| New RelationRevision union alternative | Old Relation head records accepted | Rejects new kind | Structural full snapshot only; M1 still rejects unsupported persisted kind; no on-read conversion |
+| New RelationRevision union alternative | Old Relation head records accepted | Rejects new kind | M1.2 was structure-only; M2.1 persists and validates it; no on-read conversion |
 | Common RelationRef / NodeRevisionRef / RelationRevisionRef | Existing references unchanged | No promise of newly exported names | Typed refs separate logical revision/resource/Git identity; semantic equality and retention checks remain required |
 | NodeRevisionRead / RelationRevisionRead requests | Existing current-read requests accepted | Rejects new discriminator | M1 finite dispatch rejects both; M2 must implement historical authority/resolution and exact retained revision response |
 
 Actual directional probes used the previous HEAD canonical eight-resource bundle with independent jsonschema validation: it rejects the five new producer shapes above (explicit Node ID, Node snapshot, RelationRevision, two historical reads) and accepts the original metadata-only NodeRevision. The amended corpus accepts original shapes plus the new valid fixtures and rejects null/missing snapshots/wrong endpoint kinds. These are sampled directional acceptance checks, not a proof of universal schema inclusion or behavioral compatibility.
 
-No runtime mutation/history handler is enabled. The current-head creation-receipt verification must not be reused after updates. M2 must persist/resolve immutable original Node/Relation snapshots and original admission effects, validate exact digest/resource/revision correspondence and current replay permissions, and explicitly migrate old retained original commit effects before activation. No integrity check is removed. Physical Git retention and backup/durability policy remain separately verified.
+## M2.1 unreleased amendment
+
+No mutation/history handler is enabled. Receipt verification now resolves original
+managed committed generations, validates exact request/result/actor/admission and
+retained immutable records, and evaluates current replay permissions separately.
+New Relation creation persists the existing RelationRevision shape.
+
+Two root variants are added within the existing eight families:
+`knowledge#/$defs/NodeRevisionSnapshot` supplies exact legacy content without
+modifying metadata-only historical revisions; `transaction#/$defs/HistoryBaseline`
+is a closed fresh/migrated trusted-host result/profile marker. Existing producers'
+records remain structurally accepted. Previous closed readers reject both new kinds;
+source hashes, generated artifacts and pinned runtime must upgrade together.
+Fresh persisted state uses the marker; existing legacy repositories remain
+create-only readable only with verifiable original ancestry and are migrated
+explicitly before future mutation activation. There is no automatic read repair.
+
+Original receipts, requests, resource and revision IDs and existing historical bytes
+remain unchanged during migration. A migration adds canonical supplements/missing
+RelationRevision and one durable marker under a source-generation fence and single
+managed-ref CAS. The Git ancestry must retain every original publication and marker;
+missing objects, shallow history, merge ambiguity or a missing original effect fail
+closed. This is no signed external attestation against a trusted administrator who
+replaces all repository history. See [M2.1 design](../core/m2-1-immutable-history.md).
+Physical flush, backup and deployment isolation guarantees remain unverified.

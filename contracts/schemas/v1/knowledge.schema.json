@@ -38,6 +38,9 @@
     },
     {
       "$ref": "#/$defs/RelationRevision"
+    },
+    {
+      "$ref": "#/$defs/NodeRevisionSnapshot"
     }
   ],
   "$defs": {
@@ -862,6 +865,44 @@
         "digest",
         "recorded_by",
         "recorded_at"
+      ]
+    },
+    "NodeRevisionSnapshot": {
+      "title": "NodeRevisionSnapshot",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "node_revision_snapshot"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "revision_ref": {
+          "$ref": "common.schema.json#/$defs/NodeRevisionRef"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/NodeContent"
+        },
+        "digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "source_generation": {
+          "$ref": "common.schema.json#/$defs/GenerationRef"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "schema_version",
+        "revision_ref",
+        "snapshot",
+        "digest",
+        "source_generation"
       ]
     }
   }

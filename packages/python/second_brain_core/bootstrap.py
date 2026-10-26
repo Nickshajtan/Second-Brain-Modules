@@ -1,8 +1,9 @@
 """Trusted fixture/bootstrap initialization, separate from public operations."""
 
-from .boundary import GENERATION, ContractBoundary
+from .boundary import GENERATION, VERSION, ContractBoundary, digest
 from .codec import decode, encode
 from .domain import DomainRules
+from .history import HISTORY
 from .ports import CommitStore
 from .repository import KnowledgeRepository
 
@@ -54,6 +55,18 @@ class BootstrapInitializer:
                 self.boundary.fail("VALIDATION_FAILED")
         files["control/metadata.json"] = encode(metadata)
         generation = self.repository.generation(files)
+        marker = dict(
+            kind="history_baseline",
+            schema_version=VERSION,
+            instance_id=self.boundary.context.instance_id,
+            mode="fresh",
+            actor={"principal_id": self.boundary.context.principal.principal_id},
+            generation=generation,
+            additions=[],
+            effects_digest=digest({}),
+        )
+        self.boundary.contracts.parse("transaction", marker)
+        files[HISTORY] = encode(marker)
         files[GENERATION] = encode(generation)
         with self.store.writer():
             if self.store.resolve() is not None:

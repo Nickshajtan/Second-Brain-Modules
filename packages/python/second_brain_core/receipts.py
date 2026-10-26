@@ -4,9 +4,12 @@ from generated.v1.transaction_schema import BatchRequest, CommittedReceipt
 
 from .boundary import VERSION, ContractBoundary, digest, timestamp
 from .codec import decode, encode
+from .history import HistoricalEffects
 
 
 class ReceiptStore:
+    history: HistoricalEffects
+
     def __init__(self, boundary: ContractBoundary, strategies) -> None:
         self.boundary = boundary
         self.strategies = strategies
@@ -111,14 +114,5 @@ class ReceiptStore:
                 self.boundary.fail("REPAIR_REQUIRED")
         return request_path
 
-    def validate_results(self, files, records):
-        for path, raw in files.items():
-            if not path.startswith("control/receipts/"):
-                continue
-            receipt = decode(raw)
-            request = decode(files[self.request_path(path)])
-            for operation, result in zip(request["operations"], receipt["results"], strict=True):
-                strategy = self.strategies.get(operation["operation"])
-                if strategy is None:
-                    self.boundary.fail("REPAIR_REQUIRED")
-                strategy.verify_result(operation, result, receipt, records)
+    def validate_results(self, files, records, commit):
+        self.history.validate(files, records, commit)

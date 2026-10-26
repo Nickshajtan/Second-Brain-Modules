@@ -14,8 +14,18 @@ These are dependency targets, not delivery dates or authorization to implement e
 | M7 — Lifecycle & Disposal | Archive/pending disposal/Trash/Global Archive/restore and separately reviewed purge/expiry | Current authority, durable preservation, M6 publication, Owner O3 and exact erasure scope |
 | M8 — Portability & Services | Export/import ID remap, external Review intake, scoped event delivery/status/maintenance | Stable versioned bundle/API shapes, closure checks and source/destination policy; no distributed transactions |
 
-## Next bounded M2 slice
+## M2.1 foundation and next bounded slice
 
-First persist immutable revision snapshots and exact original creation/admission effect evidence without changing heads. Canonically validate the snapshots, digest and identity/version correspondence. Backfill legacy metadata-only Node revisions and missing Relation history from their original managed committed generations by an explicit recoverable migration; never synthesize bytes from a newer head or mutate records on read. Pin a durable locator/retention rule for every original receipt effect. Only then change verification to resolve those immutable effects while separately rechecking current policy. Add Node update as its own reviewed slice; Relation update follows with independent CAS and exact endpoint checks. Selected approved graph breadth remains O2; multi-membership serving remains O4. No full-graph snapshot engine is required.
+M2.1 implements immutable creation snapshots, exact original creation/admission
+resolution from retained managed ancestry, explicit legacy inventory/backfill and
+durable migration evidence. No update/history handler is enabled. See the
+[design and host procedure](../core/m2-1-immutable-history.md).
+
+M2.2 is Node mutation: require a completed history baseline, immutable new revisions,
+independent CAS and authorized history delivery with non-disclosure. M2.3 follows
+with independently versioned Relation mutation and endpoint authorization. Current
+M2.1 future-head fixtures validate unchanged original receipt meaning without
+exposing mutation handlers or relaxing the create-only public profile. Selected
+Relation approval breadth remains O2; multi-membership serving remains O4.
 
 The single managed Git ref remains the domain publication boundary. Physical durability, hosted platform behavior, real OS agent isolation and backup retention remain separate operational verification requirements.

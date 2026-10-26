@@ -15,6 +15,7 @@ from .boundary import GENERATION, VERSION, ContractBoundary, CoreError, Instance
 from .codec import encode
 from .domain import DomainRules
 from .git_store import PublicationConflict, StorageError
+from .history import HistoricalEffects
 from .operations import (
     NodeCreateStrategy,
     NodeReadStrategy,
@@ -60,6 +61,7 @@ class Core:
         }
         self.receipts = ReceiptStore(self.boundary, self.mutations)
         self.repository = KnowledgeRepository(self.boundary, store, self.domain, self.receipts)
+        self.receipts.history = HistoricalEffects(self.repository)
         self.initializer = BootstrapInitializer(self.boundary, store, self.repository, self.domain)
 
     def bootstrap(

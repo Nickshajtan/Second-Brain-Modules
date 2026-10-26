@@ -87,13 +87,12 @@ exists to prevent exception text/private paths entering an external envelope.
 Git stderr is not returned to callers. A managed ref must be direct; publication
 does not follow symbolic refs, including a concurrent alias replacement.
 
-Receipt verification currently compares historical results with the **current**
-Node/Relation records in `NodeCreateStrategy.verify_result` and
-`RelationCreateStrategy.verify_result`. This is valid only for the supported
-create-only M1 state. Before mutable revisions, resolve immutable receipt-bound
-revision content and preserve current authorization on replay. Do not simply
-remove the integrity checks, reinterpret a receipt as a current-head assertion,
-or add an update handler during quality work. No persisted format changed here.
+Receipt verification resolves immutable original Node/Relation creation and
+admission from retained managed ancestry, separately checking current replay
+authorization. [M2.1](../core/m2-1-immutable-history.md) adds complete creation
+snapshots and explicit legacy backfill; it enables no update/history handlers.
+Never replace original-effect integrity with present-head equality or historical
+grants. Legacy migration is trusted-host-only, explicit, source-fenced and atomic.
 
 Reads intentionally scan/validate the whole committed tree and retained receipts;
 Git reads are per blob, and cross-record scans may be quadratic in this tiny
