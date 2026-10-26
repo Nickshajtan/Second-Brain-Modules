@@ -1,5 +1,7 @@
 # Architecture decisions
 
+Current reconciliation: [M1.2 accepted decisions](../../domain/accepted-decisions.md), [coverage](../../contracts/contract-coverage-matrix.md) and [roadmap](../implementation-roadmap.md).
+
 Current implementation: [production contracts](../../contracts/README.md),
 [Core M1 scope](../../core/m1.md) and [engineering gates](../../engineering/standards.md).
 The dated status text below records decision provenance; it is not a current

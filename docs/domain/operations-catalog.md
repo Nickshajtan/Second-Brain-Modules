@@ -1,6 +1,6 @@
 # Domain operation catalogue
 
-Status: semantic contracts, not executable descriptors or production request schemas. Names below are proposed stable capability/operation names; their separation implements confirmed rules. [Invariants](domain-model.md), [glossary](glossary.md), [open decisions](open-decisions.md).
+Current status: semantic operation catalogue reconciled by [M1.2 decisions](accepted-decisions.md), [coverage matrix](../contracts/contract-coverage-matrix.md) and [API conventions](../contracts/api-catalog.md). Existing production requests and bounded M1 handlers are separately identified. Historical proposed details below are not automatically accepted. Names below are proposed stable capability/operation names; their separation implements confirmed rules. [Invariants](domain-model.md), [glossary](glossary.md), [open decisions](open-decisions.md).
 
 ## Common contract applied to every row
 
@@ -119,3 +119,7 @@ Restore and privileged purge use the Node operations above. Global Archive curat
 ## Confirmed, proposed, open and excluded
 
 Confirmed: invariant register I01–I21, distinct capabilities, all-or-none batch semantics, direct operations without mandatory Proposal, independent history and purge permissions. Proposed: exact operation names, event names, table modes marked “proposed”, create-admission delegation representation, reified Relation notes, snapshot identity and outbox delivery model. Open: D01–D09 and destination-specific policy choices. Non-goals: generic workflows, auto-fetching, agent planning, cross-instance transactions, universal plugins, production schemas or UI implementation in this phase.
+
+## M1.2 authority clarification
+
+The dated proposed/excluded summary above describes the assessment phase, not current delivery. Production schemas and create/read Core M1 exist. Native Relation notes and Collection notes are now preferred Owner-confirmed authoring direction; no adapter is implemented. Authentication is MCP-exclusive with physical isolation, never raw agent filesystem projections. Old D/P/four-PoC gates are historical; current O1–O4 remain open. Nested flattening and temporary-ID proposal text above is not the canonical flat BatchRequest protocol and is not implemented. The catalogue names are not automatically aliases for differently named wire operations.

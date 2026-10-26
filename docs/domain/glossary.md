@@ -1,5 +1,7 @@
 # Domain glossary
 
+Current authority: [M1.2 accepted decisions](accepted-decisions.md) and [coverage matrix](../contracts/contract-coverage-matrix.md). Production schemas and Core M1 now exist; the dated Phase 1 status and representation proposals below are historical.
+
 Status: Phase 1 contract baseline; no production schemas or runtime. Authority: the owner's supplied `second-brain-phase-1-domain-and-reuse-assessment.md`, section 2. Proposed representations remain proposals. See [model](domain-model.md), [operations](operations-catalog.md), [open decisions](open-decisions.md) and [provenance](../architecture/decision-provenance.md).
 
 ## Instance and authority

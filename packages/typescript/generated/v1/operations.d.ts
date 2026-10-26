@@ -39,7 +39,9 @@ export type OperationRequest =
   | DisposalRoute
   | DisposalPreserve
   | SnapshotExport
-  | SnapshotImport;
+  | SnapshotImport
+  | NodeRevisionRead
+  | RelationRevisionRead;
 
 export interface NodeCreate {
   schema_version: '1.0.0';
@@ -59,6 +61,10 @@ export interface NodeCreate {
 export interface NodeCreatePayload {
   target_cluster_id: string;
   content: NodeContent;
+  /**
+   * Allocated stable Node identity. Omission retains the unreleased M1 legacy request_id allocation rule; new producers should supply this field.
+   */
+  node_id?: string;
 }
 export interface NodeContent {
   node_type: string;
@@ -901,4 +907,41 @@ export interface ImportPlan {
 export interface ImportMapping {
   foreign: ResourceRef;
   local: ResourceRef;
+}
+export interface NodeRevisionRead {
+  schema_version: '1.0.0';
+  operation: 'node.revision.read';
+  operation_version: '1.0.0';
+  request_id: string;
+  instance_id: string;
+  payload: NodeRevisionReadPayload;
+}
+export interface NodeRevisionReadPayload {
+  revision: NodeRevisionRef;
+}
+export interface NodeRevisionRef {
+  resource: NodeRef;
+  revision_id: string;
+  revision: number;
+}
+export interface RelationRevisionRead {
+  schema_version: '1.0.0';
+  operation: 'relation.revision.read';
+  operation_version: '1.0.0';
+  request_id: string;
+  instance_id: string;
+  payload: RelationRevisionReadPayload;
+}
+export interface RelationRevisionReadPayload {
+  revision: RelationRevisionRef;
+}
+export interface RelationRevisionRef {
+  resource: RelationRef;
+  revision_id: string;
+  revision: number;
+}
+export interface RelationRef {
+  instance_id: string;
+  resource_kind: 'relation';
+  id: string;
 }

@@ -131,6 +131,10 @@ class DomainRules:
             self.boundary.fail("REPAIR_REQUIRED")
 
     def _node_revision(self, record, records, metadata):
+        if "snapshot" in record:
+            self.content(record["snapshot"], records, metadata)
+            if record["digest"] != digest(record["snapshot"]):
+                self.boundary.fail("REPAIR_REQUIRED")
         if ("node", record["node_id"]) not in records:
             self.boundary.fail("REPAIR_REQUIRED")
 

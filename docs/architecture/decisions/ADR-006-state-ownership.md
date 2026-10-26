@@ -1,5 +1,7 @@
 # ADR-006: Separate canonical, desired, execution and derived state
 
+Supersession notice: [ADR-009](ADR-009-phase-1-domain-baseline.md), [Core M1](../../core/m1.md) and [M1.2 decisions](../../domain/accepted-decisions.md) replace embedded-Relation and separate durable journal requirements with independent Relations and one managed Git-ref publication boundary. Original text is retained as historical evidence, not a competing current authority.
+
 Status: separation task-mandated; transaction and backend details proposed pending M3. Date: 2026-10-20.
 
 ## Context

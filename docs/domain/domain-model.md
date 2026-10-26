@@ -4,7 +4,7 @@ Current implementation pointers: [production structural contracts](../contracts/
 and [Core M1 supported subset](../core/m1.md). The original assessment status below
 is historical; the invariant register remains the semantic baseline.
 
-Status: confirmed semantics from brief §2, with explicitly proposed persistence details. No production schemas. [Glossary](glossary.md) defines terms; [catalogue](operations-catalog.md) defines operations; [provenance](../architecture/decision-provenance.md) separates authority levels.
+Status: reconciled by the current [M1.2 accepted decisions](accepted-decisions.md), [invariant register](invariant-register.md) and [API coverage](../contracts/contract-coverage-matrix.md). Production schemas and the bounded M1 runtime exist. Dated proposals below are historical where superseded. [Glossary](glossary.md) defines terms; [catalogue](operations-catalog.md) defines operations; [provenance](../architecture/decision-provenance.md) separates authority levels.
 
 Phase 1.1 precedence: the Owner now requires agents to use **authenticated MCP exclusively**, with physical deployment isolation and no access to canonical files, Git history, secrets or private indexes. Scoped filesystem projections are no longer an allowed agent interface. The [lean assessment](../research/phase-1-1/architecture-decision.md) replaces the four-PoC gate and proposes a simpler committed-state strategy; its storage/approval defaults are analyst recommendations, not changes to the invariants below.
 
@@ -52,7 +52,7 @@ Canonical knowledge is Git-versioned Markdown/constrained YAML; registries/manif
 | I16 | External References/check results are passive; external services own fetching, extraction, caching and schedules; independent freshness Review does not revise a still-current Node |
 | I17 | Atomic batches are one-instance all-or-none with CAS, retry receipts and crash recovery. External services/editors are outside the atomicity boundary; no nested partial commits |
 | I18 | Human offline edits are trusted unmanaged input pending validation. Preserve invalid/conflicting bytes without silent discard or promotion; protected raw edits cannot silently change approved state |
-| I19 | Raw filesystem/Git access bypasses Core ACL; untrusted agents need OS separation or scoped projections without full history/control credentials. Obsidian exclusions are not authorization |
+| I19 | Raw filesystem/Git access bypasses Core ACL; agents use authenticated MCP exclusively and physical isolation, never filesystem projections. Obsidian exclusions and MCP itself are not authorization/sandboxing |
 | I20 | Derived graph/search indexes are rebuildable from committed source; stale indexes never widen disclosure. Domain events are durable scoped facts; context assembly belongs exclusively to harness |
 | I21 | Cross-instance exports have explicit authorized snapshot scope; imports allocate new local IDs and remap all references with provenance; no distributed atomicity or inherited grants |
 
@@ -64,7 +64,9 @@ Active ↔ archived-in-current-cluster is separate from content approval and val
 
 Validity uses optional `valid_from`/`valid_until`; reject inverted interval. Supersession is a typed Relation, not duplicated frontmatter. Temporal review is external evidence; “valid” does not mean approved or accessible.
 
-## Proposed transaction/reconciliation protocol, not a proven backend
+## Historical transaction/reconciliation proposal (superseded backend direction)
+
+Current authority: [M1.2 decisions](accepted-decisions.md) and [Core M1](../core/m1.md) use one managed Git ref with commit-critical records co-located. A separate Git/SQLite transaction journal and four-PoC gate are not current requirements. The paragraph below preserves the earlier proposal; it is not a runtime guarantee.
 
 All Core readers observe a committed generation. A per-instance writer validates full operation set, current permissions and aggregate CAS, hashes external working files, stages before/after bytes, and records durable transaction intent. Journal must coordinate Git tree/commit, control changes, audit, approval consumption, idempotency receipt and outbox. Publish committed generation only after durable decision; rebuild indexes afterward. Failure before a durable decision yields no visible domain effects; after it, restart completes that exact decision. Divergent human bytes are preserved in a restricted conflict area before repair; never overwrite them from stale staged bytes.
 

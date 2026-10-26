@@ -50,7 +50,8 @@ export type KnowledgeRecord =
   | RelationTypeDefinition
   | Asset
   | ExternalReference
-  | ProvenanceRecord;
+  | ProvenanceRecord
+  | RelationRevision;
 
 export interface BatchRequest {
   kind: 'batch_request';
@@ -92,6 +93,10 @@ export interface NodeCreate {
 export interface NodeCreatePayload {
   target_cluster_id: string;
   content: NodeContent;
+  /**
+   * Allocated stable Node identity. Omission retains the unreleased M1 legacy request_id allocation rule; new producers should supply this field.
+   */
+  node_id?: string;
 }
 export interface NodeContent {
   node_type: string;
@@ -996,6 +1001,27 @@ export interface NodeRevision {
    */
   provenance: ProvenanceRef[];
   previous?: RevisionRef;
+  snapshot?: NodeContent1;
+}
+/**
+ * Immutable exact content at this logical revision, including type-definition version. Optional solely for legacy unreleased M1 metadata-only records; M2 must backfill original bytes explicitly before mutable heads are enabled.
+ */
+export interface NodeContent1 {
+  node_type: string;
+  title: string;
+  body: string;
+  properties: {
+    [k: string]: string | number | boolean | (string | number | boolean)[];
+  };
+  metadata_schema_id?: string;
+  /**
+   * @maxItems 1000
+   */
+  provenance: ProvenanceRef[];
+  valid_from?: string;
+  valid_until?: string;
+  extensions?: Extensions;
+  node_type_version: string;
 }
 export interface NodeTypeDefinition {
   kind: 'node_type_definition';
@@ -1102,6 +1128,21 @@ export interface ProvenanceRecord {
    * @maxItems 1000
    */
   derived_from: RevisionRef[];
+}
+/**
+ * Immutable exact Relation snapshot. Snapshot identity, logical revision and digest equality are cross-record semantic obligations; this structure alone does not implement historical storage or access.
+ */
+export interface RelationRevision {
+  kind: 'relation_revision';
+  id: string;
+  schema_version: '1.0.0';
+  relation_id: string;
+  logical_revision: number;
+  snapshot: Relation;
+  digest: Digest;
+  recorded_by: PrincipalRef;
+  recorded_at: string;
+  previous?: RevisionRef;
 }
 export interface CommittedEvent {
   kind: 'committed_event';

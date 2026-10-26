@@ -1,5 +1,7 @@
 # Phase 2 implementation plan
 
+Historical plan superseded by the [M1.2 dependency roadmap](implementation-roadmap.md). Its old milestone numbering, Core Context Builder proposal and multi-membership defaults are not current requirements: external harnesses own context; O4 stays open. Current production schemas, generated/distribution artifacts and bounded Core M1 exist.
+
 The original delivery finished architecture Phase 2.1. Hardening now implements the illustrative M2 spike, tests, locks and CI definitions. Production schema approval and hosted cross-platform confirmation remain open. M1–M11 below are future implementation milestones; they are not claims of completed software. Start with a contract spike, then prove storage and policy before enabling agent writes. Do not make workflows or remote services prerequisites for basic curated knowledge.
 
 ## Dependency graph

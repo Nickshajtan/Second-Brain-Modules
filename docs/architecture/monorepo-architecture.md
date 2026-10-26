@@ -1,5 +1,7 @@
 # Reusable modular monolith and instance isolation
 
+Current semantic/API authority: [M1.2 decisions](../domain/accepted-decisions.md) and [roadmap](implementation-roadmap.md). Context construction belongs to external harnesses; historical Context component placement below is superseded. No agent filesystem ingress is permitted.
+
 Status: repository strategy adopted by the hardening task. Runtime interfaces below
 are design obligations, not implemented services. The implementation here consists
 of validation, tests, generated illustrative models and CI only.

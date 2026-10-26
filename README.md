@@ -7,8 +7,10 @@ The [M1 Python Core](docs/core/m1.md) implements private-Cluster Node/Relation c
 atomic Git batches and committed reads. No graph engine, agent runtime or server is implemented.
 
 The [production contract baseline](docs/contracts/README.md) now supplies eight canonical
-Draft 2020-12 resources, generated Python/TypeScript models and 34 typed operation requests.
+Draft 2020-12 resources, generated Python/TypeScript models and 36 typed operation requests.
 Version 1.0.0 is an unreleased contract baseline; illustrative 0.1.0 examples remain separate.
+
+Current domain/API authority: [M1.2 reconciliation](docs/domain/accepted-decisions.md), [99-capability coverage](docs/contracts/contract-coverage-matrix.md) and [dependency roadmap](docs/architecture/implementation-roadmap.md). Domain meaning, structural schemas, operation API, runtime tests and verified deployment are separate claims.
 
 ## What works today
 

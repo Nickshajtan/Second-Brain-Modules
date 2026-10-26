@@ -62,6 +62,10 @@ class NodeRevision(BaseModel):
     recorded_at: common_schema.UtcTimestamp
     provenance: list[common_schema.ProvenanceRef] = Field(..., max_length=1000)
     previous: common_schema.RevisionRef | None = None
+    snapshot: NodeContent | None = Field(
+        None,
+        description='Immutable exact content at this logical revision, including type-definition version. Optional solely for legacy unreleased M1 metadata-only records; M2 must backfill original bytes explicitly before mutable heads are enabled.',
+    )
 
 
 class NodeTypeDefinition(BaseModel):
@@ -274,6 +278,22 @@ class ProvenanceRecord(BaseModel):
     derived_from: list[common_schema.RevisionRef] = Field(..., max_length=1000)
 
 
+class RelationRevision(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    kind: Literal['relation_revision']
+    id: common_schema.EntityId
+    schema_version: common_schema.SchemaVersion
+    relation_id: common_schema.EntityId
+    logical_revision: common_schema.EntityRevision
+    snapshot: Relation
+    digest: common_schema.Digest
+    recorded_by: common_schema.PrincipalRef
+    recorded_at: common_schema.UtcTimestamp
+    previous: common_schema.RevisionRef | None = None
+
+
 class KnowledgeRecord(
     RootModel[
         Node
@@ -287,6 +307,7 @@ class KnowledgeRecord(
         | Asset
         | ExternalReference
         | ProvenanceRecord
+        | RelationRevision
     ]
 ):
     root: (
@@ -301,4 +322,5 @@ class KnowledgeRecord(
         | Asset
         | ExternalReference
         | ProvenanceRecord
+        | RelationRevision
     ) = Field(..., title='KnowledgeRecord')

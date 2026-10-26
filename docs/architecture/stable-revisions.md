@@ -1,5 +1,7 @@
 # Stable revision semantics review
 
+M1.2 supersession: [accepted decisions](../domain/accepted-decisions.md) confirm the minimum approved immutable Node Revision selection while candidates evolve. Q03 is no longer open for that minimum; O2 remains open only for Relation assertion breadth. Embedded Relation examples below are historical and not canonical independent Relation semantics.
+
 New recommendation, not implemented: **Stable points to an approved immutable node
 revision while a new candidate may evolve independently.** This supersedes the prior
 recommendation that any head edit immediately removes the node from Stable eligibility.

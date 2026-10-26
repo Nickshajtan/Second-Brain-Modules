@@ -401,6 +401,70 @@
       "not": {
         "pattern": "[\\r\\n]"
       }
+    },
+    "RelationRef": {
+      "title": "RelationRef",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "instance_id": {
+          "$ref": "#/$defs/BrainInstanceId"
+        },
+        "resource_kind": {
+          "type": "string",
+          "const": "relation"
+        },
+        "id": {
+          "$ref": "#/$defs/EntityId"
+        }
+      },
+      "required": [
+        "instance_id",
+        "resource_kind",
+        "id"
+      ]
+    },
+    "NodeRevisionRef": {
+      "title": "NodeRevisionRef",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resource": {
+          "$ref": "#/$defs/NodeRef"
+        },
+        "revision_id": {
+          "$ref": "#/$defs/EntityId"
+        },
+        "revision": {
+          "$ref": "#/$defs/EntityRevision"
+        }
+      },
+      "required": [
+        "resource",
+        "revision_id",
+        "revision"
+      ]
+    },
+    "RelationRevisionRef": {
+      "title": "RelationRevisionRef",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resource": {
+          "$ref": "#/$defs/RelationRef"
+        },
+        "revision_id": {
+          "$ref": "#/$defs/EntityId"
+        },
+        "revision": {
+          "$ref": "#/$defs/EntityRevision"
+        }
+      },
+      "required": [
+        "resource",
+        "revision_id",
+        "revision"
+      ]
     }
   },
   "type": "object",

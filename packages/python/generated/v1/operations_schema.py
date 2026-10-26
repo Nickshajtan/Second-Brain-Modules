@@ -17,6 +17,10 @@ class NodeCreatePayload(BaseModel):
     )
     target_cluster_id: common_schema.EntityId
     content: knowledge_schema.NodeContent
+    node_id: common_schema.EntityId | None = Field(
+        None,
+        description='Allocated stable Node identity. Omission retains the unreleased M1 legacy request_id allocation rule; new producers should supply this field.',
+    )
 
 
 class NodeCreate(BaseModel):
@@ -735,6 +739,46 @@ class SnapshotExport(BaseModel):
     approval_id: common_schema.EntityId | None = None
 
 
+class NodeRevisionReadPayload(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    revision: common_schema.NodeRevisionRef
+
+
+class NodeRevisionRead(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    schema_version: common_schema.SchemaVersion
+    operation: Literal['node.revision.read']
+    operation_version: common_schema.SchemaVersion
+    request_id: common_schema.EntityId
+    instance_id: common_schema.BrainInstanceId
+    payload: NodeRevisionReadPayload = Field(..., title='NodeRevisionReadPayload')
+
+
+class RelationRevisionReadPayload(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    revision: common_schema.RelationRevisionRef
+
+
+class RelationRevisionRead(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    schema_version: common_schema.SchemaVersion
+    operation: Literal['relation.revision.read']
+    operation_version: common_schema.SchemaVersion
+    request_id: common_schema.EntityId
+    instance_id: common_schema.BrainInstanceId
+    payload: RelationRevisionReadPayload = Field(
+        ..., title='RelationRevisionReadPayload'
+    )
+
+
 class MembershipSelectRevision(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
@@ -873,6 +917,8 @@ class OperationRequest(
         | DisposalPreserve
         | SnapshotExport
         | SnapshotImport
+        | NodeRevisionRead
+        | RelationRevisionRead
     ]
 ):
     root: (
@@ -910,4 +956,6 @@ class OperationRequest(
         | DisposalPreserve
         | SnapshotExport
         | SnapshotImport
+        | NodeRevisionRead
+        | RelationRevisionRead
     ) = Field(..., title='OperationRequest')

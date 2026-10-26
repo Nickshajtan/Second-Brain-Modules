@@ -18,3 +18,17 @@ These are decisions that can change safety, storage authority or the authoring e
 | D10 | Policy composition across memberships, selected Cluster views and Collection hierarchy; propose explicit deny-overrides among applicable policies, no implicit permission inheritance, with Owner/admin paths represented explicitly | “Applicable” must be defined: evaluating an unrelated private Cluster as a blanket deny can hide intentionally shared views, while union-of-grants can leak protected content. Content write protection remains unconditional for ordinary agents regardless of read composition | Before P03 model acceptance and production policy contracts; truth table for multi-membership reads, independent publication snapshots, historical selection, ancestor rights and cross-Cluster Relations |
 
 Non-blocking refinements stay in implementation backlogs: exact UUID choice, UI labels, optional transports, ranking, schema deprecation cadence. They do not justify building infrastructure now.
+
+## Current M1.2 Owner register
+
+Each OPEN item below is `OWNER_DECISION_REQUIRED`: its policy outcome is not
+established by the available evidence, and no proposed default is adopted here.
+
+| ID | Status / unresolved choice | First blocker / acceptance evidence |
+|---|---|---|
+| O1 | OPEN: authoring synchronization timing, explicit pending state and coordinated handoff | M3; Owner accepts preservation/race/handoff behavior and conflict examples |
+| O2 | OPEN: whether approval covers bounded Relation assertions; minimum immutable Node selection is CONFIRMED | M6 Relation approval; explicit assertion/version/endpoint selection examples |
+| O3 | OPEN: retention/destruction and revocation effects on existing selected content | M6 governed revocation/M7 disposal; Owner accepts holds, preservation, delivery withdrawal and exact erasure scope |
+| O4 | OPEN: multi-membership read composition / selected Cluster views | M4 multi-membership serving/M5 queries; accepted disclosure truth table; M1 remains sole-membership fail-closed |
+
+D01–D10 above remain historical provenance, not ten current Owner blockers. Authenticated MCP plus physical isolation, independent Relation records, production contract namespace/toolchain and initial one-ref Git transaction direction are now confirmed/implemented as scoped by [M1.2 decisions](accepted-decisions.md). Publication should preserve private source; exact copy/selection protocol still requires M6 contract review, not an invented default. No O1–O4 outcome is selected by this reconciliation.

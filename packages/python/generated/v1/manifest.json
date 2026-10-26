@@ -2,11 +2,11 @@
   "artifact_hashes": {
     "packages/python/generated/v1/__init__.py": "226a4a3f01cc2f9af7eef0a10d4b9e8c14fa22ae021986b97dfa52919c05770d",
     "packages/python/generated/v1/authoring_schema.py": "abf6237c2a08fd792133846fab01bda241f333fc4282d77245fa0caa9e84c2d1",
-    "packages/python/generated/v1/common_schema.py": "96cf4e389f9032ed1d043029e5a7a699ac46d3e9eda1bf3a1f202b7196a723ee",
+    "packages/python/generated/v1/common_schema.py": "3eec1d635c69f96f24770cdd284a6d7665ee1eee7360c1ec52462633642b1239",
     "packages/python/generated/v1/control_schema.py": "7da4dca4ad7040aa82e1d72779b286d685a73999fcee58f814ecbbcd02f48090",
     "packages/python/generated/v1/governance_schema.py": "7bef18bb22b3e6ab08daab6c9ba922558af142946877943b99a1f6669989c75e",
-    "packages/python/generated/v1/knowledge_schema.py": "e2e5a1d59897f93c7202555e5108a79f2bd71f553a93aed570875e10dce0d408",
-    "packages/python/generated/v1/operations_schema.py": "29934cba5034319fbace527235cb6d71bcb885e18a10fbe08a9664c323e1a05e",
+    "packages/python/generated/v1/knowledge_schema.py": "d2df540308841cf9481a0b476fe4ba54551e1a6d6c4d2ff4c399a1e40a698c60",
+    "packages/python/generated/v1/operations_schema.py": "0097e33dd086658e2f46d8a2bb122aedc8f99e0541e9fd6e8054cdb7937c0a74",
     "packages/python/generated/v1/snapshots_schema.py": "e8ea2b1708aa7097623860bed6842e615e93664a4f6eaaaef00d4d67a1626afc",
     "packages/python/generated/v1/transaction_schema.py": "4f734da91d620856abf2d2b5f3db4eb9cf01a5204748be1c150ce5a224147bc2",
     "packages/typescript/generated/v1/authoring.d.ts": "d516b59f6c888227b3a412d8b59b8415caf126338c89f8a18243d12de9d30e7c",
@@ -14,20 +14,20 @@
     "packages/typescript/generated/v1/control.d.ts": "e3ef7a6c1f58dfae79fbc259cfee8865cd591f6cef031844c10a0fabdfba95a6",
     "packages/typescript/generated/v1/governance.d.ts": "70d13540e403108be15e32d878e0ba4ef07c165545aa7d43b21409f7a352ed36",
     "packages/typescript/generated/v1/index.d.ts": "f0841c554bf48c139edc6edd469ed3a0f081368e51c3f1895ef05c8c107e4853",
-    "packages/typescript/generated/v1/knowledge.d.ts": "7dd3700ec1c4eea609cd8985d9c69c40bcb835337ec194e0c55a314d3b573d6f",
-    "packages/typescript/generated/v1/operations.d.ts": "fbe7b03a6b6c88fd0fade1c5071c1679f769f066ad703ea07e552b61d74607e5",
+    "packages/typescript/generated/v1/knowledge.d.ts": "726f076ce08cac4746b10f9d6b38231e586fd4b496da5cc0d23ff5bdd18eb83b",
+    "packages/typescript/generated/v1/operations.d.ts": "a2e9367b58f176ba85f5040caaf606dc7ef20fe0c93fe0f2a0b1dc8363b94906",
     "packages/typescript/generated/v1/snapshots.d.ts": "2d9cf9af185e8e4be45df44549859310525c7080ebfdfb34ca5c187b236e16c0",
-    "packages/typescript/generated/v1/transaction.d.ts": "ba6703355421ae30c9e8f51d970ba094123cc4d8ec366d6a0f13d8864358bcc7"
+    "packages/typescript/generated/v1/transaction.d.ts": "cd9afa413abe20715b2049377714b3808be83237d93e019d6952fb5e4ce12fa7"
   },
   "contract_version": "1.0.0",
   "source_hashes": {
     "contracts/registry/v1.json": "808235b4b069d3fc60353f887398930b48fafe2841e971c07825626572af11cd",
     "contracts/schemas/v1/authoring.schema.json": "7b816b6564101c99c7b3476f055e5036797aa8698443f91f0316c24674681961",
-    "contracts/schemas/v1/common.schema.json": "18897606f16d2e9868daeff0e84c4f0f894e5c4f4e488dfd8c1345a7cfecbfb8",
+    "contracts/schemas/v1/common.schema.json": "19a55c5af9653b84930c6bfc0b6e79d8d89d8abefd1a5ec4a55143ff12cf1499",
     "contracts/schemas/v1/control.schema.json": "c5a461ea87b630f737a8c13dd54d5870b9e632e51fe8c1c929cdad9279a13a91",
     "contracts/schemas/v1/governance.schema.json": "ed0f417f08be3173690b0a85f7b7b38acaffd8d64d5c40322fed70137943accf",
-    "contracts/schemas/v1/knowledge.schema.json": "863a1aafeef41b76d50a0903cbb381298d124d657804c45885f5a681a163e865",
-    "contracts/schemas/v1/operations.schema.json": "0953db811fb5671f1b6571873711db9df010c1d92c9cdfb2f46ef9fdbc7c1591",
+    "contracts/schemas/v1/knowledge.schema.json": "f28f755d55eef9ae62ea06d1e360a3707a217a78d5801da9088e967e4dc8ac8b",
+    "contracts/schemas/v1/operations.schema.json": "bf41fe2b38e74a07c7613335dd68f441851507834255344ba8807a953aaef98a",
     "contracts/schemas/v1/snapshots.schema.json": "bc7af8683ac47c51b5da6b2a9e51a5fdbfb1d8a8f60692813d95b4313e4d72fa",
     "contracts/schemas/v1/transaction.schema.json": "4f5d9b9289a11bb7d3e31c863d0149499edb2b6c8c31f3fb3b617cdb7cbaac95"
   }

@@ -32,3 +32,17 @@ const badEndpoint: Relation['source'] = {instance_id: 'x', id: 'y', resource_kin
 declare const contracts: ContractValidators;
 const checked: OperationRequest = contracts.validate('operations', {});
 void [badMetadata, badEndpoint, checked];
+
+// M1.2 immutable snapshots remain canonically checked at runtime.
+import type {NodeRevision, RelationRevision} from './generated/v1/knowledge.js';
+declare const relationRevision: RelationRevision;
+const historicalPredicate: string = relationRevision.snapshot.predicate;
+declare const nodeRevision: NodeRevision;
+const historicalBody: string | undefined = nodeRevision.snapshot?.body;
+if (operation.operation === 'node.create') {
+  const allocatedNode: string | undefined = operation.payload.node_id;
+  void allocatedNode;
+}
+// @ts-expect-error immutable Relation snapshot must retain exact Relation fields
+const missingSnapshot: RelationRevision = {kind: 'relation_revision'};
+void [historicalPredicate, historicalBody, missingSnapshot];

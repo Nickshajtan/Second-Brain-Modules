@@ -128,6 +128,11 @@ class Core:
         for record in additions:
             key = record["kind"], record["id"]
             if key in records:
+                selector = {"node": self.access.node, "relation": self.access.relation}.get(
+                    record["kind"]
+                )
+                if selector is not None:
+                    selector(records, record["id"])
                 self.boundary.fail("REVISION_CONFLICT")
             records[key] = record
             self.repository.pack(record, files)

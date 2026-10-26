@@ -305,6 +305,33 @@ class DefinitionVersion(
     )
 
 
+class RelationRef(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    instance_id: BrainInstanceId
+    resource_kind: Literal['relation']
+    id: EntityId
+
+
+class NodeRevisionRef(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    resource: NodeRef
+    revision_id: EntityId
+    revision: EntityRevision
+
+
+class RelationRevisionRef(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    resource: RelationRef
+    revision_id: EntityId
+    revision: EntityRevision
+
+
 class DomainError(BaseModel):
     model_config = ConfigDict(
         extra='forbid',

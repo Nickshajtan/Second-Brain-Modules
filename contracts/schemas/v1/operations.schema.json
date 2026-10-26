@@ -104,6 +104,12 @@
     },
     {
       "$ref": "#/$defs/SnapshotImport"
+    },
+    {
+      "$ref": "#/$defs/NodeRevisionRead"
+    },
+    {
+      "$ref": "#/$defs/RelationRevisionRead"
     }
   ],
   "$defs": {
@@ -138,6 +144,10 @@
             },
             "content": {
               "$ref": "knowledge.schema.json#/$defs/NodeContent"
+            },
+            "node_id": {
+              "$ref": "common.schema.json#/$defs/EntityId",
+              "description": "Allocated stable Node identity. Omission retains the unreleased M1 legacy request_id allocation rule; new producers should supply this field."
             }
           },
           "required": [
@@ -2322,6 +2332,94 @@
         {
           "$ref": "#/$defs/SnapshotImport"
         }
+      ]
+    },
+    "NodeRevisionRead": {
+      "title": "NodeRevisionRead",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "node.revision.read"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "NodeRevisionReadPayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "revision": {
+              "$ref": "common.schema.json#/$defs/NodeRevisionRef"
+            }
+          },
+          "required": [
+            "revision"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload"
+      ]
+    },
+    "RelationRevisionRead": {
+      "title": "RelationRevisionRead",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "operation": {
+          "type": "string",
+          "const": "relation.revision.read"
+        },
+        "operation_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "instance_id": {
+          "$ref": "common.schema.json#/$defs/BrainInstanceId"
+        },
+        "payload": {
+          "title": "RelationRevisionReadPayload",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "revision": {
+              "$ref": "common.schema.json#/$defs/RelationRevisionRef"
+            }
+          },
+          "required": [
+            "revision"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation",
+        "operation_version",
+        "request_id",
+        "instance_id",
+        "payload"
       ]
     }
   }

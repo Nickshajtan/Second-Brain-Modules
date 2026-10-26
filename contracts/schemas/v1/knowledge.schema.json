@@ -35,6 +35,9 @@
     },
     {
       "$ref": "#/$defs/ProvenanceRecord"
+    },
+    {
+      "$ref": "#/$defs/RelationRevision"
     }
   ],
   "$defs": {
@@ -188,6 +191,10 @@
         },
         "previous": {
           "$ref": "common.schema.json#/$defs/RevisionRef"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/NodeContent",
+          "description": "Immutable exact content at this logical revision, including type-definition version. Optional solely for legacy unreleased M1 metadata-only records; M2 must backfill original bytes explicitly before mutable heads are enabled."
         }
       },
       "required": [
@@ -805,6 +812,56 @@
         "recorded_at",
         "parents",
         "derived_from"
+      ]
+    },
+    "RelationRevision": {
+      "title": "RelationRevision",
+      "description": "Immutable exact Relation snapshot. Snapshot identity, logical revision and digest equality are cross-record semantic obligations; this structure alone does not implement historical storage or access.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "relation_revision"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/SchemaVersion"
+        },
+        "relation_id": {
+          "$ref": "common.schema.json#/$defs/EntityId"
+        },
+        "logical_revision": {
+          "$ref": "common.schema.json#/$defs/EntityRevision"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/Relation"
+        },
+        "digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "recorded_by": {
+          "$ref": "common.schema.json#/$defs/PrincipalRef"
+        },
+        "recorded_at": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "previous": {
+          "$ref": "common.schema.json#/$defs/RevisionRef"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "schema_version",
+        "relation_id",
+        "logical_revision",
+        "snapshot",
+        "digest",
+        "recorded_by",
+        "recorded_at"
       ]
     }
   }

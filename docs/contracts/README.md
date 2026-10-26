@@ -6,19 +6,19 @@ Status: **implemented, unreleased contract baseline**, not a running Core or a p
 
 This page describes contract-package guarantees. The executable
 [Core M1](../core/m1.md) separately implements a bounded create/read subset;
-the 34 structural operation alternatives do not imply 34 runtime handlers.
+the 36 structural operation alternatives do not imply 36 runtime handlers.
 
 The [registry](../../contracts/registry/v1.json) maps exact logical resource IDs, paths and generated Python root types. IDs use the Owner's GitHub repository namespace plus exact `1.0.0`; they are **identifiers**, not a promise that schemas are hosted at those URLs. Validation never fetches them. Publication/tag/distribution remains separate work.
 
 | Resource | Root / meaningful contained definitions | Generated Python module |
 |---|---|---|
 | [common](../../contracts/schemas/v1/common.schema.json) | DomainError; instance/entity/correlation IDs, version, revision, RevisionRef, NodeRef/ResourceRef/ClusterResourceRef, scope, principal/source/provenance refs, digest, UTC time, CAS, generation, flat Properties and bounded extensions | `generated.v1.common_schema` |
-| [knowledge](../../contracts/schemas/v1/knowledge.schema.json) | KnowledgeRecord: Node, NodeRevision, NodeTypeDefinition, Cluster, Membership, Collection, Relation, RelationTypeDefinition, Asset, ExternalReference, ProvenanceRecord | `generated.v1.knowledge_schema` |
+| [knowledge](../../contracts/schemas/v1/knowledge.schema.json) | KnowledgeRecord: Node, NodeRevision (optional immutable content snapshot), RelationRevision (exact immutable Relation snapshot), NodeTypeDefinition, Cluster, Membership, Collection, Relation, RelationTypeDefinition, Asset, ExternalReference, ProvenanceRecord | `generated.v1.knowledge_schema` |
 | [governance](../../contracts/schemas/v1/governance.schema.json) | GovernanceRecord: exact Proposal, typed Review, Approval, separate ApprovalRevocation, Disposal/routing, AccessRequest | `generated.v1.governance_schema` |
 | [control](../../contracts/schemas/v1/control.schema.json) | ControlRecord: PrincipalRegistration, OwnerRegistration, CapabilityGrant/conditions, ClusterPolicy/rules, ResourceRestriction, AccessDecision | `generated.v1.control_schema` |
 | [snapshots](../../contracts/schemas/v1/snapshots.schema.json) | SnapshotRecord: ExportManifest, ImportPlan/ID mapping, ApprovedSelection with optional bounded independent Relation revisions | `generated.v1.snapshots_schema` |
 | [authoring](../../contracts/schemas/v1/authoring.schema.json) | AuthoringInput: unmanaged, candidate or conflict input; exact raw Markdown/digest/base and explicit diagnostics | `generated.v1.authoring_schema` |
-| [operations](../../contracts/schemas/v1/operations.schema.json) | OperationRequest: 34 explicitly tagged request/payload alternatives; MutationOperation subset for batches | `generated.v1.operations_schema` |
+| [operations](../../contracts/schemas/v1/operations.schema.json) | OperationRequest: 36 explicitly tagged request/payload alternatives; MutationOperation subset for batches | `generated.v1.operations_schema` |
 | [transaction](../../contracts/schemas/v1/transaction.schema.json) | TransactionRecord: BatchRequest, OperationResult, CommittedReceipt, ErrorResponse, ReadResult, CommittedEvent, OutboxRecord | `generated.v1.transaction_schema` |
 
 Python models are generated together by the pinned `datamodel-code-generator`, with cross-module references rather than handwritten DTO copies. Import individual models directly or use root unions through the canonical adapter. TypeScript declarations are generated per resource; duplicated helper declarations across generated files are derivative output, not competing handwritten models. Public TS type namespaces are available from [index.d.ts](../../packages/typescript/generated/v1/index.d.ts).
@@ -37,7 +37,7 @@ wire = contracts.dump("knowledge", node)
 record = contracts.parse("knowledge", node_json)
 ```
 
-`node_json` is caller-provided decoded JSON. Set `PYTHONPATH=packages/python` outside pytest; alternatively install a future reviewed package when publication is actually needed. No package registry/release service is introduced. The adapter's default root derives from its source location, not current working directory; callers can supply an explicit repository root. Future packaging must include schemas/registry/manifests and preserve the same import semantics; that distribution is not claimed implemented.
+`node_json` is caller-provided decoded JSON. Set `PYTHONPATH=packages/python` outside pytest; alternatively install a future reviewed package when publication is actually needed. No package registry/release service is introduced. The adapter's default root derives from its source location, not current working directory; callers can supply an explicit repository root. The implemented isolated distribution builder includes schemas/registry/manifests and verifies consumer imports; see [distribution](distribution.md). Registry publication and released packages remain separate work.
 
 ```typescript
 import type {Node} from './packages/typescript/generated/v1/knowledge.js';
@@ -65,7 +65,7 @@ private decoder callbacks. `parse_as(family, payload, GeneratedType)` canonicall
 validates and then narrows the generated alternative; it does not replace the
 registry or create parallel DTOs. See [typing policy](../engineering/standards.md).
 
-UTF-8/LF artifacts, no generated timestamps or absolute paths. Entity identity is UUID v4 text with no path/title meaning. Logical immutable revisions use an independent revision ID plus resource/revision number; Git hashes are not the revision ID. Digests are explicit SHA-256 algorithm/value pairs; generation references are backend-neutral IDs/digests. Bodies are Markdown wire strings, **not duplicated authoring frontmatter**. `Node.content.properties` permits bounded flat JSON scalars/lists, no nested arbitrary metadata blobs. Instance-defined metadata schema IDs require a registered local schema and semantic validation in the future Core.
+UTF-8/LF artifacts, no generated timestamps or absolute paths. Entity identity is UUID v4 text with no path/title meaning. Logical immutable revisions use an independent revision ID plus resource/revision number; Git hashes are not the revision ID. Digests are explicit SHA-256 algorithm/value pairs; generation references are backend-neutral IDs/digests. Bodies are Markdown wire strings, **not duplicated authoring frontmatter**. `Node.content.properties` permits bounded flat JSON scalars/lists, no nested arbitrary metadata blobs. Instance-defined metadata schema IDs require a registered local schema and semantic validation; Core M1 validates its registered local metadata subset now.
 
 Optional omission is distinct from null. Only explicitly nullable fields, such as Cluster description, accept null; serializers use `by_alias=True`, `exclude_unset=True`, `mode="json"` and canonical output revalidation. Bounded namespaced extensions contain a version and flat Properties; unknown core fields always reject. Numbers are finite and safe for JavaScript; integer revisions are bounded at 9,007,199,254,740,991. No coercion/default insertion/property removal is enabled in Ajv.
 
@@ -99,3 +99,7 @@ One generation command preserves examples and emits production models/types plus
 Validation is independent of generation: Python `jsonschema` Draft202012Validator + FormatChecker and TS Ajv2020 consume identical canonical schemas/corpus. A separate reviewer authored the corpus and adversarial probes. [Structural fixtures](../../tests/fixtures/contracts/v1.json) include intended error keywords/paths; [semantic fixtures](../../tests/fixtures/contracts/semantic.json) deliberately pass structural validation and record future rejection obligations. No dummy handlers or policy evaluator are introduced to “test” business semantics. [Compatibility](compatibility.md), [evolution](evolution.md) and [operations](operations.md) define the remaining contract obligations.
 
 See the [executed validation and independent review report](validation-report.md) for actual counts, resolved findings and unexecuted release gates.
+
+## M1.2 reconciliation
+
+[Accepted decisions](../domain/accepted-decisions.md), [full coverage](contract-coverage-matrix.md), [API conventions](api-catalog.md), [gaps](contract-gaps.md) and [roadmap](../architecture/implementation-roadmap.md) are current. New explicit Node identity, typed revision references/requests and immutable snapshot structures amend the unreleased baseline; [compatibility](compatibility.md) describes directional rejection and persisted-byte implications. Historical validation counts in dated reports are not current corpus totals.

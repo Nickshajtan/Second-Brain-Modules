@@ -21,7 +21,7 @@ class NodeCreateStrategy:
         self.access.cluster(records, cluster_id, action)
         self.access.cluster(records, cluster_id, "membership.admit")
         self.domain.content(payload["content"], records, metadata)
-        identifier = operation["request_id"]
+        identifier = payload.get("node_id", operation["request_id"])
         revision = {
             "resource": self.boundary.resource("node", identifier),
             "revision_id": uid(),
@@ -48,6 +48,7 @@ class NodeCreateStrategy:
             recorded_by=actor,
             recorded_at=now,
             provenance=payload["content"]["provenance"],
+            snapshot=payload["content"],
         )
         membership = dict(
             kind="membership",
@@ -65,7 +66,7 @@ class NodeCreateStrategy:
         return additions, revisions
 
     def verify_result(self, operation, result, receipt, records):
-        node = records["node", operation["request_id"]]
+        node = records["node", operation["payload"].get("node_id", operation["request_id"])]
         members = [
             r for (k, _), r in records.items() if k == "membership" and r["node_id"] == node["id"]
         ]
