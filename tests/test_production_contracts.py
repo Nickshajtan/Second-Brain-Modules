@@ -113,6 +113,14 @@ def test_generated_manifest_matches_checkout(contracts):
     contracts.verify_generated()
 
 
+def test_generator_inputs_follow_declared_lf_checkout_contract():
+    # Git's declared LF checkout bytes must equal the raw bytes hashed by the
+    # generator. Otherwise local --check can pass but a clean checkout drifts.
+    manifest = load_json(ROOT / "packages/python/generated/source-hashes.json")
+    offenders = [name for name in manifest if b"\r\n" in (ROOT / name).read_bytes()]
+    assert offenders == [], f"Generator inputs violate .gitattributes LF contract: {offenders}"
+
+
 def test_documentation_schema_references_and_operation_inventory(contracts):
     for document in (ROOT / "docs/contracts").glob("*.md"):
         for href in re.findall(r"\[[^\]]*\]\(([^)]+)\)", document.read_text(encoding="utf-8")):

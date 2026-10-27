@@ -33,6 +33,10 @@ WRITES.update(
     for table in ("files", "resources", "memberships", "definitions", "revisions")
 )
 WRITES["DELETE FROM endpoints WHERE relation=?"] = 1
+WRITES["INSERT OR REPLACE INTO commitment_leaves VALUES(?,?,?)"] = 3
+WRITES["DELETE FROM commitment_leaves WHERE path=?"] = 1
+WRITES["INSERT OR REPLACE INTO commitment_nodes VALUES(?,?,?)"] = 3
+WRITES["DELETE FROM commitment_nodes WHERE height=? AND position=?"] = 2
 
 
 def checked_write(sql: str, parameters: object) -> tuple[str, list]:

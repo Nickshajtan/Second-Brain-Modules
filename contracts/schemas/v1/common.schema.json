@@ -255,6 +255,11 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "commitment_scheme": {
+          "type": "string",
+          "const": "sha256-bucket16-v1",
+          "description": "Optional versioned content commitment. Absence retains the historical sorted path/SHA256-map algorithm."
+        },
         "instance_id": {
           "$ref": "#/$defs/BrainInstanceId"
         },

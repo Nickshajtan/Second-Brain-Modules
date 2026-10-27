@@ -351,7 +351,9 @@ def test_external_unsupported_changes_rejected(core, mutation):
         path = next(p for p in files if p.startswith("control/receipts/"))
         del files[path]
         del files[path.replace("/receipts/", "/requests/")]
-    files[GENERATION] = encode(app.repository.generation(files))
+    files[GENERATION] = encode(
+        app.repository.generation(files, scheme=decode(files[GENERATION]).get("commitment_scheme"))
+    )
     parent = app.store.resolve()
     candidate = app.store.prepare(files, parent)
     app.store.publish(candidate, parent)
@@ -525,7 +527,9 @@ def test_type_change_checks_incident_relations_and_mixed_batch(core):
     definition["id"] = uid()
     definition["type_key"] = "other"
     app.repository.pack(definition, files)
-    files[GENERATION] = encode(app.repository.generation(files))
+    files[GENERATION] = encode(
+        app.repository.generation(files, scheme=decode(files[GENERATION]).get("commitment_scheme"))
+    )
     parent = app.store.resolve()
     app.store.publish(app.store.prepare(files, parent), parent)
     app.generation()
@@ -667,7 +671,9 @@ def test_unsupported_protected_update_state_fails_closed(core, protection):
             record["id"] = uid()
             path = f"knowledge/membership/{record['id']}.yaml"
     files[path] = encode(record)
-    files[GENERATION] = encode(app.repository.generation(files))
+    files[GENERATION] = encode(
+        app.repository.generation(files, scheme=decode(files[GENERATION]).get("commitment_scheme"))
+    )
     parent = app.store.resolve()
     app.store.publish(app.store.prepare(files, parent), parent)
     external = app.store.resolve()
@@ -690,7 +696,9 @@ def test_versioned_meaning_cannot_change_in_place(core, meaning):
         metadata = decode(files["control/metadata.json"])
         metadata["local:note:1"]["properties"]["status"]["maxLength"] = 100
         files["control/metadata.json"] = encode(metadata)
-    files[GENERATION] = encode(app.repository.generation(files))
+    files[GENERATION] = encode(
+        app.repository.generation(files, scheme=decode(files[GENERATION]).get("commitment_scheme"))
+    )
     parent = app.store.resolve()
     app.store.publish(app.store.prepare(files, parent), parent)
     error("REPAIR_REQUIRED", app.generation)
@@ -712,7 +720,9 @@ def test_new_type_version_does_not_reinterpret_old_history(core):
     metadata["local:note:2"] = copy.deepcopy(metadata["local:note:1"])
     files["control/metadata.json"] = encode(metadata)
     app.repository.pack(definition, files)
-    files[GENERATION] = encode(app.repository.generation(files))
+    files[GENERATION] = encode(
+        app.repository.generation(files, scheme=decode(files[GENERATION]).get("commitment_scheme"))
+    )
     parent = app.store.resolve()
     app.store.publish(app.store.prepare(files, parent), parent)
     app.execute(update(app, node, node_type_version="2.0.0"), app.generation())
@@ -750,12 +760,20 @@ def test_registered_meaning_retention_incremental_and_rebuild(core, change):
         del changed[path]
     else:
         changed["control/metadata.json"] = encode({})
-    changed[GENERATION] = encode(app.repository.generation(changed))
+    changed[GENERATION] = encode(
+        app.repository.generation(
+            changed, scheme=decode(files[GENERATION]).get("commitment_scheme")
+        )
+    )
     parent = app.store.resolve()
     app.store.publish(app.store.prepare(changed, parent), parent)
     if change != "shadow_version":
         restored = dict(files)
-        restored[GENERATION] = encode(app.repository.generation(restored))
+        restored[GENERATION] = encode(
+            app.repository.generation(
+                restored, scheme=decode(files[GENERATION]).get("commitment_scheme")
+            )
+        )
         parent = app.store.resolve()
         app.store.publish(app.store.prepare(restored, parent), parent)
     error("REPAIR_REQUIRED", app.generation)

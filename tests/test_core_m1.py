@@ -299,13 +299,17 @@ def test_expected_old_ref_rejects_competing_writer(core, monkeypatch):
 
     def race(candidate, expected):
         files = app.store.read(expected)
-        files[GENERATION] = encode(app.repository.generation(files))
+        scheme = decode(files[GENERATION]).get("commitment_scheme")
+        files[GENERATION] = encode(app.repository.generation(files, scheme=scheme))
         competing = app.store.prepare(files, expected)
         original(competing, expected)
         original(candidate, expected)
 
     monkeypatch.setattr(app.store, "publish", race)
     error("REVISION_CONFLICT", lambda: app.submit(request))
+    assert app.generation().get("commitment_scheme") == request["expected_generation"].get(
+        "commitment_scheme"
+    )
     error("NOT_FOUND", lambda: read_node(app, request["operations"][0]["request_id"]))
 
 
@@ -456,13 +460,17 @@ def test_restart_rejects_corrupt_committed_control_or_knowledge(core, corruption
             {"local:note:1": {"$ref": "https://invalid.example"}}
         )
         generation = decode(files["control/generation.json"])
-        generation["digest"] = app.repository.generation(files)["digest"]
+        generation["digest"] = app.repository.generation(
+            files, scheme=generation.get("commitment_scheme")
+        )["digest"]
         files["control/generation.json"] = encode(generation)
     elif corruption == "duplicate_yaml":
         path = next(p for p in files if p.startswith("knowledge/node/") and p.endswith(".yaml"))
         files[path] = b'{"kind":"node","kind":"node"}'
         generation = decode(files["control/generation.json"])
-        generation["digest"] = app.repository.generation(files)["digest"]
+        generation["digest"] = app.repository.generation(
+            files, scheme=generation.get("commitment_scheme")
+        )["digest"]
         files["control/generation.json"] = encode(generation)
     app.store.publish(app.store.prepare(files, parent), parent)
     restarted = Core(app.context, app.store, app.contracts)

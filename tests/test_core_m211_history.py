@@ -301,7 +301,13 @@ def test_delta_prepare_matches_full_tree_without_rehashing_unchanged_blobs(core,
     app.submit(request)
     parent = app.store.resolve()
     original = app.store.read(parent)
-    changed = {GENERATION: encode(app.repository.generation(original))}
+    changed = {
+        GENERATION: encode(
+            app.repository.generation(
+                original, scheme=decode(original[GENERATION]).get("commitment_scheme")
+            )
+        )
+    }
     calls = []
     run = app.store._run_bytes
 
@@ -479,7 +485,11 @@ def test_full_snapshot_pins_verified_frontier_despite_external_ref_advance(core,
     request = batch(app, cluster)
     receipt = app.submit(request)
     accepted = app.store.resolve()
-    root_files[GENERATION] = encode(app.repository.generation(root_files))
+    root_files[GENERATION] = encode(
+        app.repository.generation(
+            root_files, scheme=decode(root_files[GENERATION]).get("commitment_scheme")
+        )
+    )
     invalid = app.store.prepare(root_files, accepted)
     original = app.history_index.ensure
 

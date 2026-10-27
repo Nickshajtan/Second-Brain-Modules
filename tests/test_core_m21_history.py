@@ -20,7 +20,10 @@ from test_core_m1 import batch, error, read_node, uid
 
 
 def publish(app, files):
-    files[GENERATION] = encode(app.repository.generation(files))
+    # Preserve the source algorithm: these fixtures isolate retained-effect,
+    # metadata or race behavior, rather than introducing a scheme downgrade.
+    scheme = decode(files[GENERATION]).get("commitment_scheme")
+    files[GENERATION] = encode(app.repository.generation(files, scheme=scheme))
     parent = app.store.resolve()
     candidate = app.store.prepare(files, parent)
     app.store.publish(candidate, parent)
@@ -32,6 +35,9 @@ def legacy(app, cluster, monkeypatch, metadata_only=True):
 
     root = app.store.read(app.store.resolve())
     root.pop(HISTORY)
+    # This fixture models a pre-commitment repository, irrespective of the
+    # current fresh-bootstrap default. Its entire chain must remain legacy.
+    root[GENERATION] = encode(app.repository.generation(root))
     path = app.context.repository.parent / "legacy preenrollment"
     path.mkdir()
     subprocess.run(["git", "init", "--quiet", str(path)], check=True, capture_output=True)

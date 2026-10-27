@@ -5077,7 +5077,13 @@
   },
   {
     "name": "m12-null-node-identity",
-    "error": {"keyword": "type", "path": ["payload", "node_id"]},
+    "error": {
+      "keyword": "type",
+      "path": [
+        "payload",
+        "node_id"
+      ]
+    },
     "schema": "operations",
     "instance": {
       "schema_version": "1.0.0",
@@ -5169,7 +5175,10 @@
   },
   {
     "name": "m12-relation-revision-missing-snapshot",
-    "error": {"keyword": "required", "path": []},
+    "error": {
+      "keyword": "required",
+      "path": []
+    },
     "schema": "knowledge",
     "instance": {
       "kind": "relation_revision",
@@ -5190,7 +5199,12 @@
   },
   {
     "name": "m12-relation-revision-missing-predicate-version",
-    "error": {"keyword": "required", "path": ["snapshot"]},
+    "error": {
+      "keyword": "required",
+      "path": [
+        "snapshot"
+      ]
+    },
     "schema": "knowledge",
     "instance": {
       "kind": "relation_revision",
@@ -5235,7 +5249,14 @@
   },
   {
     "name": "m12-relation-revision-invalid-endpoint",
-    "error": {"keyword": "const", "path": ["snapshot", "source", "resource_kind"]},
+    "error": {
+      "keyword": "const",
+      "path": [
+        "snapshot",
+        "source",
+        "resource_kind"
+      ]
+    },
     "schema": "knowledge",
     "instance": {
       "kind": "relation_revision",
@@ -5325,7 +5346,12 @@
   },
   {
     "name": "m12-null-node-revision-snapshot",
-    "error": {"keyword": "type", "path": ["snapshot"]},
+    "error": {
+      "keyword": "type",
+      "path": [
+        "snapshot"
+      ]
+    },
     "schema": "knowledge",
     "instance": {
       "kind": "node_revision",
@@ -5375,7 +5401,15 @@
   },
   {
     "name": "m12-node-revision-read-wrong-kind",
-    "error": {"keyword": "const", "path": ["payload", "revision", "resource", "resource_kind"]},
+    "error": {
+      "keyword": "const",
+      "path": [
+        "payload",
+        "revision",
+        "resource",
+        "resource_kind"
+      ]
+    },
     "schema": "operations",
     "instance": {
       "schema_version": "1.0.0",
@@ -5422,7 +5456,15 @@
   },
   {
     "name": "m12-relation-revision-read-wrong-kind",
-    "error": {"keyword": "const", "path": ["payload", "revision", "resource", "resource_kind"]},
+    "error": {
+      "keyword": "const",
+      "path": [
+        "payload",
+        "revision",
+        "resource",
+        "resource_kind"
+      ]
+    },
     "schema": "operations",
     "instance": {
       "schema_version": "1.0.0",
@@ -5773,6 +5815,344 @@
     "error": {
       "keyword": "not",
       "path": []
+    }
+  },
+  {
+    "name": "batch-versioned-generation-commitment",
+    "schema": "transaction",
+    "instance": {
+      "schema_version": "1.0.0",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "transaction_id": "00000004-1111-4111-8111-000000000004",
+      "idempotency_key": "batch-fixture",
+      "expected_generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "commitment_scheme": "sha256-bucket16-v1"
+      },
+      "operations": [
+        {
+          "schema_version": "1.0.0",
+          "operation": "node.create",
+          "operation_version": "1.0.0",
+          "request_id": "00000064-1111-4111-8111-000000000064",
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "payload": {
+            "target_cluster_id": "00000003-1111-4111-8111-000000000003",
+            "content": {
+              "node_type": "note",
+              "title": "Independent fixture",
+              "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+              "properties": {
+                "topics": [
+                  "science",
+                  "дані"
+                ],
+                "priority": 1,
+                "pinned": false
+              },
+              "provenance": [
+                {
+                  "record_id": "00000005-1111-4111-8111-000000000005"
+                }
+              ],
+              "node_type_version": "1.0.0"
+            }
+          },
+          "idempotency_key": "fixture:node.create",
+          "expectations": [
+            {
+              "resource": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000002-1111-4111-8111-000000000002"
+              },
+              "expected_revision": 1
+            }
+          ]
+        },
+        {
+          "schema_version": "1.0.0",
+          "operation": "relation.create",
+          "operation_version": "1.0.0",
+          "request_id": "00000076-1111-4111-8111-000000000076",
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "payload": {
+            "relation": {
+              "kind": "relation",
+              "id": "00000002-1111-4111-8111-000000000002",
+              "schema_version": "1.0.0",
+              "revision": 1,
+              "owner_cluster_id": "00000003-1111-4111-8111-000000000003",
+              "source": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000002-1111-4111-8111-000000000002"
+              },
+              "target": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000005-1111-4111-8111-000000000005"
+              },
+              "predicate": "supports",
+              "provenance": [
+                {
+                  "record_id": "00000005-1111-4111-8111-000000000005"
+                }
+              ],
+              "lifecycle": "active",
+              "predicate_version": "1.0.0"
+            }
+          },
+          "idempotency_key": "fixture:relation.create",
+          "expectations": [
+            {
+              "resource": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000002-1111-4111-8111-000000000002"
+              },
+              "expected_revision": 1
+            }
+          ]
+        }
+      ],
+      "kind": "batch_request"
+    },
+    "valid": true
+  },
+  {
+    "name": "batch-unknown-generation-commitment",
+    "schema": "transaction",
+    "instance": {
+      "schema_version": "1.0.0",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "transaction_id": "00000004-1111-4111-8111-000000000004",
+      "idempotency_key": "batch-fixture",
+      "expected_generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "commitment_scheme": "sha256-bucket16-v0"
+      },
+      "operations": [
+        {
+          "schema_version": "1.0.0",
+          "operation": "node.create",
+          "operation_version": "1.0.0",
+          "request_id": "00000064-1111-4111-8111-000000000064",
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "payload": {
+            "target_cluster_id": "00000003-1111-4111-8111-000000000003",
+            "content": {
+              "node_type": "note",
+              "title": "Independent fixture",
+              "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+              "properties": {
+                "topics": [
+                  "science",
+                  "дані"
+                ],
+                "priority": 1,
+                "pinned": false
+              },
+              "provenance": [
+                {
+                  "record_id": "00000005-1111-4111-8111-000000000005"
+                }
+              ],
+              "node_type_version": "1.0.0"
+            }
+          },
+          "idempotency_key": "fixture:node.create",
+          "expectations": [
+            {
+              "resource": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000002-1111-4111-8111-000000000002"
+              },
+              "expected_revision": 1
+            }
+          ]
+        },
+        {
+          "schema_version": "1.0.0",
+          "operation": "relation.create",
+          "operation_version": "1.0.0",
+          "request_id": "00000076-1111-4111-8111-000000000076",
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "payload": {
+            "relation": {
+              "kind": "relation",
+              "id": "00000002-1111-4111-8111-000000000002",
+              "schema_version": "1.0.0",
+              "revision": 1,
+              "owner_cluster_id": "00000003-1111-4111-8111-000000000003",
+              "source": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000002-1111-4111-8111-000000000002"
+              },
+              "target": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000005-1111-4111-8111-000000000005"
+              },
+              "predicate": "supports",
+              "provenance": [
+                {
+                  "record_id": "00000005-1111-4111-8111-000000000005"
+                }
+              ],
+              "lifecycle": "active",
+              "predicate_version": "1.0.0"
+            }
+          },
+          "idempotency_key": "fixture:relation.create",
+          "expectations": [
+            {
+              "resource": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000002-1111-4111-8111-000000000002"
+              },
+              "expected_revision": 1
+            }
+          ]
+        }
+      ],
+      "kind": "batch_request"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "const",
+      "path": [
+        "expected_generation",
+        "commitment_scheme"
+      ]
+    }
+  },
+  {
+    "name": "batch-null-generation-commitment",
+    "schema": "transaction",
+    "instance": {
+      "schema_version": "1.0.0",
+      "instance_id": "00000001-1111-4111-8111-000000000001",
+      "transaction_id": "00000004-1111-4111-8111-000000000004",
+      "idempotency_key": "batch-fixture",
+      "expected_generation": {
+        "instance_id": "00000001-1111-4111-8111-000000000001",
+        "generation_id": "00000004-1111-4111-8111-000000000004",
+        "digest": {
+          "algorithm": "sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "commitment_scheme": null
+      },
+      "operations": [
+        {
+          "schema_version": "1.0.0",
+          "operation": "node.create",
+          "operation_version": "1.0.0",
+          "request_id": "00000064-1111-4111-8111-000000000064",
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "payload": {
+            "target_cluster_id": "00000003-1111-4111-8111-000000000003",
+            "content": {
+              "node_type": "note",
+              "title": "Independent fixture",
+              "body": "# Нотатка 🧠\n\nUnicode: é, é.\n",
+              "properties": {
+                "topics": [
+                  "science",
+                  "дані"
+                ],
+                "priority": 1,
+                "pinned": false
+              },
+              "provenance": [
+                {
+                  "record_id": "00000005-1111-4111-8111-000000000005"
+                }
+              ],
+              "node_type_version": "1.0.0"
+            }
+          },
+          "idempotency_key": "fixture:node.create",
+          "expectations": [
+            {
+              "resource": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000002-1111-4111-8111-000000000002"
+              },
+              "expected_revision": 1
+            }
+          ]
+        },
+        {
+          "schema_version": "1.0.0",
+          "operation": "relation.create",
+          "operation_version": "1.0.0",
+          "request_id": "00000076-1111-4111-8111-000000000076",
+          "instance_id": "00000001-1111-4111-8111-000000000001",
+          "payload": {
+            "relation": {
+              "kind": "relation",
+              "id": "00000002-1111-4111-8111-000000000002",
+              "schema_version": "1.0.0",
+              "revision": 1,
+              "owner_cluster_id": "00000003-1111-4111-8111-000000000003",
+              "source": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000002-1111-4111-8111-000000000002"
+              },
+              "target": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000005-1111-4111-8111-000000000005"
+              },
+              "predicate": "supports",
+              "provenance": [
+                {
+                  "record_id": "00000005-1111-4111-8111-000000000005"
+                }
+              ],
+              "lifecycle": "active",
+              "predicate_version": "1.0.0"
+            }
+          },
+          "idempotency_key": "fixture:relation.create",
+          "expectations": [
+            {
+              "resource": {
+                "instance_id": "00000001-1111-4111-8111-000000000001",
+                "resource_kind": "node",
+                "id": "00000002-1111-4111-8111-000000000002"
+              },
+              "expected_revision": 1
+            }
+          ]
+        }
+      ],
+      "kind": "batch_request"
+    },
+    "valid": false,
+    "error": {
+      "keyword": "type",
+      "path": [
+        "expected_generation",
+        "commitment_scheme"
+      ]
     }
   }
 ]

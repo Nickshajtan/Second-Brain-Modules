@@ -70,7 +70,9 @@ def test_node_revision_snapshot_restart_integrity_and_legacy(core, mode):
     elif mode == "tampered":
         revision["snapshot"]["body"] += "changed historical bytes"
     files[path] = encode(revision)
-    generation = app.repository.generation(files)
+    generation = app.repository.generation(
+        files, scheme=decode(files["control/generation.json"]).get("commitment_scheme")
+    )
     files["control/generation.json"] = encode(generation)
     app.store.publish(app.store.prepare(files, parent), parent)
     restarted = Core(app.context, app.store, app.contracts)

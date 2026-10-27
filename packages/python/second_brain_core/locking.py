@@ -15,9 +15,16 @@ class WindowsFileLock:
         import msvcrt
 
         stream.seek(0)
-        if not stream.read(1):
-            stream.write(b"0")
-            stream.flush()
+        # Reading an already locked byte raises PermissionError on Windows before
+        # LK_LOCK can wait. Inspect length without accessing the protected byte.
+        if os.fstat(stream.fileno()).st_size == 0:
+            try:
+                os.write(stream.fileno(), b"0")
+            except PermissionError:
+                # Another initializer may have written and locked the byte after
+                # fstat. Only that now-nonempty file permits normal lock waiting.
+                if os.fstat(stream.fileno()).st_size == 0:
+                    raise
         stream.seek(0)
         msvcrt.locking(stream.fileno(), msvcrt.LK_LOCK, 1)
 

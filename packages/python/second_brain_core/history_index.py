@@ -16,13 +16,16 @@ from uuid import uuid4
 
 from .boundary import GENERATION, CoreError, digest
 from .codec import decode
+from .commitment import SCHEMA as COMMITMENT_SCHEMA
 from .projection import ProjectionConnection, checked_write, memory_connection
 
 MAX_DELTAS = 1024
 MAX_DELTA_BYTES = 16 * 1024 * 1024
+PREDECESSOR_CONTRACTS = "bbbe881202b9b3c88548ccdf37364bdf92f7af7bb0f2e06086ed738880dcfa84"
 
-SCHEMA = """
-PRAGMA user_version=2;
+SCHEMA = (
+    """
+PRAGMA user_version=3;
 CREATE TABLE files(path TEXT PRIMARY KEY, oid TEXT NOT NULL, sha TEXT NOT NULL);
 CREATE TABLE resources(kind TEXT, id TEXT, path TEXT UNIQUE, attrs TEXT NOT NULL,
  PRIMARY KEY(kind,id));
@@ -47,6 +50,8 @@ CREATE TABLE immutable(path TEXT PRIMARY KEY, oid TEXT NOT NULL);
 CREATE TABLE commits(oid TEXT PRIMARY KEY, parent TEXT, generation TEXT NOT NULL);
 CREATE UNIQUE INDEX generation_identity ON commits(json_extract(generation,'$.generation_id'));
 """
+    + COMMITMENT_SCHEMA
+)
 
 
 class HistoryIndexError(CoreError):
@@ -83,6 +88,7 @@ class HistoryIndex:
         self.checkpoint = self.directory / "checkpoint.json"
         self.key_path = self.directory / "checkpoint.key"
         self.enrollment = self.directory / "enrollment.json"
+        self.upgrading = False
         self.connection: sqlite3.Connection | None = None
         self.frontier: str | None = None
         self.generation: dict[str, object] | None = None
@@ -97,7 +103,7 @@ class HistoryIndex:
             repository=str(self.store.repository),
             common=str(self.store.common),
             ref=self.store.ref,
-            format=3,
+            format=4,
             contracts=digest(self.boundary.contracts.schemas)["value"],
         )
 
@@ -146,27 +152,29 @@ class HistoryIndex:
     def _binding(self, binding, rebuilding):
         if binding == self.binding:
             return True
-        if dict(binding, format=3) == self.binding and binding.get("format") in (1, 2):
+        if dict(binding, format=4) == self.binding and binding.get("format") in (1, 2, 3):
             if rebuilding:
                 return True
             self.fail("INDEX_STALE")
-        return False
+        predecessor = dict(self.binding, format=3, contracts=PREDECESSOR_CONTRACTS)
+        return self.upgrading and rebuilding and binding == predecessor
 
-    def anchor(self, *, rebuilding: bool = False) -> dict | None:
-        if not self.checkpoint.exists():
+    def anchor(self, *, rebuilding: bool = False, path: Path | None = None) -> dict | None:
+        path = path or self.checkpoint
+        if not path.exists():
             if self.directory.exists():
                 self.fail("VERIFICATION_FAILED")
             return None
         try:
             key = self.key_path.read_bytes()
-            raw = self.checkpoint.read_bytes()
+            raw = path.read_bytes()
             envelope = json.loads(raw)
             payload = envelope["payload"]
             if len(key) != 32 or not hmac.compare_digest(
                 envelope["mac"], hmac.digest(key, _json(payload), "sha256").hex()
             ):
                 self.fail("VERIFICATION_FAILED")
-            if payload["binding"].get("format") == 3 and raw != _json(
+            if payload["binding"].get("format") in (3, 4) and raw != _json(
                 dict(payload=payload, mac=envelope["mac"])
             ):
                 self.fail("VERIFICATION_FAILED")
@@ -180,8 +188,11 @@ class HistoryIndex:
         except (OSError, ValueError, KeyError, TypeError):
             self.fail("VERIFICATION_FAILED")
 
-    def load(self) -> None:
-        payload = self.anchor()
+    def load(self, *, locked: bool = False) -> None:
+        if not locked:
+            with self.store.writer():
+                return self.load(locked=True)
+        payload = self.anchor(rebuilding=self.upgrading)
         if payload is None:
             self.fail("INDEX_MISSING")
         try:
@@ -191,7 +202,8 @@ class HistoryIndex:
                 self.fail("INDEX_CORRUPT")
             connection = memory_connection()
             connection.deserialize(raw)
-            if connection.execute("PRAGMA user_version").fetchone() != (2,):
+            expected = 2 if self.binding["format"] == 3 else 3
+            if connection.execute("PRAGMA user_version").fetchone() != (expected,):
                 self.fail("INDEX_IDENTITY_MISMATCH")
             if connection.execute("PRAGMA quick_check").fetchall() != [("ok",)]:
                 self.fail("INDEX_CORRUPT")
@@ -289,6 +301,8 @@ class HistoryIndex:
             previous_state=previous_state,
         )
         _atomic(database, raw)
+        if previous:
+            _atomic(self.directory / f"checkpoint-{previous_state}.json", previous["_raw"])
         checkpoint_raw = _json(
             dict(payload=payload, mac=hmac.digest(key, _json(payload), "sha256").hex())
         )
@@ -405,8 +419,11 @@ class HistoryIndex:
         if state != {k: v for k, v in payload.items() if not k.startswith("_")}:
             self.fail("INDEX_CORRUPT")
 
-    def refresh(self) -> None:
+    def refresh(self, *, locked: bool = False) -> None:
         """Refresh another trusted writer's bounded same-base tail without copying SQLite."""
+        if not locked:
+            with self.store.writer():
+                return self.refresh(locked=True)
         payload = self.anchor()
         if payload is None:
             self.fail("INDEX_MISSING")
@@ -423,8 +440,8 @@ class HistoryIndex:
         if previous is None or any(payload[key] != previous[key] for key in base_keys):
             # A new immutable base is an explicit maintenance boundary, not an
             # ordinary writer advancement. Authenticate its complete bytes once.
-            self.load()
-            return
+            self.load(locked=True)
+            return None
         if payload["_key"] != self.key or not isinstance(self.connection, ProjectionConnection):
             self.fail("VERIFICATION_FAILED")
         connection = self.connection
@@ -641,9 +658,9 @@ class HistoryIndex:
         if commit is None:
             self.fail("CANONICAL_STATE_CORRUPT")
         if self.connection is None:
-            self.load()
+            self.load(locked=locked)
         elif not self.checkpoint.exists() or self.checkpoint.read_bytes() != self.checkpoint_raw:
-            self.refresh()
+            self.refresh(locked=locked)
         if commit == self.frontier:
             return
         if not locked:
@@ -762,7 +779,7 @@ class HistoryIndex:
         generation = TransitionVerifier(self.repository, connection).verify(changes)
         diagnostic = "INDEX_MISSING"
         try:
-            self.load()
+            self.load(locked=True)
             if self.connection is None:
                 self.fail("INDEX_MISSING")
             diagnostic = "INDEX_STALE" if self.frontier != commit else "OK"
@@ -781,6 +798,8 @@ class HistoryIndex:
                     "legacy",
                     "immutable",
                     "commits",
+                    "commitment_leaves",
+                    "commitment_nodes",
                 ):
                     expected = sorted(
                         connection.execute(f"SELECT * FROM {table}").fetchall(), key=repr

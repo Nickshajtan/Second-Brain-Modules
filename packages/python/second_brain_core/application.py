@@ -301,6 +301,26 @@ class Core:
                 self.boundary.fail("IDEMPOTENCY_CONFLICT")
 
     def _next_generation(self, files):
+        from .commitment import SCHEME, ContentCommitment, covered
+
+        previous = self.history_index.generation
+        connection = self.history_index.connection
+        if previous is None or connection is None:
+            self.boundary.fail("REPAIR_REQUIRED")
+        if previous.get("commitment_scheme") == SCHEME:
+            commitment = ContentCommitment(connection, self.context.instance_id)
+            return dict(
+                instance_id=self.context.instance_id,
+                generation_id=uid(),
+                commitment_scheme=SCHEME,
+                digest=commitment.update(
+                    {
+                        path: hashlib.sha256(raw).hexdigest()
+                        for path, raw in files.items()
+                        if covered(path)
+                    }
+                ),
+            )
         hashes = dict(
             self.history_index.query(
                 "SELECT path,sha FROM files WHERE path GLOB 'knowledge/*' OR path='control/metadata.json'"

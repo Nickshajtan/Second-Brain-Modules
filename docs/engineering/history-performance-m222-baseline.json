@@ -1,0 +1,369 @@
+{
+  "rows": [
+    {
+      "operation": "baseline_matched_update",
+      "mode": "warm",
+      "status": "complete",
+      "detail": null,
+      "elapsed_seconds": 1.874051,
+      "git_processes": 26,
+      "blob_reads": 13,
+      "duplicate_blob_requests": 0,
+      "trees_read": 0,
+      "tree_enumerations": 0,
+      "commits_traversed": 1,
+      "commits_enumerated": 1,
+      "records_validated": 25,
+      "domain_records_checked": 11,
+      "receipts_validated": 1,
+      "sqlite_statements": 116,
+      "database_bytes": 286720,
+      "process_lifetime_peak_working_set_bytes": 60846080,
+      "python_cpu_seconds": 0.390625,
+      "components": {
+        "frontier_coherence": {
+          "calls": 3,
+          "wall_seconds": 0.0034938000608235598,
+          "python_cpu_seconds": 0.0
+        },
+        "authorization_dependencies": {
+          "calls": 1,
+          "wall_seconds": 0.43530150002334267,
+          "python_cpu_seconds": 0.078125
+        },
+        "generation_path_digest": {
+          "calls": 1,
+          "wall_seconds": 0.0006317999796010554,
+          "python_cpu_seconds": 0.0
+        },
+        "git_prepare_delta": {
+          "calls": 1,
+          "wall_seconds": 0.3560901000164449,
+          "python_cpu_seconds": 0.03125
+        },
+        "incremental_verification": {
+          "calls": 1,
+          "wall_seconds": 0.2552785000298172,
+          "python_cpu_seconds": 0.1875
+        },
+        "derived_publication": {
+          "calls": 1,
+          "wall_seconds": 0.11460490000899881,
+          "python_cpu_seconds": 0.0
+        }
+      },
+      "full_sqlite_serializations": 0,
+      "full_sqlite_backups": 0,
+      "full_sqlite_deserializations": 0,
+      "projection_rows_changed": 18,
+      "projection_row_count_scope": "same private connection; changed connection/rebuild reports null",
+      "full_sqlite_hash_calls": 0,
+      "full_sqlite_hash_bytes": 0,
+      "derived_bytes_written": 7254,
+      "sqlite_snapshot_bytes_written": 0,
+      "authenticated_delta_bytes_written": 5756,
+      "checkpoint_bytes_written": 1498,
+      "derived_writes": [
+        {
+          "file": "delta-00000000000000000002.json.prepared",
+          "bytes": 5756
+        },
+        {
+          "file": "checkpoint.json.prepared",
+          "bytes": 1498
+        }
+      ],
+      "derived_directory_bytes": 457941,
+      "corpus_generations": 100,
+      "hashing_audit": {
+        "sha256_calls": 27,
+        "sha256_input_bytes": 185088,
+        "flat_maps": [
+          {
+            "paths": 70,
+            "encoded_bytes": 9137
+          },
+          {
+            "paths": 70,
+            "encoded_bytes": 9137
+          }
+        ],
+        "git_commands": [
+          "rev-parse",
+          "for-each-ref",
+          "rev-parse",
+          "rev-parse",
+          "cat-file",
+          "cat-file",
+          "cat-file",
+          "cat-file",
+          "cat-file",
+          "cat-file",
+          "cat-file",
+          "cat-file",
+          "read-tree",
+          "hash-object",
+          "update-index",
+          "write-tree",
+          "commit-tree",
+          "rev-parse",
+          "rev-list",
+          "diff-tree",
+          "cat-file",
+          "for-each-ref",
+          "rev-parse",
+          "update-ref",
+          "for-each-ref",
+          "rev-parse"
+        ]
+      },
+      "git_process_counter_scope": "Exact command wrapper; overrides nested harness counter bypassed by instance wrapper"
+    },
+    {
+      "operation": "baseline_matched_update",
+      "mode": "warm",
+      "status": "complete",
+      "detail": null,
+      "elapsed_seconds": 2.365163,
+      "git_processes": 26,
+      "blob_reads": 13,
+      "duplicate_blob_requests": 0,
+      "trees_read": 0,
+      "tree_enumerations": 0,
+      "commits_traversed": 1,
+      "commits_enumerated": 1,
+      "records_validated": 25,
+      "domain_records_checked": 11,
+      "receipts_validated": 1,
+      "sqlite_statements": 116,
+      "database_bytes": 1613824,
+      "process_lifetime_peak_working_set_bytes": 69513216,
+      "python_cpu_seconds": 0.46875,
+      "components": {
+        "frontier_coherence": {
+          "calls": 3,
+          "wall_seconds": 0.0036285999813117087,
+          "python_cpu_seconds": 0.0
+        },
+        "authorization_dependencies": {
+          "calls": 1,
+          "wall_seconds": 0.6146661000093445,
+          "python_cpu_seconds": 0.0625
+        },
+        "generation_path_digest": {
+          "calls": 1,
+          "wall_seconds": 0.0031983000226318836,
+          "python_cpu_seconds": 0.0
+        },
+        "git_prepare_delta": {
+          "calls": 1,
+          "wall_seconds": 0.3524838999728672,
+          "python_cpu_seconds": 0.03125
+        },
+        "incremental_verification": {
+          "calls": 1,
+          "wall_seconds": 0.26169309997931123,
+          "python_cpu_seconds": 0.1875
+        },
+        "derived_publication": {
+          "calls": 1,
+          "wall_seconds": 0.12139190000016242,
+          "python_cpu_seconds": 0.015625
+        }
+      },
+      "full_sqlite_serializations": 0,
+      "full_sqlite_backups": 0,
+      "full_sqlite_deserializations": 0,
+      "projection_rows_changed": 18,
+      "projection_row_count_scope": "same private connection; changed connection/rebuild reports null",
+      "full_sqlite_hash_calls": 0,
+      "full_sqlite_hash_bytes": 0,
+      "derived_bytes_written": 7255,
+      "sqlite_snapshot_bytes_written": 0,
+      "authenticated_delta_bytes_written": 5757,
+      "checkpoint_bytes_written": 1498,
+      "derived_writes": [
+        {
+          "file": "delta-00000000000000000002.json.prepared",
+          "bytes": 5757
+        },
+        {
+          "file": "checkpoint.json.prepared",
+          "bytes": 1498
+        }
+      ],
+      "derived_directory_bytes": 1785046,
+      "corpus_generations": 1000,
+      "hashing_audit": {
+        "sha256_calls": 27,
+        "sha256_input_bytes": 314522,
+        "flat_maps": [
+          {
+            "paths": 565,
+            "encoded_bytes": 73847
+          },
+          {
+            "paths": 565,
+            "encoded_bytes": 73847
+          }
+        ],
+        "git_commands": [
+          "rev-parse",
+          "for-each-ref",
+          "rev-parse",
+          "rev-parse",
+          "cat-file",
+          "cat-file",
+          "cat-file",
+          "cat-file",
+          "cat-file",
+          "cat-file",
+          "cat-file",
+          "cat-file",
+          "read-tree",
+          "hash-object",
+          "update-index",
+          "write-tree",
+          "commit-tree",
+          "rev-parse",
+          "rev-list",
+          "diff-tree",
+          "cat-file",
+          "for-each-ref",
+          "rev-parse",
+          "update-ref",
+          "for-each-ref",
+          "rev-parse"
+        ]
+      },
+      "git_process_counter_scope": "Exact command wrapper; overrides nested harness counter bypassed by instance wrapper"
+    },
+    {
+      "operation": "baseline_matched_update",
+      "mode": "warm",
+      "status": "complete",
+      "detail": null,
+      "elapsed_seconds": 1.656328,
+      "git_processes": 26,
+      "blob_reads": 13,
+      "duplicate_blob_requests": 0,
+      "trees_read": 0,
+      "tree_enumerations": 0,
+      "commits_traversed": 1,
+      "commits_enumerated": 1,
+      "records_validated": 25,
+      "domain_records_checked": 11,
+      "receipts_validated": 1,
+      "sqlite_statements": 116,
+      "database_bytes": 14503936,
+      "process_lifetime_peak_working_set_bytes": 128782336,
+      "python_cpu_seconds": 0.5,
+      "components": {
+        "frontier_coherence": {
+          "calls": 3,
+          "wall_seconds": 0.0034067000378854573,
+          "python_cpu_seconds": 0.0
+        },
+        "authorization_dependencies": {
+          "calls": 1,
+          "wall_seconds": 0.3461179999867454,
+          "python_cpu_seconds": 0.03125
+        },
+        "generation_path_digest": {
+          "calls": 1,
+          "wall_seconds": 0.03048229997511953,
+          "python_cpu_seconds": 0.03125
+        },
+        "git_prepare_delta": {
+          "calls": 1,
+          "wall_seconds": 0.36961440002778545,
+          "python_cpu_seconds": 0.0625
+        },
+        "incremental_verification": {
+          "calls": 1,
+          "wall_seconds": 0.20793749997392297,
+          "python_cpu_seconds": 0.171875
+        },
+        "derived_publication": {
+          "calls": 1,
+          "wall_seconds": 0.1269554999889806,
+          "python_cpu_seconds": 0.0
+        }
+      },
+      "full_sqlite_serializations": 0,
+      "full_sqlite_backups": 0,
+      "full_sqlite_deserializations": 0,
+      "projection_rows_changed": 18,
+      "projection_row_count_scope": "same private connection; changed connection/rebuild reports null",
+      "full_sqlite_hash_calls": 0,
+      "full_sqlite_hash_bytes": 0,
+      "derived_bytes_written": 7256,
+      "sqlite_snapshot_bytes_written": 0,
+      "authenticated_delta_bytes_written": 5758,
+      "checkpoint_bytes_written": 1498,
+      "derived_writes": [
+        {
+          "file": "delta-00000000000000000002.json.prepared",
+          "bytes": 5758
+        },
+        {
+          "file": "checkpoint.json.prepared",
+          "bytes": 1498
+        }
+      ],
+      "derived_directory_bytes": 14675159,
+      "corpus_generations": 10000,
+      "hashing_audit": {
+        "sha256_calls": 27,
+        "sha256_input_bytes": 1608736,
+        "flat_maps": [
+          {
+            "paths": 5515,
+            "encoded_bytes": 720947
+          },
+          {
+            "paths": 5515,
+            "encoded_bytes": 720947
+          }
+        ],
+        "git_commands": [
+          "rev-parse",
+          "for-each-ref",
+          "rev-parse",
+          "rev-parse",
+          "cat-file",
+          "cat-file",
+          "cat-file",
+          "cat-file",
+          "cat-file",
+          "cat-file",
+          "cat-file",
+          "cat-file",
+          "read-tree",
+          "hash-object",
+          "update-index",
+          "write-tree",
+          "commit-tree",
+          "rev-parse",
+          "rev-list",
+          "diff-tree",
+          "cat-file",
+          "for-each-ref",
+          "rev-parse",
+          "update-ref",
+          "for-each-ref",
+          "rev-parse"
+        ]
+      },
+      "git_process_counter_scope": "Exact command wrapper; overrides nested harness counter bypassed by instance wrapper"
+    }
+  ],
+  "baseline": "80a24eedb0379b15e4fd9a9d5975486d04cc0558",
+  "python": "3.12.6",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "git": "git version 2.46.2.windows.1",
+  "helper_source": "import sys, tempfile, json, hashlib, time\nfrom pathlib import Path\nfrom dataclasses import replace\nfrom unittest.mock import patch\n\nsys.path.insert(0, str(Path.cwd() / 'tools'))\nimport benchmark_history as b\nfrom second_brain_core import Core, rebuild_history_index\n\nrows=json.loads(Path('.cache/m222-stage-a-profile.json').read_text())['rows'] if Path('.cache/m222-stage-a-profile.json').exists() else []\nfor size in (tuple(map(int,sys.argv[1:])) if len(sys.argv)>1 else (100, 1000)):\n    with tempfile.TemporaryDirectory(prefix='m222-stage-a-') as tmp:\n        app, cluster=b.core_fixture.__wrapped__(Path(tmp), b.ContractValidator())\n        principal=app.context.principal\n        app=Core(replace(app.context, principal=replace(principal, grants=principal.grants | frozenset({(cluster,'node.update'),(cluster,'node.history.read')}))), app.store, app.contracts)\n        request=b.batch(app,cluster)\n        app.submit(request)\n        hot=request['operations'][0]['request_id']\n        records=b.extend_mutations(app,cluster,size-2,hot)\n        assert rebuild_history_index(app)['status']=='rebuilt'\n        head=records['node',hot]\n        request=b.mutation_request(app,hot,dict(head['content'], title='measured hashing audit'),head['revision'],app.generation())\n        counters={'sha256_calls':0,'sha256_input_bytes':0,'flat_maps':[],'git_commands':[]}\n        sha=hashlib.sha256\n        digest=b.Core._next_generation.__globals__['digest']\n        run=app.store._run_bytes\n        def hashed(raw=b'',**kwargs):\n            counters['sha256_calls']+=1\n            counters['sha256_input_bytes']+=len(raw)\n            return sha(raw,**kwargs)\n        def digested(value):\n            if isinstance(value,dict) and value and all(isinstance(k,str) and ('knowledge/' in k or k=='control/metadata.json') for k in value):\n                counters['flat_maps'].append({'paths':len(value),'encoded_bytes':len(b.encode(value))})\n            return digest(value)\n        def git(*args,**kwargs):\n            counters['git_commands'].append(args[0])\n            return run(*args,**kwargs)\n        with patch.object(hashlib,'sha256',hashed), patch('second_brain_core.application.digest',digested), patch('second_brain_core.verification.digest',digested), patch.object(app.store,'_run_bytes',git):\n            row=b.hardening_measure(app,'baseline_matched_update',lambda:app.submit(request),100000)\n        row.update(corpus_generations=size,hashing_audit=counters,git_processes=len(counters['git_commands']),git_process_counter_scope='Exact command wrapper; overrides nested harness counter bypassed by instance wrapper')\n        rows.append(row)\n        Path('.cache/m222-stage-a-profile.json').write_text(json.dumps({'rows':rows},indent=2)+'\\n')\n        print(json.dumps({'size':size,'elapsed':row['elapsed_seconds'],'hashing':counters,'components':row['components']}),flush=True)\n",
+  "helper_sha256": "8975eddfae1f09a13619cf4cfcc69269732738ff8be02f678d2515f8bdbea46c",
+  "runtime_sha256": "4f426bff8a2c14eba89e1329f222d8469ed4dfc0fae5e2cfc883f7958aee2df3",
+  "measurement_scope": "One successful warm title-replacement submit per baseline corpus; counters instrumented, not percentile throughput evidence"
+}

@@ -154,7 +154,9 @@ def apply_history_migration(core: Core, plan: dict[str, object]) -> HistoryBasel
                 core.repository.pack(record, files)
                 if decode(files[path]) != record:
                     core.boundary.fail("REPAIR_REQUIRED")
-            generation = core.repository.generation(files)
+            generation = core.repository.generation(
+                files, scheme=decode(files[GENERATION]).get("commitment_scheme")
+            )
             marker = dict(
                 kind="history_baseline",
                 schema_version=VERSION,

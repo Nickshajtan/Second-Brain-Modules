@@ -2,6 +2,7 @@
 
 from .boundary import GENERATION, VERSION, ContractBoundary, digest
 from .codec import decode, encode
+from .commitment import SCHEME
 from .domain import DomainRules
 from .history import HISTORY
 from .ports import CommitStore
@@ -54,7 +55,7 @@ class BootstrapInitializer:
             ):
                 self.boundary.fail("VALIDATION_FAILED")
         files["control/metadata.json"] = encode(metadata)
-        generation = self.repository.generation(files)
+        generation = self.repository.generation(files, scheme=SCHEME)
         marker = dict(
             kind="history_baseline",
             schema_version=VERSION,

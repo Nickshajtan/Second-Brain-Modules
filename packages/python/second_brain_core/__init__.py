@@ -3,7 +3,15 @@
 from .application import Core
 from .boundary import CoreError, InstanceContext, TrustedPrincipal
 from .git_store import GitStore
-from .maintenance import audit_history, compact_history_index, rebuild_history_index
+from .maintenance import (
+    adopt_generation_commitment,
+    audit_history,
+    collect_history_index,
+    compact_history_index,
+    maintain_history_index,
+    rebuild_history_index,
+    upgrade_history_index,
+)
 from .migration import apply_history_migration, inspect_history
 
 __all__ = [
@@ -12,9 +20,13 @@ __all__ = [
     "GitStore",
     "InstanceContext",
     "TrustedPrincipal",
+    "adopt_generation_commitment",
     "apply_history_migration",
     "audit_history",
+    "collect_history_index",
     "compact_history_index",
     "inspect_history",
+    "maintain_history_index",
     "rebuild_history_index",
+    "upgrade_history_index",
 ]

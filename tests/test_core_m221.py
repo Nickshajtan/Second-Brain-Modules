@@ -79,10 +79,16 @@ def test_warm_update_persists_only_bounded_delta(core, monkeypatch):
     delta = json.loads(
         app.history_index._delta_path(app.history_index.accepted["sequence"]).read_bytes()
     )
-    # Includes fixed no-op cleanup DELETEs as well as the 19 changed rows when
-    # body bytes change (title-only replacement affects one fewer file row).
-    assert len(delta["payload"]["writes"]) <= 26
-    assert app.history_index.connection.total_changes - changed_before == 19
+    # M2.2.2 adds bounded commitment rows. Preserve the original domain-work
+    # budget independently rather than treating the extra tree rows as free work.
+    commitment_writes = [item for item in delta["payload"]["writes"] if "commitment_" in item[0]]
+    assert len(delta["payload"]["writes"]) - len(commitment_writes) <= 26
+    assert (
+        len(commitment_writes) <= 3 * 18
+    )  # Three changed content paths, <=17 nodes plus leaf each.
+    assert app.history_index.connection.total_changes - changed_before == 19 + len(
+        commitment_writes
+    )
     assert read_node(restart(app), node.id.root).records[0].root.revision.root == 2
 
 

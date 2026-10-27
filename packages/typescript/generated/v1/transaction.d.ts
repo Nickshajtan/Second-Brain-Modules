@@ -76,6 +76,10 @@ export interface BatchRequest {
   operations: [MutationOperation, ...MutationOperation[]];
 }
 export interface GenerationRef {
+  /**
+   * Optional versioned content commitment. Absence retains the historical sorted path/SHA256-map algorithm.
+   */
+  commitment_scheme?: 'sha256-bucket16-v1';
   instance_id: string;
   generation_id: string;
   digest: Digest;

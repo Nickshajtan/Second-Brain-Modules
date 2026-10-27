@@ -894,6 +894,10 @@ def hardening_measure(app, name, callback, limit, mode="warm"):
         for (_, _, function), (_, count, _, _, _) in pstats.Stats(profile).stats.items()
         if "deserialize" in function and "sqlite3.Connection" in function
     )
+    commitment_calls = {}
+    for (filename, _, function), (_, count, _, _, _) in pstats.Stats(profile).stats.items():
+        if Path(filename).name == "commitment.py":
+            commitment_calls[function] = commitment_calls.get(function, 0) + count
     row.update(
         python_cpu_seconds=round(time.process_time() - cpu, 6),
         components=components,
@@ -920,6 +924,111 @@ def hardening_measure(app, name, callback, limit, mode="warm"):
         ),
         derived_writes=writes,
         derived_directory_bytes=sum(p.stat().st_size for p in directory.rglob("*") if p.is_file()),
+        commitment_function_calls=commitment_calls,
+    )
+    return row
+
+
+def merkle_measure(app, name, callback, limit, mode="warm"):
+    """Count actual hash input and metadata work around the existing measurement.
+
+    These counters include canonical records and checkpoint authentication, not
+    only Merkle construction. Git byte counts are subprocess payloads; they are
+    neither physical writes nor a count of newly allocated unique Git objects.
+    """
+    from second_brain_core.commitment import PREFIX, ContentCommitment
+    from second_brain_core.history_index import HistoryIndex
+
+    counters = dict(
+        sha256_calls=0,
+        sha256_bytes=0,
+        sqlite_rows_returned=0,
+        file_metadata_rows_returned=0,
+        full_file_metadata_scans=0,
+    )
+    commands = {}
+    original_hash, original_run = hashlib.sha256, GitStore._run_bytes
+    original_query = HistoryIndex.query
+    original_commitment_hash = ContentCommitment._hash
+    commitments = {}
+    file_metadata_queries = {}
+
+    def commitment_hash(tag, parts):
+        metric = commitments.setdefault(tag.decode(), dict(calls=0, bytes=0))
+        metric["calls"] += 1
+        metric["bytes"] += len(PREFIX) + 2 + len(tag) + 4 + sum(8 + len(part) for part in parts)
+        if tag == b"bucket":
+            cardinality = int.from_bytes(parts[2], "big")
+            metric["bucket_entries_processed"] = (
+                metric.get("bucket_entries_processed", 0) + cardinality
+            )
+            metric["maximum_bucket_cardinality"] = max(
+                metric.get("maximum_bucket_cardinality", 0), cardinality
+            )
+        return original_commitment_hash(tag, parts)
+
+    class ObservedHash:
+        def __init__(self, raw=b"", **kwargs):
+            counters["sha256_calls"] += 1
+            counters["sha256_bytes"] += len(raw)
+            self.value = original_hash(raw, **kwargs)
+
+        def __getattr__(self, attribute):
+            return getattr(self.value, attribute)
+
+        def update(self, raw):
+            counters["sha256_bytes"] += len(raw)
+            return self.value.update(raw)
+
+        def copy(self):
+            result = object.__new__(ObservedHash)
+            result.value = self.value.copy()
+            return result
+
+    def run(store, *args, **kwargs):
+        result = original_run(store, *args, **kwargs)
+        command = str(args[0])
+        metric = commands.setdefault(command, dict(calls=0, input_bytes=0, output_bytes=0))
+        metric["calls"] += 1
+        metric["input_bytes"] += len(kwargs.get("data") or b"")
+        metric["output_bytes"] += len(result)
+        if command == "ls-tree":
+            metric["entries_returned"] = metric.get("entries_returned", 0) + (
+                len(result.rstrip(b"\0\n").split(b"\0" if b"\0" in result else b"\n"))
+                if result
+                else 0
+            )
+        if command in ("hash-object", "mktree", "write-tree", "commit-tree"):
+            metric["object_oid_results"] = metric.get("object_oid_results", 0) + len(
+                result.splitlines()
+            )
+        return result
+
+    def query(index, *args, **kwargs):
+        result = original_query(index, *args, **kwargs)
+        counters["sqlite_rows_returned"] += len(result)
+        sql = " ".join(str(args[0]).lower().split())
+        if "from files" in sql:
+            counters["file_metadata_rows_returned"] += len(result)
+            metric = file_metadata_queries.setdefault(sql, dict(calls=0, rows_returned=0))
+            metric["calls"] += 1
+            metric["rows_returned"] += len(result)
+            if " where " not in sql:
+                counters["full_file_metadata_scans"] += 1
+        return result
+
+    with (
+        patch.object(hashlib, "sha256", ObservedHash),
+        patch.object(GitStore, "_run_bytes", run),
+        patch.object(HistoryIndex, "query", query),
+        patch.object(ContentCommitment, "_hash", staticmethod(commitment_hash)),
+    ):
+        row = hardening_measure(app, name, callback, limit, mode)
+    row.update(
+        counters,
+        git_command_work=commands,
+        commitment_hash_work=commitments,
+        file_metadata_queries=file_metadata_queries,
     )
     return row
 
@@ -937,7 +1046,7 @@ def mutation_hardening(args):
         ).hexdigest()
 
     report = dict(
-        milestone="M2.2.1",
+        milestone="M2.2.2" if args.merkle_hardening else "M2.2.1",
         comparison_baseline_artifact="docs/engineering/history-performance-m221-baseline.json",
         comparison_baseline_sha256=hashlib.sha256(
             (ROOT / "docs/engineering/history-performance-m221-baseline.json").read_bytes()
@@ -960,6 +1069,35 @@ def mutation_hardening(args):
         rows=rows,
         summaries=[],
     )
+    if args.merkle_hardening:
+        helper_paths = [ROOT / "tests/conftest.py", ROOT / "tests/test_core_m1.py"]
+        report.update(
+            comparison_baseline_artifact="docs/engineering/history-performance-m222-baseline.json",
+            comparison_baseline_sha256=hashlib.sha256(
+                (ROOT / "docs/engineering/history-performance-m222-baseline.json").read_bytes()
+            ).hexdigest(),
+            previous_milestone_artifact="docs/engineering/history-performance-m221.json",
+            previous_milestone_sha256=hashlib.sha256(
+                (ROOT / "docs/engineering/history-performance-m221.json").read_bytes()
+            ).hexdigest(),
+            sizes=args.sizes,
+            hardening_samples=args.hardening_samples,
+            fixture_helper_sha256={
+                str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
+                for path in helper_paths
+            },
+        )
+        report["measurement_notes"].extend(
+            [
+                "Git object OID results count commands' outputs, not newly allocated unique objects.",
+                "Git metadata paths/tree entries count observed plumbing outputs, not internal read-tree/write-tree path visits.",
+                "sqlite_rows_returned covers HistoryIndex.query materialized results; direct connection SELECTs are excluded.",
+                "Commitment bucket_entries_processed counts exact complete touched buckets, including preview and verifier separately.",
+                "SHA256 bytes include all instrumented hashlib.sha256 calls and update chunks, including checkpoint and record hashes.",
+                "SHA256 counters exclude child Git hashing and C-internal HMAC hashing; only instrumented Python constructor/update input is counted.",
+                "Explicit host capacity maintenance is outside mutation service time and reported separately.",
+            ]
+        )
 
     def save():
         args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -969,7 +1107,10 @@ def mutation_hardening(args):
         if size < 20:
             raise ValueError("Mutation corpus needs at least twenty generations")
         with tempfile.TemporaryDirectory(prefix="second-brain-m221-benchmark-") as directory:
-            app, cluster = core_fixture.__wrapped__(Path(directory), contracts)
+            with ExitStack() as fixture_stack:
+                if args.merkle_hardening:
+                    fixture_stack.enter_context(patch("second_brain_core.bootstrap.SCHEME", None))
+                app, cluster = core_fixture.__wrapped__(Path(directory), contracts)
             principal = app.context.principal
             app = Core(
                 replace(
@@ -995,14 +1136,52 @@ def mutation_hardening(args):
             )
 
             def record(name, callback, mode="warm", **metadata):
+                if args.merkle_hardening and name in (
+                    "hot_node_update",
+                    "distributed_node_update",
+                    "large_body_update",
+                    "mixed_create_update_batch",
+                ):
+                    accepted = app.history_index.accepted
+                    if (
+                        accepted["sequence"] - accepted["base_sequence"]
+                        >= maintenance.MAINTENANCE_DELTAS
+                        or accepted["tail_bytes"] >= maintenance.MAINTENANCE_BYTES
+                    ):
+                        record(
+                            "restart_at_maintenance_threshold",
+                            lambda: Core(
+                                app.context,
+                                GitStore(app.store.repository, app.store.ref),
+                                contracts,
+                            ).generation(),
+                            mode="cold_restart",
+                        )
+                        record(
+                            "host_preemptive_maintenance",
+                            lambda: maintenance.maintain_history_index(app),
+                            mode="trusted_maintenance",
+                        )
+                captured_results = []
+
+                def observed():
+                    result = callback()
+                    if mode in ("trusted_maintenance", "trusted_upgrade", "explicit_compaction"):
+                        captured_results.append(result)
+                    return result
+
                 row = dict(
                     commits_at_corpus_start=size,
                     hot_revisions_at_corpus_start=hot_initial,
                     receipts_at_corpus_start=receipt_count,
                     corpus_mix="bootstrap plus first creation batch; every twentieth bulk commit creates two Nodes and Relation, offset ten updates hot Node; other commits generation-only",
                     **metadata,
-                    **hardening_measure(app, name, callback, args.git_budget, mode),
+                    **(merkle_measure if args.merkle_hardening else hardening_measure)(
+                        app, name, observed, args.git_budget, mode
+                    ),
                 )
+                if captured_results:
+                    row["maintenance_result"] = captured_results[0]
                 rows.append(row)
                 save()
                 print(json.dumps(row), flush=True)
@@ -1015,6 +1194,12 @@ def mutation_hardening(args):
                 lambda: rebuild_history_index(app),
                 mode="explicit_full_rebuild",
             )
+            if args.merkle_hardening:
+                record(
+                    "explicit_commitment_adoption",
+                    lambda: maintenance.adopt_generation_commitment(app),
+                    mode="trusted_upgrade",
+                )
 
             def head(identifier):
                 return app.boundary.dump(
@@ -1044,6 +1229,51 @@ def mutation_hardening(args):
                 lambda: app.read(operation(app, "relation.read", {"relation_id": relation})),
             )
             record("generation", app.generation)
+            if args.merkle_hardening:
+                stale = head(hot)
+                request = mutation_request(
+                    app,
+                    hot,
+                    dict(stale["content"], title="stale CAS probe"),
+                    stale["revision"] - 1,
+                    app.generation(),
+                )
+                accepted_commit = app.store.resolve()
+
+                def cas_conflict():
+                    try:
+                        app.submit(request)
+                    except CoreError as exc:
+                        assert exc.code == "REVISION_CONFLICT", exc.code
+                        assert app.store.resolve() == accepted_commit
+                        return exc.code
+                    raise AssertionError("Stale CAS was accepted")
+
+                record("stale_cas_conflict", cas_conflict)
+                large = head(hot)
+                request = mutation_request(
+                    app,
+                    hot,
+                    dict(large["content"], body="large body evidence\n" * 32768),
+                    large["revision"],
+                    app.generation(),
+                )
+                record(
+                    "large_body_update",
+                    lambda: app.submit(request),
+                    replacement_body_bytes=len(
+                        request["operations"][0]["payload"]["content"]["body"].encode()
+                    ),
+                )
+                before = head(hot)
+                request = mutation_request(
+                    app,
+                    hot,
+                    dict(before["content"], body="bounded high churn body\n" * 16),
+                    before["revision"],
+                    app.generation(),
+                )
+                record("large_body_to_small_update", lambda: app.submit(request))
             create_request = batch(app, cluster)
             create_request["operations"] = create_request["operations"][:1]
             record("bounded_create", lambda: app.submit(create_request))
@@ -1060,6 +1290,7 @@ def mutation_hardening(args):
                 ("distributed_node_update", targets[:10]),
             ):
                 measured = []
+                loop_started = time.perf_counter()
                 for position, identifier in enumerate(identifiers):
                     before = head(identifier)
                     content = dict(before["content"], title=f"{workload} {position}")
@@ -1091,6 +1322,10 @@ def mutation_hardening(args):
                         operation=workload,
                         samples=len(times),
                         successful_updates_per_second=len(times) / sum(times),
+                        observed_loop_wall_seconds=time.perf_counter() - loop_started,
+                        observed_loop_updates_per_second=len(times)
+                        / (time.perf_counter() - loop_started),
+                        loop_scope="includes dependency reads, request construction, host maintenance, instrumentation and JSON report/log IO",
                         minimum_seconds=min(times),
                         maximum_seconds=max(times),
                         p50_seconds=percentile(0.5) if len(times) >= 100 else None,
@@ -1128,7 +1363,7 @@ def mutation_hardening(args):
             create = batch(app, cluster)["operations"][0]
             request["operations"].append(create)
             record("mixed_create_update_batch", lambda: app.submit(request))
-            if size >= 10000 and args.hardening_samples is None:
+            if size >= 10000 and args.hardening_samples is None and not args.merkle_hardening:
                 from second_brain_core.history_index import MAX_DELTAS
 
                 while (
@@ -1177,6 +1412,18 @@ def mutation_hardening(args):
             record("cold_restart", restart, mode="cold_restart")
             record("explicit_compaction", compact, mode="explicit_compaction")
             record("restart_after_compaction", restart, mode="cold_restart")
+            if args.merkle_hardening:
+                record(
+                    "derived_gc_dry_run",
+                    lambda: maintenance.collect_history_index(app),
+                    mode="trusted_maintenance",
+                )
+                record(
+                    "derived_gc_apply",
+                    lambda: maintenance.collect_history_index(app, apply=True),
+                    mode="trusted_maintenance",
+                )
+                record("restart_after_gc", restart, mode="cold_restart")
             reader = Core(app.context, GitStore(app.store.repository, app.store.ref), contracts)
             reader.generation()
             before = head(hot)
@@ -1219,6 +1466,10 @@ def mutation_hardening(args):
                 lambda: rebuild_history_index(app),
                 mode="explicit_full_rebuild",
             )
+            if args.merkle_hardening:
+                record(
+                    "full_historical_audit", lambda: audit_history(app), mode="explicit_full_audit"
+                )
     report["runtime_unchanged_during_measurement"] = report["runtime_sha256"] == fingerprint()
     report["harness_unchanged_during_measurement"] = (
         report["harness_sha256"] == hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
@@ -1227,6 +1478,60 @@ def mutation_hardening(args):
         report["contracts_sha256"]
         == hashlib.sha256(json.dumps(contracts.schemas, sort_keys=True).encode()).hexdigest()
     )
+    if args.merkle_hardening:
+        report["fixture_helpers_unchanged_during_measurement"] = report[
+            "fixture_helper_sha256"
+        ] == {
+            str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in helper_paths
+        }
+        report["validation_summary"] = dict(
+            completed_rows=sum(row["status"] == "complete" for row in rows),
+            failed_rows=sum(row["status"] != "complete" for row in rows),
+            completed_corpus_sizes=args.sizes,
+            source_fingerprints_unchanged=all(
+                report[key]
+                for key in (
+                    "runtime_unchanged_during_measurement",
+                    "harness_unchanged_during_measurement",
+                    "contracts_unchanged_during_measurement",
+                    "fixture_helpers_unchanged_during_measurement",
+                )
+            ),
+        )
+        grouped = {}
+        for row in rows:
+            key = (row["commits_at_corpus_start"], row["operation"])
+            grouped.setdefault(key, []).append(row)
+        report["observed_work_ranges"] = []
+        for (size, operation_name), observations in grouped.items():
+            metrics = {}
+            for metric in (
+                "elapsed_seconds",
+                "git_processes",
+                "blob_reads",
+                "duplicate_blob_requests",
+                "commits_traversed",
+                "receipts_validated",
+                "sqlite_statements",
+                "projection_rows_changed",
+                "sha256_calls",
+                "sha256_bytes",
+                "file_metadata_rows_returned",
+                "derived_bytes_written",
+                "full_sqlite_serializations",
+                "full_sqlite_hash_calls",
+            ):
+                values = [row[metric] for row in observations if row.get(metric) is not None]
+                metrics[metric] = dict(minimum=min(values), maximum=max(values)) if values else None
+            report["observed_work_ranges"].append(
+                dict(
+                    corpus_size=size,
+                    operation=operation_name,
+                    samples=len(observations),
+                    metrics=metrics,
+                )
+            )
     save()
 
 
@@ -1238,9 +1543,10 @@ def main() -> None:
     parser.add_argument("--optimized", action="store_true")
     parser.add_argument("--node-mutation", action="store_true")
     parser.add_argument("--mutation-hardening", action="store_true")
+    parser.add_argument("--merkle-hardening", action="store_true")
     parser.add_argument("--hardening-samples", type=int, default=None)
     args = parser.parse_args()
-    if args.mutation_hardening:
+    if args.mutation_hardening or args.merkle_hardening:
         mutation_hardening(args)
         return
     if args.node_mutation:

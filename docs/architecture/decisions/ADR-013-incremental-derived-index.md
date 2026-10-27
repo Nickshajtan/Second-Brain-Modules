@@ -1,5 +1,15 @@
 # ADR-013: Authenticated bounded projection deltas
 
+M2.2.2 amendment: [ADR-014](ADR-014-versioned-content-commitments.md) adds a
+versioned canonical content commitment and derived format 4 bucket/branch rows.
+The existing complete authenticated base/delta boundary remains; no per-row grant
+or mutable disk SQL is introduced. Explicit host maintenance compacts at half the
+hard capacity thresholds. Compaction archives the exact prior signed checkpoint
+under its SHA256 name before switching the current checkpoint. Explicit GC retains
+the current and one exact prior base/tail set. Cold load/refresh and GC share the
+writer lock, protecting cross-process readers during derived-file deletion.
+See [current maintenance and recovery](../../engineering/history-recovery.md).
+
 Status: adopted design for M2.2.1 after independent Stage A review; implementation
 and measured acceptance are recorded separately in the
 [validation report](../../core/m2-2-1-validation.md). Baseline:

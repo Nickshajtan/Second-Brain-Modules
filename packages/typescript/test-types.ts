@@ -56,3 +56,11 @@ const sourceCommit: string | undefined = historyBaseline.source_commit;
 // @ts-expect-error a snapshot supplement cannot point at a Relation revision
 const wrongHistoryKind: NodeRevisionSnapshot['revision_ref']['resource']['resource_kind'] = 'relation';
 void [recoveredBody, sourceCommit, wrongHistoryKind];
+
+// M2.2.2 distinguishes commitment structure from the Digest hash algorithm.
+const commitmentScheme: HistoryBaseline['generation']['commitment_scheme'] = 'sha256-bucket16-v1';
+// @ts-expect-error an unknown content-commitment scheme cannot be emitted
+const unknownCommitment: HistoryBaseline['generation']['commitment_scheme'] = 'sha256-bucket16-v0';
+// @ts-expect-error absence is supported; explicit null is not
+const nullCommitment: HistoryBaseline['generation']['commitment_scheme'] = null;
+void [commitmentScheme, unknownCommitment, nullCommitment];

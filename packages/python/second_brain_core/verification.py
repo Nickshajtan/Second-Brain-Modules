@@ -11,6 +11,7 @@ from jsonschema.exceptions import SchemaError, ValidationError
 
 from .boundary import GENERATION, VERSION, CoreError, digest
 from .codec import decode
+from .commitment import SCHEME, ContentCommitment, covered
 from .history import HISTORY
 from .history_index import HistoryIndex, HistoryIndexError
 
@@ -120,7 +121,11 @@ class TransitionVerifier:
         generation = decode(self._raw(GENERATION))
         schema = self.boundary.contracts.schemas["common"]["$defs"]["GenerationRef"]
         self.boundary.contracts.validators["common"].evolve(schema=schema).validate(generation)
-        if content_digest is None:
+        if generation.get("commitment_scheme") == SCHEME:
+            content_digest = ContentCommitment(
+                self.connection, self.boundary.context.instance_id
+            ).update({})
+        elif content_digest is None:
             values = dict(
                 self.connection.execute(
                     "SELECT path,sha FROM files WHERE path GLOB 'knowledge/*' OR path='control/metadata.json'"
@@ -209,6 +214,7 @@ class TransitionVerifier:
         blobs = self.index.blob_cache or self.store.blobs(list(required))
         changed = {}
         affected = []
+        commitment_changes = {}
         for path, oid in delta.items():
             if path.startswith("knowledge/"):
                 parts = path.split("/")
@@ -223,6 +229,8 @@ class TransitionVerifier:
             ):
                 self.fail()
             if oid is None:
+                if covered(path):
+                    commitment_changes[path] = None
                 if path.startswith("knowledge/node/") and path.endswith(".md"):
                     self.fail()
                 rows = self.connection.execute(
@@ -244,9 +252,12 @@ class TransitionVerifier:
                     self.connection.execute(f"DELETE FROM {table} WHERE path=?", (path,))
             else:
                 raw = blobs[oid]
+                sha = hashlib.sha256(raw).hexdigest()
+                if covered(path):
+                    commitment_changes[path] = sha
                 self.connection.execute(
                     "INSERT OR REPLACE INTO files VALUES(?,?,?)",
-                    (path, oid, hashlib.sha256(raw).hexdigest()),
+                    (path, oid, sha),
                 )
                 if path.startswith("knowledge/") and path.endswith(".yaml"):
                     changed[path] = decode(raw)
@@ -276,6 +287,16 @@ class TransitionVerifier:
             self._insert(record, path)
             affected.append((kind, identifier))
             changed[path] = record
+        ContentCommitment(self.connection, self.boundary.context.instance_id).update(
+            commitment_changes, apply=True
+        )
+        next_generation = decode(self._raw(GENERATION))
+        old_scheme = old_generation.get("commitment_scheme") if old_generation else None
+        next_scheme = next_generation.get("commitment_scheme")
+        if old_scheme and old_scheme != next_scheme:
+            self.fail()
+        if old_generation and not old_scheme and next_scheme and set(delta) != {GENERATION}:
+            self.fail()
         unchanged = old_generation is not None and not any(
             path.startswith("knowledge/") or path == "control/metadata.json" for path in delta
         )

@@ -2,6 +2,20 @@
 
 This register classifies domain/API gaps, not a request to implement every handler. [Coverage](contract-coverage-matrix.md) is the operation inventory. Each deferred row below references an explicit profile supplying its technical prerequisites, activation criteria, planned conformance tests and compatibility risk. Owner decisions remain [open](../domain/open-decisions.md).
 
+## M2.2.2 generation and maintenance boundary
+
+M2.2.2 adds `common#/$defs/GenerationRef.commitment_scheme` to distinguish
+`sha256-bucket16-v1` from historical flat digests. Shape cannot prove a root,
+complete buckets, one-way adoption or retained history; Core verifies those
+obligations. Unknown/null schemes are rejected; generated consumers must match.
+See [compatibility](compatibility.md) and
+[executed validation](../core/m2-2-2-validation.md).
+
+Trusted upgrade, adoption, capacity maintenance and derived-file GC extend the
+existing host boundary. They add no agent discriminator, general administration,
+search index or Relation mutation. CAP-045/CAP-102 remain partial for their public
+service scope. M2.3 requires accepted M2.2.2 correctness/performance/review gates.
+
 ## Confirmed M1.2 structural corrections
 
 1. `NodeCreate.payload.node_id` separates stable resource identity from request identity. It is optional only for unreleased M1 compatibility; omission preserves the exact original allocation rule and persisted request hashes. Runtime honors explicit identity; request identity remains durable operation evidence. No copy/fork/import handler is implied.

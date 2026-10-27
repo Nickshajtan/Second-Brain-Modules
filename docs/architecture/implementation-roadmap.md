@@ -16,6 +16,15 @@ These are dependency targets, not delivery dates or authorization to implement e
 
 ## M2.1 foundation and next bounded slice
 
+The Owner's blocking [M2.2.2 hardening](../core/m2-2-2-merkle-hardening.md)
+supersedes the earlier M2.2.1 permission to begin Relation mutation. Its scope is
+versioned incremental generation commitments and trusted projection maintenance;
+Relation mutation remains absent. M2.3 is **GO for a separately scoped slice** after
+the [M2.2.2 validation/readiness decision](../core/m2-2-2-validation.md): full corpus
+matrix, recovery/adversarial tests, deterministic gates and independent final
+review passed. This does not certify production deployment or durability.
+Historical milestone results below retain their own scope.
+
 M2.1 implements immutable creation snapshots, exact original creation/admission
 resolution from retained managed ancestry, explicit legacy inventory/backfill and
 durable migration evidence. No update/history handler is enabled. See the

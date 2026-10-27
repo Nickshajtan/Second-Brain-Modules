@@ -1,10 +1,52 @@
 # History operations and recovery
 
-Current M2.2.1 projection persistence follows
+## M2.2.2 explicit upgrade and maintenance
+
+The [versioned commitment design](../core/m2-2-2-merkle-hardening.md) retains
+ADR-013's authenticated immutable base/tail and private-memory read boundary.
+Derived format 4 adds commitment locators; it does not become canonical knowledge.
+Existing instances require explicit `upgrade_history_index(core)` before the
+separate `adopt_generation_commitment(core)` publication. Authenticate the old
+known schema binding, key, enrollment and accepted frontier first. Missing trust
+material is operator recovery, never permission to reenroll. Legacy generations
+and receipts keep their exact original digest interpretation.
+
+Direct predecessor authentication targets the supplied M2.2.1 format-3 baseline.
+For format 1/2, first run its documented explicit upgrade using the M2.2.1 runtime,
+retaining the same protected anchors, before switching to M2.2.2. Never reset an
+enrollment directory or discard a checkpoint as an upgrade shortcut.
+
+The trusted host calls `maintain_history_index(core)` between requests. At 512
+deltas or 8 MiB it compacts before the 1,024/16 MiB hard limit; this is an explicit
+host action, not a Core scheduler. Returned count/byte reserves do not guarantee
+that an arbitrary large next transaction fits. Exact encoded capacity is still
+checked before Git publication. Oversized catch-up may require full rebuild.
+
+Compaction archives the exact previous signed checkpoint under its SHA256 name
+before accepting a new base. Explicit `collect_history_index(core, apply=False)`
+reports candidates and retained reasons; `apply=True` deletes only recognized
+unreachable derived files. It authenticates the current base/tail and required
+prior checkpoint/base/tail under the repository lock. Cold loading and refresh
+take that same lock; warm readers use already authenticated private memory.
+Unknown files, links, trust keys and canonical Git objects are preserved.
+
+Back up the complete managed Git history and protected key/enrollment/checkpoint
+together with the current and required prior derived bases/tails under the same
+host coordination lock. A partial derived backup can require explicit rebuild
+from Git with the authentic rollback fence; lost anchors cannot be replaced
+silently. GC is repeatable after interruption, but does not promise physical
+erasure, Windows ACL isolation or hardware power-loss durability. See
+[compatibility](../contracts/compatibility.md) and
+[executed validation](../core/m2-2-2-validation.md) for tested recovery boundaries.
+
+## Historical M2.2.1 persistence procedure
+
+M2.2.1 projection persistence follows
 [ADR-013](../architecture/decisions/ADR-013-incremental-derived-index.md) and the
 [mutation hardening design](../core/m2-2-1-mutation-hardening.md). The older
 whole-database replacement boundaries below describe M2.1.1; the current procedure
-and supersession are explicit in the following section.
+and supersession are explicit in the following section. Its no-GC statement is
+historical; the explicit M2.2.2 procedure above supersedes it.
 
 ## M2.2.1 bounded projection operation
 

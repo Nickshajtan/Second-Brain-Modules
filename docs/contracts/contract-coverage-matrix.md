@@ -6,6 +6,16 @@ Current exhaustive operation inventory reconciles the [semantic catalogue](../do
 
 Result codes are a permitted typed envelope, not operation-specific payload completeness. Mutation `T#/$defs/CommittedReceipt` / read `T#/$defs/ReadResult` are shared; missing dedicated results are explicitly noted. Tests labelled “structural corpus” establish shape only. Existing Core evidence is `tests/test_core_m1.py`; deployment/real MCP is unverified for every row.
 
+M2.2.2 amends shared `common#/$defs/GenerationRef` with optional
+`commitment_scheme`, generated as
+`generated.v1.common_schema.GenerationRef.commitment_scheme` and the embedded TS
+`GenerationRef.commitment_scheme` declarations. This versions content commitment,
+not a new domain capability. Explicit host upgrade/adoption/maintenance/GC extend
+CAP-045/CAP-102 without public request/result contracts. Commitment and recovery
+evidence is in `tests/test_commitment.py` and `tests/test_core_m222.py`; final
+benchmark/review status remains in [validation](../core/m2-2-2-validation.md).
+Domain, structural, operation, runtime and deployment coverage remain distinct.
+
 | Capability ID | Capability / semantics | Resource | Structural record | Generated Python / TypeScript | Request | Result | Authorization | Invariants | Runtime / test evidence | Gap | Prerequisite / target |
 |---|---|---|---|---|---|---|---|---|---|---|
 | CAP-001 | `access.request`; CONFIRMED | AccessRequest | `governance.schema.json#/$defs/AccessRequest` | `generated.v1.governance_schema.AccessRequest` / `governance.js:AccessRequest`; request `generated.v1.operations_schema.AccessRequestSubmit` / `operations.js:AccessRequestSubmit` | `O#/$defs/AccessRequestSubmit` | `T#/$defs/CommittedReceipt` | `access.request`; resource scope, current policy; source/destination for transfers | I01 I02 I03 I11 | absent; structural corpus only | partial | [DF-M4](contract-gaps.md#df-m4); activate only after its acceptance condition; target M4 |

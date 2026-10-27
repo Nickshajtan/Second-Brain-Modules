@@ -1,5 +1,31 @@
 # History performance measurements
 
+## M2.2.2 measurement status
+
+The [M2.2.2 design](../core/m2-2-2-merkle-hardening.md) separates canonical
+generation hashing from Git preparation and authenticated projection work.
+The [fresh baseline](history-performance-m222-baseline.json) profiles one bounded
+replacement at 100/1,000/10,000 generations: each legacy commitment visits
+70/565/5,515 paths and encodes 9,137/73,847/720,947 bytes, twice per update.
+Generation construction takes 0.000632/0.003198/0.030482 seconds, compared with
+0.356090/0.352484/0.369614 seconds for Git preparation. These are individual
+observations, not latency percentiles or evidence that hashing dominates latency.
+
+The versioned bucket commitment removes the full path-map scan on adopted
+histories. Work includes the complete affected buckets and their 16 ancestor
+levels; concentrated keys and Git directory fanout can still cause linear work.
+New branch DML also increases derived delta size. The full 100/1,000/10,000 matrix
+passed 1,307 rows with unchanged measured-source fingerprints. Hot-update
+p50/p95 at 10,000 generations were 1.579854/1.665854 seconds; p99 was 1.732004
+seconds over 1,000 samples. Each used 26 Git processes, 13 blob reads and 32 point
+file-metadata results, with no full SQLite serialization/hash or full path scan.
+Tagged commitment bytes for matched replacements were 23,173/23,007/23,007,
+compared with old flat map encodings of 9,137/73,847/720,947 bytes twice per update.
+This demonstrates changed work, not an overall latency speedup. Clean-checkout
+correction and independent final review passed; the
+[validation report](../core/m2-2-2-validation.md) is the readiness authority.
+The historical measurements below retain their original runtime and scope.
+
 Status: all 60 optimized cold/warm/recovery rows executed successfully on the
 reviewed M2.1.1 runtime. The censored Phase A baseline is retained unchanged. See the [design](../core/m2-1-1-history-hardening.md).
 

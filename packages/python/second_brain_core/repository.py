@@ -7,6 +7,8 @@ from jsonschema.exceptions import SchemaError, ValidationError
 
 from .boundary import GENERATION, ContractBoundary, CoreError, digest, uid
 from .codec import decode, encode
+from .commitment import SCHEME
+from .commitment import content_digest as tree_digest
 from .domain import DomainRules
 from .git_store import StorageError
 from .ports import CommitStore
@@ -38,7 +40,11 @@ class KnowledgeRepository:
             files[f"knowledge/node/{identifier}.md"] = record["content"].pop("body").encode("utf-8")
         files[f"knowledge/{kind}/{identifier}.yaml"] = encode(record)
 
-    def content_digest(self, files):
+    def content_digest(self, files, scheme=None):
+        if scheme == SCHEME:
+            return tree_digest(self.boundary.context.instance_id, files)
+        if scheme is not None:
+            self.boundary.fail("REPAIR_REQUIRED")
         # Generation digest binds canonical knowledge/config bytes, excluding
         # receipts and this descriptor to avoid a self-referential hash.
         content = {
@@ -48,11 +54,12 @@ class KnowledgeRepository:
         }
         return digest(content)
 
-    def generation(self, files):
+    def generation(self, files, *, scheme=None):
         return {
             "instance_id": self.boundary.context.instance_id,
             "generation_id": uid(),
-            "digest": self.content_digest(files),
+            "digest": self.content_digest(files, scheme),
+            **({"commitment_scheme": scheme} if scheme else {}),
         }
 
     def parse_tree(self, files):
@@ -61,7 +68,7 @@ class KnowledgeRepository:
         self.boundary.contracts.validators["common"].evolve(schema=schema).validate(generation)
         if generation["instance_id"] != self.boundary.context.instance_id:
             self.boundary.fail("REPAIR_REQUIRED")
-        if generation["digest"] != self.content_digest(files):
+        if generation["digest"] != self.content_digest(files, generation.get("commitment_scheme")):
             self.boundary.fail("REPAIR_REQUIRED")
         records = {}
         expected = {GENERATION, "control/metadata.json"}

@@ -61,7 +61,11 @@ def test_invalid_committed_metadata_schema_is_corruption_not_programmer_failure(
     parent = app.store.resolve()
     files = app.store.read(parent)
     files["control/metadata.json"] = encode({"local:note:1": {"type": "invalid-type"}})
-    files["control/generation.json"] = encode(app.repository.generation(files))
+    files["control/generation.json"] = encode(
+        app.repository.generation(
+            files, scheme=decode(files["control/generation.json"]).get("commitment_scheme")
+        )
+    )
     app.store.publish(app.store.prepare(files, parent), parent)
     with pytest.raises(CoreError) as caught:
         app.generation()

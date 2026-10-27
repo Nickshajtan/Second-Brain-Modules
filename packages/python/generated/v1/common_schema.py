@@ -222,6 +222,10 @@ class GenerationRef(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
+    commitment_scheme: Literal['sha256-bucket16-v1'] | None = Field(
+        None,
+        description='Optional versioned content commitment. Absence retains the historical sorted path/SHA256-map algorithm.',
+    )
     instance_id: BrainInstanceId
     generation_id: EntityId
     digest: Digest

@@ -24,5 +24,6 @@ Recorded 2026-10-20. “Task-mandated” records an explicit requirement from th
 | [011](ADR-011-immutable-creation-effects.md) | Retained original generations, immutable creation effects and explicit legacy backfill | Adopted M2.1 foundation; mutation/history handlers remain separate |
 | [012](ADR-012-derived-history-index.md) | Authenticated disposable SQLite locators, ordered verification frontier and explicit audit/recovery | Adopted M2.1.1 design; runtime evidence is reported separately |
 | [013](ADR-013-incremental-derived-index.md) | Authenticated bounded projection deltas with explicit compaction | Adopted M2.2.1 design; supersedes per-mutation full projection persistence |
+| [014](ADR-014-versioned-content-commitments.md) | Versioned SHA256 content commitments with incremental bucket/branch updates | Adopted M2.2.2 design; historical flat digests remain authoritative for old generations |
 
 Changes supersede an ADR with a new record instead of silently editing a released decision. Review outstanding details in the [question register](../open-questions.md).

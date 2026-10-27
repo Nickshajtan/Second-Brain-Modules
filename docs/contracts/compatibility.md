@@ -1,5 +1,40 @@
 # Compatibility contract
 
+## M2.2.2 unreleased generation commitment amendment
+
+GenerationRef gains optional `commitment_scheme` with the sole value
+`sha256-bucket16-v1`. Absence keeps the exact historical sorted-map SHA256 meaning;
+the Digest hash algorithm remains SHA256. New readers accept old descriptors and
+stored receipts; old closed readers reject emitted new fields. This is an explicit
+unreleased 1.0.0 amendment, requiring source/generated consumers to pin the same
+commit. No historical Git descriptor, request, receipt or revision is rewritten.
+Portable positive/unknown/null fixtures and Python/Ajv/type consumers exercise this
+directional boundary, without claiming universal semantic inclusion.
+
+Derived format 4 adds content-commitment tables. Ordinary reads reject old schema
+bindings. `upgrade_history_index` explicitly authenticates the known baseline
+fingerprint `bbbe881202b9b3c88548ccdf37364bdf92f7af7bb0f2e06086ed738880dcfa84`,
+same instance/repository/ref, exact old base/tail and protected key/enrollment;
+it retains the accepted ancestry fence, fully verifies Git and adopts new derived
+bytes. Interrupted new-checkpoint/old-enrollment state is recoverable only through
+that explicit interface. Unknown fingerprints or missing anchors cannot reenroll.
+
+The direct predecessor is format 3 at the supplied M2.2.1 baseline. Existing
+format-1/2 instances must first use that baseline runtime's explicit authenticated
+`rebuild_history_index` upgrade, then invoke M2.2.2 upgrade and adoption. Preserve
+the key/checkpoint and complete canonical ancestry throughout; do not delete trust
+material to make the new runtime accept an older format. This is a staged upgrade
+procedure, not a claim that the new loader accepts arbitrary historic fingerprints.
+
+This derived upgrade does not change the canonical algorithm. Legacy writes can
+continue with legacy O(N) hashing until explicit `adopt_generation_commitment`.
+Adoption is generation-only and one way; valid external adoption can be verified,
+but no past host identity is proved by unsigned Git. After adoption every next
+descriptor must retain the scheme. Fresh bootstrap starts with the new commitment.
+Historical generations select their own authenticated scheme during full audit.
+See [ADR-014](../architecture/decisions/ADR-014-versioned-content-commitments.md)
+and [runtime evidence](../core/m2-2-2-validation.md).
+
 ## M2.2.1 derived persistence hardening
 
 The [M2.2.1 design](../core/m2-2-1-mutation-hardening.md) changes derived
