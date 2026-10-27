@@ -56,7 +56,9 @@ class HistoricalEffects:
         for operation, result in zip(request["operations"], receipt["results"], strict=True):
             for resource in result["resources"]:
                 effect_path = f"knowledge/{resource['resource_kind']}/{resource['id']}.yaml"
-                if effect_path in parent:
+                if effect_path in parent and not (
+                    operation["operation"] == "node.update" and resource["resource_kind"] == "node"
+                ):
                     self.fail()
             for revision in result["revisions"]:
                 kind = (
@@ -142,7 +144,7 @@ class HistoricalEffects:
                             source_generation=generation,
                         )
                     )
-            else:
+            elif operation["operation"] == "relation.create":
                 history = records.get(("relation_revision", ref["revision_id"]))
                 if history is None:
                     if HISTORY in original:
@@ -247,7 +249,7 @@ class HistoricalEffects:
                 ref = result["revisions"][0]
                 kind = (
                     "node_revision"
-                    if operation["operation"] == "node.create"
+                    if operation["operation"] in {"node.create", "node.update"}
                     else "relation_revision"
                 )
                 key = kind, ref["revision_id"]

@@ -28,6 +28,14 @@ M2.1 future-head fixtures validate unchanged original receipt meaning without
 exposing mutation handlers or relaxing the create-only public profile. Selected
 Relation approval breadth remains O2; multi-membership serving remains O4.
 
+The bounded [M2.2 Node design](../core/m2-2-node-mutation.md) has passed independent
+design and completed-diff review, the full quality gate and all 42 benchmark rows. It reuses full replacement
+and exact historical-read contracts, preserving original receipts and Memberships.
+The [validation/readiness report](../core/m2-2-validation.md) records actual gates;
+M2.3 is ready as a separate scoped implementation; this does not establish
+production deployment or physical durability. Relation mutation must independently
+validate edge revisions, original effects and endpoint authorization after M2.2.
+
 M2.1.1 is the blocking operational foundation before M2.2: authenticated disposable
 SQLite locators, ordered incremental verification, bounded committed reads/replay,
 explicit full audit/rebuild and recovery. See [design](../core/m2-1-1-history-hardening.md),

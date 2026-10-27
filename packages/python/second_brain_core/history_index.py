@@ -7,6 +7,8 @@ import hmac
 import json
 import os
 import sqlite3
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import NoReturn
 
@@ -14,7 +16,7 @@ from .boundary import GENERATION, CoreError, digest
 from .codec import decode
 
 SCHEMA = """
-PRAGMA user_version=1;
+PRAGMA user_version=2;
 CREATE TABLE files(path TEXT PRIMARY KEY, oid TEXT NOT NULL, sha TEXT NOT NULL);
 CREATE TABLE resources(kind TEXT, id TEXT, path TEXT UNIQUE, attrs TEXT NOT NULL,
  PRIMARY KEY(kind,id));
@@ -30,6 +32,9 @@ CREATE TABLE operation_keys(principal TEXT, operation TEXT, version TEXT, key TE
  PRIMARY KEY(principal,operation,version,key));
 CREATE TABLE effects(receipt TEXT, kind TEXT, id TEXT, path TEXT, oid TEXT, body TEXT,
  PRIMARY KEY(receipt,kind,id));
+CREATE TABLE replay_scopes(receipt TEXT, position INTEGER, operation TEXT, kind TEXT, resource TEXT,
+ PRIMARY KEY(receipt,position));
+CREATE TABLE endpoints(node TEXT, relation TEXT, PRIMARY KEY(node,relation));
 CREATE TABLE legacy(revision TEXT PRIMARY KEY, receipt TEXT, position INTEGER, kind TEXT);
 CREATE TABLE immutable(path TEXT PRIMARY KEY, oid TEXT NOT NULL);
 CREATE TABLE commits(oid TEXT PRIMARY KEY, parent TEXT, generation TEXT NOT NULL);
@@ -82,7 +87,7 @@ class HistoryIndex:
             repository=str(self.store.repository),
             common=str(self.store.common),
             ref=self.store.ref,
-            format=1,
+            format=2,
             contracts=digest(self.boundary.contracts.schemas)["value"],
         )
 
@@ -111,7 +116,7 @@ class HistoryIndex:
             _json(dict(payload=payload, mac=hmac.digest(key, _json(payload), "sha256").hex())),
         )
 
-    def enrollment_state(self) -> dict:
+    def enrollment_state(self, *, rebuilding: bool = False) -> dict:
         try:
             key = self.key_path.read_bytes()
             envelope = json.loads(self.enrollment.read_bytes())
@@ -120,7 +125,7 @@ class HistoryIndex:
                 envelope["mac"], hmac.digest(key, _json(payload), "sha256").hex()
             ):
                 self.fail("VERIFICATION_FAILED")
-            if payload["binding"] != self.binding:
+            if not self._binding(payload["binding"], rebuilding):
                 self.fail("INDEX_IDENTITY_MISMATCH")
             return payload
         except HistoryIndexError:
@@ -128,7 +133,16 @@ class HistoryIndex:
         except (OSError, ValueError, KeyError, TypeError):
             self.fail("VERIFICATION_FAILED")
 
-    def anchor(self) -> dict | None:
+    def _binding(self, binding, rebuilding):
+        if binding == self.binding:
+            return True
+        if dict(binding, format=2) == self.binding and binding.get("format") == 1:
+            if rebuilding:
+                return True
+            self.fail("INDEX_STALE")
+        return False
+
+    def anchor(self, *, rebuilding: bool = False) -> dict | None:
         if not self.checkpoint.exists():
             if self.directory.exists():
                 self.fail("VERIFICATION_FAILED")
@@ -142,9 +156,8 @@ class HistoryIndex:
                 envelope["mac"], hmac.digest(key, _json(payload), "sha256").hex()
             ):
                 self.fail("VERIFICATION_FAILED")
-            if (
-                payload["binding"] != self.binding
-                or self.enrollment_state()["binding"] != self.binding
+            if not self._binding(payload["binding"], rebuilding) or not self._binding(
+                self.enrollment_state(rebuilding=rebuilding)["binding"], rebuilding
             ):
                 self.fail("INDEX_IDENTITY_MISMATCH")
             return {**payload, "_raw": raw, "_key": key}
@@ -163,7 +176,7 @@ class HistoryIndex:
                 self.fail("INDEX_CORRUPT")
             connection = sqlite3.connect(":memory:")
             connection.deserialize(raw)
-            if connection.execute("PRAGMA user_version").fetchone() != (1,):
+            if connection.execute("PRAGMA user_version").fetchone() != (2,):
                 self.fail("INDEX_IDENTITY_MISMATCH")
             if connection.execute("PRAGMA quick_check").fetchall() != [("ok",)]:
                 self.fail("INDEX_CORRUPT")
@@ -237,8 +250,8 @@ class HistoryIndex:
             dict(payload=payload, mac=hmac.digest(key, _json(payload), "sha256").hex())
         )
         _atomic(self.checkpoint, checkpoint_raw)
-        enrollment = self.enrollment_state()
-        if not enrollment["complete"]:
+        enrollment = self.enrollment_state(rebuilding=True)
+        if not enrollment["complete"] or enrollment["binding"] != self.binding:
             self._enrollment(enrollment["initial"], True)
         connection.execute("PRAGMA query_only=ON")
         self.connection, self.frontier, self.generation = connection, commit, generation
@@ -264,6 +277,15 @@ class HistoryIndex:
                 (node,),
             )
         ]
+
+    @contextmanager
+    def request_blobs(self) -> Iterator[None]:
+        previous = self.blob_cache
+        self.blob_cache = {}
+        try:
+            yield
+        finally:
+            self.blob_cache = previous
 
     def raw(self, path: str) -> bytes:
         rows = self.query("SELECT oid FROM files WHERE path=?", (path,))
@@ -335,6 +357,13 @@ class HistoryIndex:
                 ):
                     pending.append(("relation_type_definition", path.rsplit("/", 1)[1][:-5]))
             elif kind in {"node_revision", "relation_revision"}:
+                snapshot = record.get("snapshot")
+                if snapshot and kind == "node_revision":
+                    for (path,) in self.query(
+                        "SELECT path FROM definitions WHERE kind='node_type_definition' AND key=? AND version=?",
+                        (snapshot["node_type"], snapshot["node_type_version"]),
+                    ):
+                        pending.append(("node_type_definition", path.rsplit("/", 1)[1][:-5]))
                 pending.append(
                     (
                         "node" if kind == "node_revision" else "relation",
@@ -343,6 +372,14 @@ class HistoryIndex:
                 )
             elif kind == "node_revision_snapshot":
                 pending.append(("node_revision", record["revision_ref"]["revision_id"]))
+                snapshot = record["snapshot"]
+                pending.extend(
+                    ("node_type_definition", path.rsplit("/", 1)[1][:-5])
+                    for (path,) in self.query(
+                        "SELECT path FROM definitions WHERE kind='node_type_definition' AND key=? AND version=?",
+                        (snapshot["node_type"], snapshot["node_type_version"]),
+                    )
+                )
         return records
 
     def ensure(self, *, locked: bool = False) -> None:
@@ -376,9 +413,9 @@ class HistoryIndex:
 
         self.coherent()
         connection = self.fork()
-        generation = TransitionVerifier(self.repository, connection).verify(
-            self.store.changes(self.frontier, commit)
-        )
+        verifier = TransitionVerifier(self.repository, connection)
+        verifier.index.blob_cache = self.blob_cache
+        generation = verifier.verify(self.store.changes(self.frontier, commit))
         return connection, generation
 
     def rebuild(self) -> dict[str, object]:
@@ -391,12 +428,12 @@ class HistoryIndex:
             self.fail("CANONICAL_STATE_CORRUPT")
         initial = None
         if self.checkpoint.exists():
-            payload = self.anchor()
+            payload = self.anchor(rebuilding=True)
             if payload is None:
                 self.fail("INDEX_MISSING")
             initial = payload["commit"]
         elif self.directory.exists():
-            enrollment = self.enrollment_state()
+            enrollment = self.enrollment_state(rebuilding=True)
             if enrollment["complete"]:
                 self.fail("VERIFICATION_FAILED")
             initial = enrollment["initial"]
@@ -446,6 +483,8 @@ class HistoryIndex:
                         "memberships",
                         "receipts",
                         "operation_keys",
+                        "replay_scopes",
+                        "endpoints",
                         "effects",
                         "legacy",
                         "immutable",

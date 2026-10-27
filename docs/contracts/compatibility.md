@@ -1,5 +1,42 @@
 # Compatibility contract
 
+## M2.2 Node runtime and derived-format compatibility
+
+M2.2 reuses existing `NodeUpdate`, `NodeRevisionRead`, `NodeRevision.previous`,
+revision refs and shared result contracts. No canonical schema, generated model,
+version/registry or old receipt identity change is planned. The finite handler
+surface gains Node replacement and exact historical delivery; Relation mutation
+and Relation history remain unsupported. See [operation semantics](operations.md#m22-node-replacement-and-exact-history)
+and [actual validation status](../core/m2-2-validation.md).
+
+Fresh identical replacement creates a revision under the existing catalogue
+effect. This is distinct from retrying the exact original request/key, which
+returns the authorized old receipt without effects. Mandatory semantic target CAS
+does not narrow schema structure: an empty expectations array remains structurally
+valid but is rejected by Node-update business validation.
+
+Derived index format 2 adds incident-Relation and operation-specific replay
+locators. A format-1 projection is not silently read or migrated. Explicit trusted
+`rebuild_history_index` authenticates recognized old signed checkpoint/enrollment
+bindings, preserves all non-format identity fields, the key and accepted-commit
+rollback fence, fully verifies canonical Git and publishes a fresh format-2
+projection. Interrupted mixed-format trust pairs require explicit recovery, never
+implicit reenrollment. Bad MAC, wrong identity, unknown format or divergent
+ancestry fail closed. Canonical historical bytes do not migrate. Opening or reading
+an instance does not trigger this upgrade; the [design](../core/m2-2-node-mutation.md)
+and validation report identify tested upgrade/crash behavior.
+
+Historical interpretation also requires stable registered meanings (I08 and
+M12-REV-06). The independently reviewed M2.2 subset is append-only for registered
+Node/predicate definition records and existing metadata-schema ID values. Existing
+records cannot be changed or removed, even for descriptive-only edits; this is a
+bounded implementation restriction, not a universal domain requirement that every
+future definition field is immutable. Add a new version/identity and schema ID
+instead. No administration handler is introduced. Incremental catch-up and explicit
+full rebuild reject historical overwrite/removal rather than silently adopting the
+latest meaning. Existing histories containing such changes need operator review;
+there is no automatic migration, trust reset or rewriting of canonical evidence.
+
 ## M2.1.1 operational compatibility
 
 M2.1.1 changes no canonical schema, generated artifact, public operation variant,

@@ -535,16 +535,9 @@ def test_cross_cluster_relation_requires_both_endpoint_grants(core, tmp_path):
 def test_unsupported_operation_never_reaches_a_creation_or_read_strategy(core):
     app, cluster = core
     request = batch(app, cluster)
-    create = request["operations"][0]
-    update = dict(
-        create,
-        operation="node.update",
-        payload={
-            "node_id": create["request_id"],
-            "content": create["payload"]["content"],
-        },
-    )
-    # This is a valid registered contract, but intentionally unsupported by M1.
+    create = request["operations"][2]
+    update = dict(create, operation="relation.update")
+    # Registered Relation mutation remains outside the M2.2 runtime surface.
     app.contracts.validate("operations", update)
     before = app.store.resolve()
     error("VALIDATION_FAILED", lambda: app.read(update))

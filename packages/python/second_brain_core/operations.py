@@ -275,3 +275,146 @@ class RelationReadStrategy:
         return self.access.relation(
             records, selection["relation_id"], selection.get("selected_cluster_id")
         )
+
+
+class NodeUpdateStrategy:
+    def __init__(
+        self, boundary: ContractBoundary, access: AccessControl, domain: DomainRules
+    ) -> None:
+        self.boundary = boundary
+        self.access = access
+        self.domain = domain
+
+    def screen(self, operation, index, pending):
+        self.access.screen_node(
+            index, operation["payload"]["node_id"], actions=("node.update",), pending=pending
+        )
+        self.access.screen_expectations(operation, index, pending)
+
+    def dependencies(self, operation, index):
+        content = operation["payload"]["content"]
+        targets = [("node", operation["payload"]["node_id"])]
+        targets.extend(
+            _definition(
+                index, "node_type_definition", content["node_type"], content["node_type_version"]
+            )
+        )
+        current = index.record("node", operation["payload"]["node_id"])
+        if current and current["content"]["node_type"] != content["node_type"]:
+            targets.extend(
+                ("relation", identifier)
+                for (identifier,) in index.query(
+                    "SELECT relation FROM endpoints WHERE node=?", (current["id"],)
+                )
+            )
+        return targets
+
+    def prepare(self, operation, records, metadata):
+        node = self.access.node(records, operation["payload"]["node_id"], actions=("node.update",))
+        expectations = [
+            e
+            for e in operation["expectations"]
+            if e["resource"] == self.boundary.resource("node", node["id"])
+        ]
+        if len(expectations) != 1 or len(
+            {
+                (e["resource"]["resource_kind"], e["resource"]["id"])
+                for e in operation["expectations"]
+            }
+        ) != len(operation["expectations"]):
+            self.boundary.fail("VALIDATION_FAILED")
+        self.access.check_expectations(operation, records)
+        self.domain.content(operation["payload"]["content"], records, metadata)
+        previous = node["revision_ref"]
+        reference = dict(
+            resource=previous["resource"], revision_id=uid(), revision=node["revision"] + 1
+        )
+        now = timestamp()
+        content = operation["payload"]["content"]
+        revised = dict(
+            node,
+            content=content,
+            revision=reference["revision"],
+            revision_ref=reference,
+            updated_at=now,
+        )
+        history = dict(
+            kind="node_revision",
+            id=reference["revision_id"],
+            schema_version=VERSION,
+            node_id=node["id"],
+            logical_revision=reference["revision"],
+            previous=previous,
+            digest=digest(content),
+            recorded_by={"principal_id": self.boundary.context.principal.principal_id},
+            recorded_at=now,
+            provenance=content["provenance"],
+            snapshot=content,
+        )
+        return [revised, history], [reference]
+
+    def verify_result(self, operation, result, receipt, records):
+        identifier = operation["payload"]["node_id"]
+        node = records["node", identifier]
+        revision = records["node_revision", node["revision_ref"]["revision_id"]]
+        expected = [
+            e
+            for e in operation["expectations"]
+            if e["resource"] == self.boundary.resource("node", identifier)
+        ]
+        if (
+            len(expected) != 1
+            or len(
+                {
+                    (e["resource"]["resource_kind"], e["resource"]["id"])
+                    for e in operation["expectations"]
+                }
+            )
+            != len(operation["expectations"])
+            or node["content"] != operation["payload"]["content"]
+            or node["revision"] != expected[0]["expected_revision"] + 1
+            or result["resources"] != [self.boundary.resource("node", identifier)]
+            or result["revisions"] != [node["revision_ref"]]
+            or revision["node_id"] != identifier
+            or revision["logical_revision"] != node["revision"]
+            or revision.get("snapshot") != node["content"]
+            or revision["digest"] != digest(node["content"])
+            or revision["recorded_by"] != receipt["actor"]
+            or revision["recorded_at"] != node["updated_at"]
+            or revision["provenance"] != node["content"]["provenance"]
+            or revision.get("previous", {}).get("revision") != node["revision"] - 1
+        ):
+            self.boundary.fail("REPAIR_REQUIRED")
+
+    def authorize_replay(self, result, records):
+        self.access.node(records, result["resources"][0]["id"], actions=("node.update",))
+
+
+class NodeRevisionReadStrategy:
+    def __init__(self, boundary: ContractBoundary, access: AccessControl) -> None:
+        self.boundary = boundary
+        self.access = access
+
+    def read(self, selection, records):
+        reference = selection["revision"]
+        identifier = reference["resource"]["id"]
+        self.access.node(records, identifier, actions=("node.read", "node.history.read"))
+        revision = records.get(("node_revision", reference["revision_id"]))
+        if (
+            not revision
+            or revision["node_id"] != identifier
+            or revision["logical_revision"] != reference["revision"]
+        ):
+            self.boundary.fail("NOT_FOUND")
+        if "snapshot" not in revision:
+            supplements = [
+                r
+                for (k, _), r in records.items()
+                if k == "node_revision_snapshot" and r["revision_ref"] == reference
+            ]
+            if len(supplements) != 1:
+                self.boundary.fail("REPAIR_REQUIRED")
+            revision = dict(revision, snapshot=supplements[0]["snapshot"])
+        if digest(revision["snapshot"]) != revision["digest"]:
+            self.boundary.fail("REPAIR_REQUIRED")
+        return revision

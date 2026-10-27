@@ -5,7 +5,14 @@ import sqlite3
 from collections.abc import Iterable
 from pathlib import Path
 
-from generated.v1.operations_schema import NodeCreate, NodeRead, RelationCreate, RelationRead
+from generated.v1.operations_schema import (
+    NodeCreate,
+    NodeRead,
+    NodeRevisionRead,
+    NodeUpdate,
+    RelationCreate,
+    RelationRead,
+)
 from generated.v1.transaction_schema import BatchRequest, CommittedReceipt, ReadResult
 from jsonschema.exceptions import ValidationError
 from pydantic import BaseModel
@@ -22,6 +29,8 @@ from .history_index import HistoryIndex
 from .operations import (
     NodeCreateStrategy,
     NodeReadStrategy,
+    NodeRevisionReadStrategy,
+    NodeUpdateStrategy,
     RelationCreateStrategy,
     RelationReadStrategy,
 )
@@ -56,10 +65,12 @@ class Core:
         self.domain = DomainRules(self.boundary)
         self.mutations = {
             "node.create": NodeCreateStrategy(self.boundary, self.access, self.domain),
+            "node.update": NodeUpdateStrategy(self.boundary, self.access, self.domain),
             "relation.create": RelationCreateStrategy(self.boundary, self.access, self.domain),
         }
         self.readers = {
             "node.read": NodeReadStrategy(self.boundary, self.access),
+            "node.revision.read": NodeRevisionReadStrategy(self.boundary, self.access),
             "relation.read": RelationReadStrategy(self.access),
         }
         self.receipts = ReceiptStore(self.boundary, self.mutations)
@@ -119,13 +130,13 @@ class Core:
         return generation
 
     def submit(self, payload: BatchRequest | dict[str, object] | str | bytes) -> CommittedReceipt:
-        batch = self.boundary.ingest("transaction", payload)
-        if not isinstance(batch, BatchRequest):
-            self.boundary.fail("VALIDATION_FAILED")
-        request = self.boundary.dump("transaction", batch)
-        self._check_batch(request)
         try:
-            with self.store.writer():
+            batch = self.boundary.ingest("transaction", payload)
+            if not isinstance(batch, BatchRequest):
+                self.boundary.fail("VALIDATION_FAILED")
+            request = self.boundary.dump("transaction", batch)
+            self._check_batch(request)
+            with self.store.writer(), self.history_index.request_blobs():
                 return self._commit(request)
         except PublicationConflict as exc:
             raise CoreError(self.contracts, "REVISION_CONFLICT") from exc
@@ -159,6 +170,17 @@ class Core:
         replay = self._replay(request)
         if replay is not None:
             return replay
+        if not self.history_index.query(
+            "SELECT 1 FROM files WHERE path='control/history.json'"
+        ) and any(o["operation"] == "node.update" for o in request["operations"]):
+            self.boundary.fail("REPAIR_REQUIRED")
+        changed_nodes = set()
+        for operation in request["operations"]:
+            if operation["operation"] in {"node.create", "node.update"}:
+                identifier = operation["payload"].get("node_id", operation["request_id"])
+                if identifier in changed_nodes:
+                    self.boundary.fail("VALIDATION_FAILED")
+                changed_nodes.add(identifier)
         pending = {}
         for operation in request["operations"]:
             self.mutations[operation["operation"]].screen(operation, self.history_index, pending)
@@ -173,7 +195,7 @@ class Core:
                 self.boundary.fail("VALIDATION_FAILED")
             seen.add(operation["request_id"])
             results.append(self._create(operation, records, files, metadata))
-        self.domain.validate(records, metadata)
+        self.domain.validate(records, metadata, bounded=True)
         generation = self._next_generation(files)
         files[GENERATION] = encode(generation)
         receipt = self.receipts.record(request, generation, results, files)
@@ -190,18 +212,21 @@ class Core:
         existing = self.history_index.query("SELECT 1 FROM receipts WHERE path=?", (path,))
         if not existing:
             return None
-        effects = self.history_index.query(
-            "SELECT kind,id FROM effects WHERE receipt=? AND kind IN ('node','relation')", (path,)
+        scopes = self.history_index.query(
+            "SELECT operation,kind,resource FROM replay_scopes WHERE receipt=? ORDER BY position",
+            (path,),
         )
-        if not effects:
+        if not scopes:
             raise CoreError(self.contracts, "REPAIR_REQUIRED")
-        for kind, identifier in effects:
+        for action, kind, identifier in scopes:
             if kind == "node":
+                actions = (
+                    ("node.update",)
+                    if action == "node.update"
+                    else ("node.create", "membership.admit")
+                )
                 self.access.screen_node(
-                    self.history_index,
-                    identifier,
-                    actions=("node.create", "membership.admit"),
-                    active=False,
+                    self.history_index, identifier, actions=actions, active=action == "node.update"
                 )
             else:
                 self.access.screen_relation(
@@ -214,7 +239,14 @@ class Core:
         receipt = decode(files[path])
         origin = self.history_index.query("SELECT origin FROM receipts WHERE path=?", (path,))[0][0]
         generation_oid = self.store.locate(origin, GENERATION)
-        if decode(self.store.blobs([generation_oid])[generation_oid]) != receipt["generation"]:
+        cache = self.history_index.blob_cache
+        if cache is not None and generation_oid in cache:
+            original_generation = cache[generation_oid]
+        else:
+            original_generation = self.store.blobs([generation_oid])[generation_oid]
+            if cache is not None:
+                cache[generation_oid] = original_generation
+        if decode(original_generation) != receipt["generation"]:
             self.boundary.fail("REPAIR_REQUIRED")
         targets = [
             (r["resource_kind"], r["id"])
@@ -227,9 +259,9 @@ class Core:
             raise CoreError(self.contracts, "REPAIR_REQUIRED")
         from .verification import TransitionVerifier
 
-        original = TransitionVerifier(
-            self.repository, self.history_index.connection
-        ).original_records(path)
+        verifier = TransitionVerifier(self.repository, self.history_index.connection)
+        verifier.index.blob_cache = self.history_index.blob_cache
+        original = verifier.original_records(path)
         original_request = decode(files[request_path])
         for operation, result in zip(
             original_request["operations"], receipt["results"], strict=True
@@ -292,7 +324,10 @@ class Core:
         self.access.check_expectations(operation, records)
         for record in additions:
             key = record["kind"], record["id"]
-            if key in records:
+            if key in records and not (
+                operation["operation"] == "node.update"
+                and key == ("node", operation["payload"]["node_id"])
+            ):
                 selector = {"node": self.access.node, "relation": self.access.relation}.get(
                     record["kind"]
                 )
@@ -316,62 +351,99 @@ class Core:
 
     def execute(
         self,
-        payload: NodeCreate | RelationCreate | dict[str, object] | str | bytes,
+        payload: NodeCreate | NodeUpdate | RelationCreate | dict[str, object] | str | bytes,
         expected_generation: dict[str, object],
     ) -> CommittedReceipt:
         """Canonically revalidate typed inputs; keep the original generation on retry."""
-        operation = self.boundary.ingest("operations", payload)
-        if not isinstance(operation, NodeCreate | RelationCreate):
-            self.boundary.fail("VALIDATION_FAILED")
-        wire = self.boundary.dump("operations", operation)
-        key = digest([wire["operation"], wire["operation_version"], wire["idempotency_key"]])[
-            "value"
-        ]
-        return self.submit(
-            dict(
-                kind="batch_request",
-                schema_version=VERSION,
-                instance_id=wire["instance_id"],
-                transaction_id=wire["request_id"],
-                idempotency_key=key,
-                expected_generation=expected_generation,
-                operations=[wire],
+        try:
+            operation = self.boundary.ingest("operations", payload)
+            if not isinstance(operation, NodeCreate | NodeUpdate | RelationCreate):
+                self.boundary.fail("VALIDATION_FAILED")
+            wire = self.boundary.dump("operations", operation)
+            key = digest([wire["operation"], wire["operation_version"], wire["idempotency_key"]])[
+                "value"
+            ]
+            return self.submit(
+                dict(
+                    kind="batch_request",
+                    schema_version=VERSION,
+                    instance_id=wire["instance_id"],
+                    transaction_id=wire["request_id"],
+                    idempotency_key=key,
+                    expected_generation=expected_generation,
+                    operations=[wire],
+                )
             )
-        )
+        except CoreError:
+            raise
+        except Exception as exc:
+            raise CoreError(self.contracts, "INTERNAL") from exc
 
     def read(
-        self, payload: NodeRead | RelationRead | dict[str, object] | str | bytes
+        self, payload: NodeRead | NodeRevisionRead | RelationRead | dict[str, object] | str | bytes
     ) -> ReadResult:
-        operation = self.boundary.ingest("operations", payload)
-        wire = self.boundary.dump("operations", operation)
-        if wire["instance_id"] != self.context.instance_id:
-            self.boundary.fail("NOT_FOUND")
-        strategy = self.readers.get(wire["operation"])
-        if strategy is None:
-            self.boundary.fail("VALIDATION_FAILED")
         try:
-            self.history_index.ensure()
-            generation = self._generation()
-            kind = "node" if wire["operation"] == "node.read" else "relation"
-            identifier = wire["payload"][kind + "_id"]
-            screens = {"node": self.access.screen_node, "relation": self.access.screen_relation}
-            screens[kind](
-                self.history_index, identifier, wire["payload"].get("selected_cluster_id")
-            )
-            records = self.history_index.closure([(kind, identifier)])
-            metadata = decode(self.history_index.raw("control/metadata.json"))
-            self.domain.validate(records, metadata)
-            record = strategy.read(wire["payload"], records)
-            result = dict(
-                kind="read_result",
-                schema_version=VERSION,
-                request_id=wire["request_id"],
-                generation=generation,
-                records=[record],
-            )
-            model = self.contracts.parse_as("transaction", result, ReadResult)
-            self.boundary.dump("transaction", model)
-            return model
+            operation = self.boundary.ingest("operations", payload)
+            wire = self.boundary.dump("operations", operation)
+            if wire["instance_id"] != self.context.instance_id:
+                self.boundary.fail("NOT_FOUND")
+            strategy = self.readers.get(wire["operation"])
+            if strategy is None:
+                self.boundary.fail("VALIDATION_FAILED")
+            with self.history_index.request_blobs():
+                self.history_index.ensure()
+                generation = self._generation()
+                historical = wire["operation"] == "node.revision.read"
+                kind = (
+                    "node"
+                    if wire["operation"] in {"node.read", "node.revision.read"}
+                    else "relation"
+                )
+                reference = wire["payload"]["revision"] if historical else {}
+                identifier = (
+                    reference["resource"]["id"] if historical else wire["payload"][kind + "_id"]
+                )
+                if historical and reference["resource"]["instance_id"] != self.context.instance_id:
+                    self.boundary.fail("NOT_FOUND")
+                screens = {"node": self.access.screen_node, "relation": self.access.screen_relation}
+                if historical:
+                    self.access.screen_node(
+                        self.history_index, identifier, actions=("node.read", "node.history.read")
+                    )
+                else:
+                    screens[kind](
+                        self.history_index, identifier, wire["payload"].get("selected_cluster_id")
+                    )
+                targets = [(kind, identifier)]
+                if historical:
+                    rows = self.history_index.query(
+                        "SELECT resource,logical FROM revisions WHERE id=? AND kind='node_revision'",
+                        (reference["revision_id"],),
+                    )
+                    if rows != [(identifier, reference["revision"])]:
+                        self.boundary.fail("NOT_FOUND")
+                    targets.append(("node_revision", reference["revision_id"]))
+                    targets.extend(
+                        ("node_revision_snapshot", i)
+                        for (i,) in self.history_index.query(
+                            "SELECT id FROM resources WHERE kind='node_revision_snapshot' AND json_extract(attrs,'$.revision_id')=?",
+                            (reference["revision_id"],),
+                        )
+                    )
+                records = self.history_index.closure(targets)
+                metadata = decode(self.history_index.raw("control/metadata.json"))
+                self.domain.validate(records, metadata, bounded=True)
+                record = strategy.read(wire["payload"], records)
+                result = dict(
+                    kind="read_result",
+                    schema_version=VERSION,
+                    request_id=wire["request_id"],
+                    generation=generation,
+                    records=[record],
+                )
+                model = self.contracts.parse_as("transaction", result, ReadResult)
+                self.boundary.dump("transaction", model)
+                return model
         except CoreError:
             raise
         except (

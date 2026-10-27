@@ -29,7 +29,7 @@ def test_programmer_failure_is_not_misreported_as_corrupt_state(core, monkeypatc
     request = batch(app, cluster)
     app.submit(request)
 
-    def broken_validator(*_):
+    def broken_validator(*_, **__):
         raise RuntimeError("private diagnostic must not enter the envelope")
 
     if operation == "generation":

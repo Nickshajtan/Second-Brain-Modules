@@ -65,7 +65,18 @@ class AccessControl:
             kind, identifier = resource["resource_kind"], resource["id"]
             selectors = {
                 "cluster": partial(self.screen_cluster, index, identifier, operation["operation"]),
-                "node": partial(self.screen_node, index, identifier, pending=pending),
+                "node": partial(
+                    self.screen_node,
+                    index,
+                    identifier,
+                    actions=(
+                        ("node.update",)
+                        if operation["operation"] == "node.update"
+                        and identifier == operation["payload"]["node_id"]
+                        else ("node.read",)
+                    ),
+                    pending=pending,
+                ),
                 "relation": partial(self.screen_relation, index, identifier, pending=pending),
             }
             selector = selectors.get(kind)
@@ -83,7 +94,7 @@ class AccessControl:
             self.boundary.fail("APPROVAL_REQUIRED")
         return cluster
 
-    def node(self, records, identifier, selected=None):
+    def node(self, records, identifier, selected=None, *, actions=("node.read",)):
         memberships = [
             r
             for (k, _), r in records.items()
@@ -95,7 +106,8 @@ class AccessControl:
         cluster = memberships[0]["cluster_id"]
         if selected is not None and selected != cluster:
             self.boundary.fail("NOT_FOUND")
-        self.cluster(records, cluster, "node.read")
+        for action in actions:
+            self.cluster(records, cluster, action)
         node = records.get(("node", identifier))
         if not node or node["lifecycle"] != "active":
             self.boundary.fail("NOT_FOUND")
@@ -118,7 +130,17 @@ class AccessControl:
             kind, identifier = resource["resource_kind"], resource["id"]
             selectors = {
                 "cluster": partial(self.cluster, records, identifier, operation["operation"]),
-                "node": partial(self.node, records, identifier),
+                "node": partial(
+                    self.node,
+                    records,
+                    identifier,
+                    actions=(
+                        ("node.update",)
+                        if operation["operation"] == "node.update"
+                        and identifier == operation["payload"]["node_id"]
+                        else ("node.read",)
+                    ),
+                ),
                 "relation": partial(self.relation, records, identifier),
             }
             selector = selectors.get(kind)

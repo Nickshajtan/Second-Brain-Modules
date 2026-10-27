@@ -65,7 +65,7 @@ class DomainRules:
         if source["id"] == target["id"] and not definition["self_links_allowed"]:
             self.boundary.fail("VALIDATION_FAILED")
 
-    def validate(self, records, metadata):
+    def validate(self, records, metadata, *, bounded=False):
         self._unique_definitions(records)
         validators = {
             "cluster": self._cluster,
@@ -94,11 +94,17 @@ class DomainRules:
                     prior = records.get((kind, previous["revision_id"])) if previous else None
                     resource_kind = "node" if kind == "node_revision" else "relation"
                     if (
-                        not prior
+                        (not prior and not bounded)
+                        or not previous
                         or previous["resource"] != self.boundary.resource(resource_kind, resource)
                         or previous["revision"] != record["logical_revision"] - 1
-                        or prior["logical_revision"] != previous["revision"]
-                        or prior.get("node_id", prior.get("relation_id")) != resource
+                        or (
+                            prior is not None
+                            and (
+                                prior["logical_revision"] != previous["revision"]
+                                or prior.get("node_id", prior.get("relation_id")) != resource
+                            )
+                        )
                     ):
                         self.boundary.fail("REPAIR_REQUIRED")
             if kind == "node_revision_snapshot":

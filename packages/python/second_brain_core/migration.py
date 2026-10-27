@@ -89,7 +89,19 @@ def inspect_history(core: Core) -> dict[str, object]:
     """Return a deterministic dry-run inventory without allocating or writing objects."""
     _require_host(core)
     try:
-        return _plan(core)
+        plan = _plan(core)
+        # Preserve forensic classifications and dry-run non-mutation. Full private
+        # transition verification also works when the disposable index is absent.
+        from .verification import TransitionVerifier
+
+        projection = core.history_index.empty()
+        try:
+            TransitionVerifier(core.repository, projection).verify(
+                core.store.changes(None, plan["source_commit"])
+            )
+        finally:
+            projection.close()
+        return plan
     except HistoricalEvidenceError as exc:
         return {
             "status": "repair_required",

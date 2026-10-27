@@ -2,6 +2,15 @@
 
 The [coverage matrix](contract-coverage-matrix.md) is the exact operation inventory. The [semantic catalogue](../domain/operations-catalog.md) supplies intended operation effects; [production mapping](operations.md) describes existing requests. This page defines shared conventions, not a competing list or generic operation interpreter.
 
+M2.2 reuses the existing versioned NodeUpdate and NodeRevisionRead requests for
+full replacement and exact immutable NodeRevision delivery. Target CAS is mandatory
+semantically; historical reads require both current disclosure and explicit history
+authority. Mutation replay returns the original receipt under its operation-specific
+current capability, without historical content or head rollback. See
+[exact semantics](operations.md#m22-node-replacement-and-exact-history) and
+[implementation/verification status](../core/m2-2-validation.md). No patch alias,
+Relation mutation or general history listing is activated.
+
 | Concern | Current contract / required evolution |
 |---|---|
 | Identity | Stable entity UUID is separate from request UUID, path/title and Git object identity. NodeCreate accepts explicit `payload.node_id`; legacy omission intentionally allocates `request_id`. Relation creation already has independent `payload.relation.id`. New producers supply Node ID; copy/fork/import need explicit allocations/remaps before activation. |

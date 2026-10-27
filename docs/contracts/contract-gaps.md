@@ -10,7 +10,7 @@ This register classifies domain/API gaps, not a request to implement every handl
 4. NodeRevision now permits an immutable exact `snapshot: NodeContent`; new M1 creations populate and digest-check it. Legacy metadata-only records lack historical body. Git retention is not a public historical read contract. M2 must pin complete old content and type/schema versions, CAS heads independently, preserve original receipt effects and test retry after two later revisions/revocation/restart.
 5. Membership currently distinguishes Node head from optional Cluster `approved_revision`/`approval_id`; candidate NodeRevision and Proposal are separate records. Publication snapshot has separate manifest. Cross-record equality/exact selection is semantic; O2 Relation breadth/O4 read composition remain open. There is no ambiguous claim that mutable Node head equals an approved selection.
 
-6. Two confirmed exact-history requests now exist: NodeRevisionRead/RelationRevisionRead require typed resource-specific logical RevisionRefs, not mutable head selectors. M1 explicitly rejects them; range/history listing still needs pagination/disclosure protocol before M2 activation.
+6. Two confirmed exact-history requests exist: NodeRevisionRead/RelationRevisionRead require typed resource-specific logical RevisionRefs, not mutable head selectors. Original M1 explicitly rejects them. M2.2 activates the bounded exact Node subset; Relation history and range/history listing remain deferred. See [M2.2 verification status](../core/m2-2-validation.md).
 
 ## Naming discrepancies
 
@@ -21,8 +21,8 @@ Catalogue `node.search` versus wire `knowledge.search`; catalogue `relation.reti
 | Family | Meaning/lifecycle | Structure | Protocol | Authorization / transaction | Runtime / tests |
 |---|---|---|---|---|---|
 | Common | stable scoped identity/version/error meaning | primitives and typed immutable revision refs | no standalone operation; reused everywhere | no authentication/authorization or transactions implied | independent validators/type fixtures only |
-| Operations | explicit per-operation protocol, not a generic interpreter | 36 tagged request variants | two exact revision-read requests added; dedicated query/admin gaps remain | current capabilities and CAS remain business obligations | four create/read handlers only; existing Core/structural tests |
-| Knowledge | confirmed boundaries; O4/O2 selections open | Node/Revision/Membership/Collection/Relation/Asset/ExternalReference; new RelationRevision | partial requests; history/admin absent | cross-record obligations not schema-enforced | M1 Node/Relation create/read safe subset tested |
+| Operations | explicit per-operation protocol, not a generic interpreter | 36 tagged request variants | exact revision-read requests; dedicated query/admin gaps remain | current capabilities and CAS remain business obligations | M1 four create/read handlers plus M2.2 Node update/exact history; [actual gates](../core/m2-2-validation.md) |
+| Knowledge | confirmed boundaries; O4/O2 selections open | Node/Revision/Membership/Collection/Relation/Asset/ExternalReference; RelationRevision | bounded Node history; Relation history/admin absent | cross-record obligations not schema-enforced | M1 Node/Relation create/read plus M2.2 Node replacement/history subset; deployment unverified |
 | Governance | exact immutable evidence/disposal; O2/O3 effects open | Proposal/Review/Approval/revocation/disposal records | existing record/revoke/route wrappers partial | execution/revocation/consumption/retention not implemented | absent; structural/parity corpus only |
 | Control | granular principal/grant/scope semantics confirmed | principal/grant/audit/access records | grant administration missing | authenticated policy engine not implemented | trusted M1 host bindings only |
 | Snapshots | independent identity/remap/provenance | manifests / mappings | export/import requests partial | closure/disclosure/admission semantic | absent; shape fixtures |
@@ -31,9 +31,16 @@ Catalogue `node.search` versus wire `knowledge.search`; catalogue `relation.reti
 
 ## DF-M2
 
-**Immutable revisions; first target M2.** Reason: runtime outside create/read M1 safe subset; structural shapes are not executable semantics.
+**Immutable revisions; first target M2.** M2.2 supplies bounded private Node replacement
+and exact historical delivery. Relation mutation/history, range enumeration and
+broader protected selections remain deferred; structural shapes alone are not
+executable semantics. [Validation](../core/m2-2-validation.md) records actual gates.
 
-Prerequisites: M2.1 immutable snapshots, original admission/receipt resolution and explicit backfill are implemented. M2.2/M2.3 must add mutation CAS and current-policy historical delivery guards; migrate legacy state before activation.
+Prerequisites: M2.1 immutable snapshots, original admission/receipt resolution and
+explicit backfill, followed by M2.1.1 authenticated frontier. Node activation uses
+M2.2 target CAS/current-policy history guards and explicit projection upgrade;
+M2.3 must provide independent Relation transition evidence and endpoint authority.
+Migrate incomplete legacy history before mutation; no read-time backfill.
 
 Owner decision: none for basic immutable history; O2/O4 only if approved graphs or multi-membership are included.
 
@@ -175,7 +182,7 @@ Each row is an explicit deferral. Its linked profile is part of the row and supp
 | CAP-054 | `node.create` | M1 partial; broadened semantics not implemented | [DF-M2](#df-m2); retain existing Core tests and add profile conformance before activation | M2 |
 | CAP-055 | `node.delete` | absent runtime | [DF-M7](#df-m7); operation-specific rights and exact requested effect must pass profile conformance | M7 |
 | CAP-056 | `node.fork` | absent runtime | [DF-M6](#df-m6); operation-specific rights and exact requested effect must pass profile conformance | M6 |
-| CAP-057 | `node.history.read` | absent runtime | [DF-M2](#df-m2); operation-specific rights and exact requested effect must pass profile conformance | M2 |
+| CAP-057 | `node.history.read` | range/list API absent; exact-revision grant used by CAP-065 | [DF-M2](#df-m2); define versioned pagination/cursor/disclosure protocol and pass current-policy history conformance after exact-read foundation | M2 follow-on |
 | CAP-058 | `node.list` | absent runtime | [DF-M5](#df-m5); operation-specific rights and exact requested effect must pass profile conformance | M5 |
 | CAP-059 | `node.propose_revision` | absent runtime | [DF-M6](#df-m6); operation-specific rights and exact requested effect must pass profile conformance | M6 |
 | CAP-060 | `node.publish` | absent runtime | [DF-M6](#df-m6); operation-specific rights and exact requested effect must pass profile conformance | M6 |
@@ -183,10 +190,10 @@ Each row is an explicit deferral. Its linked profile is part of the row and supp
 | CAP-062 | `node.read` | M1 partial; broadened semantics not implemented | [DF-M2](#df-m2); retain existing Core tests and add profile conformance before activation | M2 |
 | CAP-063 | `node.request_disposal` | absent runtime | [DF-M7](#df-m7); operation-specific rights and exact requested effect must pass profile conformance | M7 |
 | CAP-064 | `node.restore` | absent runtime | [DF-M7](#df-m7); operation-specific rights and exact requested effect must pass profile conformance | M7 |
-| CAP-065 | `node.revision.read` | absent runtime | [DF-M2](#df-m2); operation-specific rights and exact requested effect must pass profile conformance | M2 |
+| CAP-065 | `node.revision.read` | bounded exact Node subset; [actual validation](../core/m2-2-validation.md) | [DF-M2](#df-m2); independent history/current disclosure; range and protected scopes still require exact protocol/policy | M2.2 subset; M4 broader scope |
 | CAP-066 | `node.search` | absent runtime | [DF-M5](#df-m5); operation-specific rights and exact requested effect must pass profile conformance | M5 |
 | CAP-067 | `node.unarchive` | absent runtime | [DF-M7](#df-m7); operation-specific rights and exact requested effect must pass profile conformance | M7 |
-| CAP-068 | `node.update` | absent runtime | [DF-M2](#df-m2); operation-specific rights and exact requested effect must pass profile conformance | M2 |
+| CAP-068 | `node.update` | bounded private sole-membership replacement; [actual validation](../core/m2-2-validation.md) | [DF-M2](#df-m2); mandatory CAS, immutable new revision, current update authority; governed/protected scope requires M4/M6 | M2.2 subset; M4/M6 broader scope |
 | CAP-069 | `node_type.read` | absent runtime | [DF-M4](#df-m4); operation-specific rights and exact requested effect must pass profile conformance | M4 |
 | CAP-070 | `node_type.register` | absent runtime | [DF-M4](#df-m4); operation-specific rights and exact requested effect must pass profile conformance | M4 |
 | CAP-071 | `node_type.revise` | absent runtime | [DF-M4](#df-m4); operation-specific rights and exact requested effect must pass profile conformance | M4 |

@@ -67,6 +67,38 @@ No final retention duration, policy composition algorithm, immediate Obsidian sy
 
 ## M1.2 exact historical-read requests
 
-`operations#/$defs/NodeRevisionRead` (`node.revision.read`) requires `payload.revision: common#/$defs/NodeRevisionRef`; `RelationRevisionRead` (`relation.revision.read`) uses `RelationRevisionRef`. Both carry explicit schema/operation versions, instance and request IDs, and no mutation key. They are separate from current selection reads, require independent history authority plus current resource disclosure, and must return exact immutable KnowledgeRecord revision snapshots in `transaction#/$defs/ReadResult`. Cross-instance/equality/digest/retention checks are semantic. M1 rejects both at finite dispatch; no historical runtime is implemented. List/history-range pagination remains deferred to explicit M2 contracts.
+`operations#/$defs/NodeRevisionRead` (`node.revision.read`) requires `payload.revision: common#/$defs/NodeRevisionRef`; `RelationRevisionRead` (`relation.revision.read`) uses `RelationRevisionRef`. Both carry explicit schema/operation versions, instance and request IDs, and no mutation key. They are separate from current selection reads, require independent history authority plus current resource disclosure, and must return exact immutable KnowledgeRecord revision snapshots in `transaction#/$defs/ReadResult`. Cross-instance/equality/digest/retention checks are semantic. The original M1 dispatch rejects both. M2.2's bounded Node implementation and verification status are recorded below; Relation history and range/history-list pagination remain deferred.
+
+## M2.2 Node replacement and exact history
+
+The [independently reviewed design](../core/m2-2-node-mutation.md) activates existing
+request definitions, not new aliases or patch shapes. Actual implementation/test
+status is in the [M2.2 validation report](../core/m2-2-validation.md).
+
+`NodeUpdate` replaces the entire `NodeContent`; omitted optional content fields
+are removed. Require exactly one target Node CAS expectation using the existing
+resource/expected_revision and optional expected_digest. Batch expected_generation
+also fences current membership, registry and policy. Fresh accepted replacement,
+including identical content, creates one new logical revision under the catalogue's
+existing replacement-to-new-revision effect; exact idempotent retry creates none.
+Preserve Node identity, creation metadata, lifecycle, Membership and independent
+Relations. Only a private active sole-membership Node with explicit `node.update`
+is supported. One Node cannot be mutated twice in a batch; distinct-Node mixed
+create/update batches remain flat and atomic. No governed or selected update is
+implicitly supported.
+
+`NodeRevisionRead` carries its exact Node identity/instance in revision.resource;
+it has no selected_cluster_id field. Require current `node.read` AND
+`node.history.read` in the actual sole scope before probing historical evidence.
+Return one canonical immutable `NodeRevision`, including its exact snapshot, in
+`ReadResult.records` at the current pinned generation. Never substitute current
+Node content. Validated legacy supplements may supply outgoing snapshot content
+without rewriting the stored old revision. Current Node read does not grant history.
+
+Mutation replay requires the original operation's current capability:
+create/admit for Node creation, `node.update` for Node update. History permission
+is not required merely to return the original receipt's handles; replay never
+returns old content or restores an old head. Exact immutable original effects
+remain independently verified after later mutations.
 
 Current handler inventory is [Core M1](../core/m1.md) and the [coverage matrix](contract-coverage-matrix.md); dated statements that this contract milestone has no handlers are not current repository status.

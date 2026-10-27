@@ -138,7 +138,7 @@ def test_m12_catalogue_and_canonical_coverage_references():
 
 
 @pytest.mark.parametrize("kind", ["node", "relation"])
-def test_historical_read_contracts_do_not_enable_runtime_history(core, kind):
+def test_historical_read_contracts_require_supported_handler_and_authority(core, kind):
     app, cluster = core
     receipt = app.submit(batch(app, cluster))
     revision = next(
@@ -151,7 +151,25 @@ def test_historical_read_contracts_do_not_enable_runtime_history(core, kind):
         app, kind + ".revision.read", {"revision": revision.model_dump(mode="json")}
     )
     app.contracts.parse("operations", request)
-    error("VALIDATION_FAILED", lambda: app.read(request))
+    before = app.store.resolve()
+    # M2.2 implements Node history with an independent capability. Relation
+    # history remains contract-only until its separate runtime milestone.
+    error("NOT_FOUND" if kind == "node" else "VALIDATION_FAILED", lambda: app.read(request))
+    if kind == "node":
+        principal = replace(
+            app.context.principal,
+            grants=app.context.principal.grants | {(cluster, "node.history.read")},
+        )
+        reader = Core(replace(app.context, principal=principal), app.store, app.contracts)
+        historical = reader.read(request).records[0].root
+        assert historical.kind == "node_revision"
+        assert historical.id == revision.revision_id
+        assert historical.node_id == revision.resource.id
+        assert historical.logical_revision == revision.revision
+        assert (
+            historical.snapshot == read_node(app, revision.resource.id.root).records[0].root.content
+        )
+    assert app.store.resolve() == before
 
 
 @pytest.mark.parametrize("explicit", [False, True])

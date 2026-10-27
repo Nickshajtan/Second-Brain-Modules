@@ -53,6 +53,12 @@ class TransitionVerifier:
             )
             if key in record
         }
+        if kind == "node_revision_snapshot":
+            attrs["revision_id"] = record["revision_ref"]["revision_id"]
+        if kind == "relation":
+            self.connection.execute("DELETE FROM endpoints WHERE relation=?", (identifier,))
+            for node in {record["source"]["id"], record["target"]["id"]}:
+                self.connection.execute("INSERT INTO endpoints VALUES(?,?)", (node, identifier))
         self.connection.execute("DELETE FROM resources WHERE path=?", (path,))
         self.connection.execute(
             "INSERT INTO resources VALUES(?,?,?,?)", (kind, identifier, path, json.dumps(attrs))
@@ -107,7 +113,9 @@ class TransitionVerifier:
         # Explicit verification owns this bounded-lifetime unique-blob cache;
         # ordinary lookups never prefetch canonical history.
         oids = {oid for _, _, delta in changes for oid in delta.values() if oid}
-        self.index.blob_cache = self.store.blobs(list(oids))
+        cached = self.index.blob_cache
+        self.index.blob_cache = cached if cached is not None else {}
+        self.index.blob_cache.update(self.store.blobs(list(oids - self.index.blob_cache.keys())))
         generation = None
         for commit, parent, delta in changes:
             try:
@@ -140,6 +148,38 @@ class TransitionVerifier:
                     if path.startswith("control/")
                     else ("MISSING_REVISION" if oid is None else "REVISION_DIGEST_MISMATCH")
                 )
+        prior_nodes = {}
+        for path in delta:
+            if path.startswith("knowledge/node/") and path.endswith(".yaml") and path in previous:
+                identifier = path.rsplit("/", 1)[1][:-5]
+                prior_nodes[identifier] = self.index.record("node", identifier)
+        self.prior_nodes = prior_nodes
+        # Registered interpretation is append-only in the supported M2 profile.
+        for path, oid in delta.items():
+            if (
+                path in previous
+                and path.startswith(
+                    ("knowledge/node_type_definition/", "knowledge/relation_type_definition/")
+                )
+                and oid != previous[path]
+            ):
+                self.fail("CANONICAL_STATE_CORRUPT")
+        metadata_path = "control/metadata.json"
+        if parent and metadata_path in delta:
+            old_metadata = decode(self._raw(metadata_path))
+            new_oid = delta[metadata_path]
+            if not new_oid:
+                self.fail("CANONICAL_STATE_CORRUPT")
+            cache = self.index.blob_cache or {}
+            new_raw = cache.get(new_oid)
+            if new_raw is None:
+                new_raw = self.store.blobs([new_oid])[new_oid]
+            new_metadata = decode(new_raw)
+            if any(
+                key not in new_metadata or new_metadata[key] != value
+                for key, value in old_metadata.items()
+            ):
+                self.fail("CANONICAL_STATE_CORRUPT")
         required = {oid for oid in delta.values() if oid}
         blobs = self.index.blob_cache or self.store.blobs(list(required))
         changed = {}
@@ -231,14 +271,26 @@ class TransitionVerifier:
             for p in delta
         ):
             affected.extend(self.connection.execute("SELECT kind,id FROM resources").fetchall())
+        for identifier, prior in self.prior_nodes.items():
+            current = changed.get(f"knowledge/node/{identifier}.yaml")
+            if current and current["content"]["node_type"] != prior["content"]["node_type"]:
+                affected.extend(
+                    ("relation", relation)
+                    for (relation,) in self.connection.execute(
+                        "SELECT relation FROM endpoints WHERE node=?", (identifier,)
+                    )
+                )
         records = self.index.closure(affected)
-        self.repository.domain.validate(records, metadata)
+        self.repository.domain.validate(records, metadata, bounded=True)
         explained = set()
         for path in delta:
             if path.startswith("control/receipts/") and delta[path]:
                 if path in previous or parent is None:
                     self.fail("INVALID_RECEIPT")
-                explained.update(self._receipt(path, commit, generation, old_generation, previous))
+                effects = self._receipt(path, commit, generation, old_generation, previous)
+                if explained & effects:
+                    self.fail("INVALID_RECEIPT")
+                explained.update(effects)
         marked = bool(
             self.connection.execute("SELECT 1 FROM files WHERE path=?", (HISTORY,)).fetchone()
         )
@@ -291,7 +343,7 @@ class TransitionVerifier:
                 self.fail("MISSING_REVISION")
             if (
                 record["kind"] in {"node", "relation", "membership"}
-                and path not in previous
+                and parent is not None
                 and path not in explained
             ):
                 self.fail("INVALID_RECEIPT")
@@ -313,6 +365,49 @@ class TransitionVerifier:
             self.fail("MISSING_REVISION")
         return generation
 
+    def _expectations(self, operation, previous, overlay, originals):
+        if operation["instance_id"] != self.boundary.context.instance_id:
+            self.fail("INVALID_RECEIPT")
+        for expectation in operation["expectations"]:
+            resource = expectation["resource"]
+            kind, identifier = resource["resource_kind"], resource["id"]
+            if resource["instance_id"] != self.boundary.context.instance_id or kind not in {
+                "cluster",
+                "node",
+                "relation",
+            }:
+                self.fail("INVALID_RECEIPT")
+            key = kind, identifier
+            if key in overlay:
+                record = overlay[key]
+            else:
+                if key not in originals:
+                    path = f"knowledge/{kind}/{identifier}.yaml"
+                    oid = previous.get(path)
+                    body = (
+                        previous.get(f"knowledge/node/{identifier}.md") if kind == "node" else None
+                    )
+                    if not oid or (kind == "node" and not body):
+                        self.fail("INVALID_RECEIPT")
+                    cache = self.index.blob_cache
+                    if cache is None:
+                        cache = self.index.blob_cache = {}
+                    required = {oid} | ({body} if body else set())
+                    cache.update(self.store.blobs(list(required - cache.keys())))
+                    record = decode(cache[oid])
+                    if body:
+                        record["content"]["body"] = cache[body].decode()
+                    self.boundary.contracts.parse("knowledge", record)
+                    if (record["kind"], record["id"]) != key:
+                        self.fail("INVALID_RECEIPT")
+                    originals[key] = record
+                record = originals[key]
+            if record["revision"] != expectation["expected_revision"] or (
+                "expected_digest" in expectation
+                and digest(record) != expectation["expected_digest"]
+            ):
+                self.fail("INVALID_RECEIPT")
+
     def _receipt(self, path, commit, generation, parent_generation, previous):
         files = {path: self._raw(path)}
         request_path = self.repository.receipts.request_path(path)
@@ -324,15 +419,30 @@ class TransitionVerifier:
             or request["expected_generation"] != parent_generation
         ):
             self.fail("INVALID_RECEIPT")
+        if len({o["request_id"] for o in request["operations"]}) != len(
+            request["operations"]
+        ) or any("proposal_id" in o or "approval_id" in o for o in request["operations"]):
+            self.fail("INVALID_RECEIPT")
         principal = receipt["actor"]["principal_id"]
         self.connection.execute(
             "INSERT INTO receipts VALUES(?,?,?,?,?)",
             (path, principal, receipt["idempotency_key"], receipt["transaction_id"], commit),
         )
         explained = set()
+        changed_nodes = set()
+        overlay = {}
+        originals = {
+            ("node", identifier): record for identifier, record in self.prior_nodes.items()
+        }
         for position, (operation, result) in enumerate(
             zip(request["operations"], receipt["results"], strict=True)
         ):
+            self._expectations(operation, previous, overlay, originals)
+            if operation["operation"] in {"node.create", "node.update"}:
+                identifier = operation["payload"].get("node_id", operation["request_id"])
+                if identifier in changed_nodes:
+                    self.fail("INVALID_RECEIPT")
+                changed_nodes.add(identifier)
             self.connection.execute(
                 "INSERT INTO operation_keys VALUES(?,?,?,?,?)",
                 (
@@ -358,9 +468,47 @@ class TransitionVerifier:
             if strategy is None:
                 self.fail("INVALID_RECEIPT")
             strategy.verify_result(operation, result, receipt, records)
+            for resource in result["resources"]:
+                key = resource["resource_kind"], resource["id"]
+                overlay[key] = records[key]
+            resource = result["resources"][0]
+            self.connection.execute(
+                "INSERT INTO replay_scopes VALUES(?,?,?,?,?)",
+                (path, position, operation["operation"], resource["resource_kind"], resource["id"]),
+            )
+            if operation["operation"] == "node.update":
+                identifier = operation["payload"]["node_id"]
+                prior = self.prior_nodes.get(identifier)
+                current = records["node", identifier]
+                revision = records["node_revision", current["revision_ref"]["revision_id"]]
+                if (
+                    not prior
+                    or revision.get("previous") != prior["revision_ref"]
+                    or current["created_at"] != prior["created_at"]
+                    or current["lifecycle"] != prior["lifecycle"]
+                    or current["revision"] != prior["revision"] + 1
+                ):
+                    self.fail("INVALID_RECEIPT")
+                for expectation in operation["expectations"]:
+                    if expectation["resource"] == self.boundary.resource("node", identifier) and (
+                        expectation["expected_revision"] != prior["revision"]
+                        or (
+                            "expected_digest" in expectation
+                            and expectation["expected_digest"] != digest(prior)
+                        )
+                    ):
+                        self.fail("INVALID_RECEIPT")
+                if not self.connection.execute(
+                    "SELECT 1 FROM files WHERE path=?", (HISTORY,)
+                ).fetchone():
+                    self.fail("MISSING_REVISION")
             for kind, identifier in targets:
                 target = f"knowledge/{kind}/{identifier}.yaml"
-                if target in previous:
+                if target in previous and not (
+                    operation["operation"] == "node.update"
+                    and kind == "node"
+                    and identifier == operation["payload"]["node_id"]
+                ):
                     self.fail("INVALID_RECEIPT")
                 row = self.connection.execute(
                     "SELECT oid FROM files WHERE path=?", (target,)
@@ -378,7 +526,7 @@ class TransitionVerifier:
                     )
                     explained.add(target)
             ref = result["revisions"][0]
-            node = operation["operation"] == "node.create"
+            node = operation["operation"] in {"node.create", "node.update"}
             kind = "node_revision" if node else "relation_revision"
             revision = records.get((kind, ref["revision_id"]))
             if revision is None or (node and "snapshot" not in revision):
@@ -399,6 +547,8 @@ class TransitionVerifier:
         blobs = dict(self.index.blob_cache or {})
         missing = list(set(oids) - blobs.keys())
         blobs.update(self.store.blobs(missing))
+        if self.index.blob_cache is not None:
+            self.index.blob_cache.update(blobs)
         records = {}
         for kind, identifier, oid, body in rows:
             record = decode(blobs[oid])
