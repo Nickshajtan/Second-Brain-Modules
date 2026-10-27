@@ -202,16 +202,21 @@ def test_mixed_distinct_nodes_batch_and_restart_replay(core):
     assert read_node(restart, node.id.root).records[0].root.revision.root == 2
 
 
-def downgrade_projection(app):
+def downgrade_projection(app, version=1):
+    from second_brain_core import compact_history_index
+
+    assert compact_history_index(app)["status"] == "compacted"
     index = app.history_index
     import sqlite3
 
     connection = sqlite3.connect(":memory:")
     connection.deserialize(index.database.read_bytes())
-    connection.executescript(
-        "DROP TABLE endpoints; DROP TABLE replay_scopes; PRAGMA user_version=1;"
-    )
+    if version == 1:
+        connection.executescript(
+            "DROP TABLE endpoints; DROP TABLE replay_scopes; PRAGMA user_version=1;"
+        )
     raw = connection.serialize()
+    index.database = index.directory / "history.sqlite3"
     index.database.write_bytes(raw)
     import hashlib
 
@@ -219,18 +224,20 @@ def downgrade_projection(app):
     for path in (index.checkpoint, index.enrollment):
         envelope = json.loads(path.read_bytes())
         payload = envelope["payload"]
-        payload["binding"]["format"] = 1
+        payload["binding"]["format"] = version
         if path == index.checkpoint:
+            payload = {key: payload[key] for key in ("binding", "commit", "generation")}
             payload["database_sha256"] = hashlib.sha256(raw).hexdigest()
         path.write_bytes(
             _json(dict(payload=payload, mac=hmac.digest(key, _json(payload), "sha256").hex()))
         )
 
 
-def test_explicit_v1_projection_rebuild_preserves_anchor(core):
+@pytest.mark.parametrize("version", [1, 2])
+def test_explicit_legacy_projection_rebuild_preserves_anchor(core, version):
     app, cluster = core
     app.submit(batch(app, cluster))
-    downgrade_projection(app)
+    downgrade_projection(app, version)
     key = app.history_index.key_path.read_bytes()
     restart = Core(app.context, app.store, app.contracts)
     error("REPAIR_REQUIRED", restart.generation)
@@ -282,7 +289,7 @@ def test_interrupted_format_upgrade_is_explicitly_recoverable(core, monkeypatch,
     }[point]
 
     def interrupted(path, raw):
-        if path == target:
+        if path == target or (point == "database" and path.suffix == ".sqlite3"):
             raise OSError("simulated interruption")
         original(path, raw)
 

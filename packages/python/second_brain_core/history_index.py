@@ -6,14 +6,20 @@ import hashlib
 import hmac
 import json
 import os
+import re
 import sqlite3
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 from typing import NoReturn
+from uuid import uuid4
 
 from .boundary import GENERATION, CoreError, digest
 from .codec import decode
+from .projection import ProjectionConnection, checked_write, memory_connection
+
+MAX_DELTAS = 1024
+MAX_DELTA_BYTES = 16 * 1024 * 1024
 
 SCHEMA = """
 PRAGMA user_version=2;
@@ -35,6 +41,7 @@ CREATE TABLE effects(receipt TEXT, kind TEXT, id TEXT, path TEXT, oid TEXT, body
 CREATE TABLE replay_scopes(receipt TEXT, position INTEGER, operation TEXT, kind TEXT, resource TEXT,
  PRIMARY KEY(receipt,position));
 CREATE TABLE endpoints(node TEXT, relation TEXT, PRIMARY KEY(node,relation));
+CREATE INDEX endpoint_relation ON endpoints(relation);
 CREATE TABLE legacy(revision TEXT PRIMARY KEY, receipt TEXT, position INTEGER, kind TEXT);
 CREATE TABLE immutable(path TEXT PRIMARY KEY, oid TEXT NOT NULL);
 CREATE TABLE commits(oid TEXT PRIMARY KEY, parent TEXT, generation TEXT NOT NULL);
@@ -82,12 +89,15 @@ class HistoryIndex:
         self.checkpoint_raw: bytes | None = None
         self.key: bytes | None = None
         self.blob_cache: dict[str, bytes] | None = None
+        self.accepted: dict | None = None
+        self.pending: tuple[bytes, dict] | None = None
+        self.in_candidate = False
         self.binding = dict(
             instance=self.boundary.context.instance_id,
             repository=str(self.store.repository),
             common=str(self.store.common),
             ref=self.store.ref,
-            format=2,
+            format=3,
             contracts=digest(self.boundary.contracts.schemas)["value"],
         )
 
@@ -136,7 +146,7 @@ class HistoryIndex:
     def _binding(self, binding, rebuilding):
         if binding == self.binding:
             return True
-        if dict(binding, format=2) == self.binding and binding.get("format") == 1:
+        if dict(binding, format=3) == self.binding and binding.get("format") in (1, 2):
             if rebuilding:
                 return True
             self.fail("INDEX_STALE")
@@ -156,6 +166,10 @@ class HistoryIndex:
                 envelope["mac"], hmac.digest(key, _json(payload), "sha256").hex()
             ):
                 self.fail("VERIFICATION_FAILED")
+            if payload["binding"].get("format") == 3 and raw != _json(
+                dict(payload=payload, mac=envelope["mac"])
+            ):
+                self.fail("VERIFICATION_FAILED")
             if not self._binding(payload["binding"], rebuilding) or not self._binding(
                 self.enrollment_state(rebuilding=rebuilding)["binding"], rebuilding
             ):
@@ -171,15 +185,18 @@ class HistoryIndex:
         if payload is None:
             self.fail("INDEX_MISSING")
         try:
+            self._base_path(payload)
             raw = self.database.read_bytes()
             if hashlib.sha256(raw).hexdigest() != payload["database_sha256"]:
                 self.fail("INDEX_CORRUPT")
-            connection = sqlite3.connect(":memory:")
+            connection = memory_connection()
             connection.deserialize(raw)
             if connection.execute("PRAGMA user_version").fetchone() != (2,):
                 self.fail("INDEX_IDENTITY_MISMATCH")
             if connection.execute("PRAGMA quick_check").fetchall() != [("ok",)]:
                 self.fail("INDEX_CORRUPT")
+            self._replay_deltas(connection, payload)
+            connection.commit()
             generation = json.loads(
                 connection.execute(
                     "SELECT generation FROM commits WHERE oid=?", (payload["commit"],)
@@ -199,6 +216,7 @@ class HistoryIndex:
                 generation,
             )
             self.key, self.checkpoint_raw = payload["_key"], payload["_raw"]
+            self.accepted = {k: v for k, v in payload.items() if not k.startswith("_")}
         except HistoryIndexError:
             raise
         except FileNotFoundError:
@@ -209,17 +227,23 @@ class HistoryIndex:
     def coherent(self) -> None:
         """Disk metadata cannot become a signing oracle during publication."""
         payload = self.anchor()
-        if payload is None or payload["commit"] != self.frontier:
+        if (
+            payload is None
+            or payload["_raw"] != self.checkpoint_raw
+            or payload["_key"] != self.key
+            or payload["commit"] != self.frontier
+        ):
             self.fail("INDEX_STALE")
-        try:
-            if hashlib.sha256(self.database.read_bytes()).hexdigest() != payload["database_sha256"]:
-                self.fail("INDEX_CORRUPT")
-        except OSError:
+        if not self.database.exists():
             self.fail("INDEX_MISSING")
+        if payload["sequence"] > payload["base_sequence"]:
+            raw = self._delta_bytes(payload["sequence"])
+            if hashlib.sha256(raw).hexdigest() != payload["tail_hash"]:
+                self.fail("INDEX_CORRUPT")
 
     @staticmethod
     def empty() -> sqlite3.Connection:
-        connection = sqlite3.connect(":memory:")
+        connection = memory_connection()
         connection.executescript(SCHEMA)
         return connection
 
@@ -237,15 +261,34 @@ class HistoryIndex:
         key = self.key_path.read_bytes()
         if len(key) != 32:
             self.fail("INDEX_CORRUPT")
+        if self.pending is not None and connection is self.connection:
+            self._publish_delta(connection, commit, generation)
+            return
         connection.commit()
         raw = connection.serialize()
+        previous = self.anchor(rebuilding=True) if self.checkpoint.exists() else None
+        sequence = previous.get("sequence", 0) if previous else 0
+        filename = f"history-{uuid4().hex}.sqlite3"
+        database = self.directory / filename
+        base_digest = hashlib.sha256(raw).hexdigest()
+        previous_state = hashlib.sha256(previous["_raw"]).hexdigest() if previous else None
+        base_state = self._base_state(filename, base_digest, commit, generation, sequence)
         payload = dict(
             binding=self.binding,
             commit=commit,
             generation=generation,
-            database_sha256=hashlib.sha256(raw).hexdigest(),
+            database_sha256=base_digest,
+            base_filename=filename,
+            base_commit=commit,
+            base_generation=generation,
+            base_sequence=sequence,
+            sequence=sequence,
+            tail_hash=base_state,
+            tail_bytes=0,
+            base_previous_state=previous_state,
+            previous_state=previous_state,
         )
-        _atomic(self.database, raw)
+        _atomic(database, raw)
         checkpoint_raw = _json(
             dict(payload=payload, mac=hmac.digest(key, _json(payload), "sha256").hex())
         )
@@ -256,6 +299,205 @@ class HistoryIndex:
         connection.execute("PRAGMA query_only=ON")
         self.connection, self.frontier, self.generation = connection, commit, generation
         self.key, self.checkpoint_raw = key, checkpoint_raw
+        self.database, self.accepted = database, payload
+
+    def _signed(self, payload: dict) -> bytes:
+        if self.key is None:
+            self.fail("VERIFICATION_FAILED")
+        return _json(
+            dict(payload=payload, mac=hmac.digest(self.key, _json(payload), "sha256").hex())
+        )
+
+    @staticmethod
+    def _base_state(filename, digest_value, commit, generation, sequence):
+        return hashlib.sha256(
+            _json([filename, digest_value, commit, generation, sequence])
+        ).hexdigest()
+
+    def _base_path(self, payload):
+        name = payload["base_filename"]
+        if not isinstance(name, str) or not re.fullmatch(r"history-[0-9a-f]{32}\.sqlite3", name):
+            self.fail("INDEX_CORRUPT")
+        self.database = self.directory / name
+
+    def _delta_path(self, sequence: int) -> Path:
+        return self.directory / f"delta-{sequence:020d}.json"
+
+    def _delta_bytes(self, sequence: int) -> bytes:
+        try:
+            path = self._delta_path(sequence)
+            if path.stat().st_size > MAX_DELTA_BYTES:
+                self.fail("INDEX_CORRUPT")
+            with path.open("rb") as handle:
+                raw = handle.read(MAX_DELTA_BYTES + 1)
+            if len(raw) > MAX_DELTA_BYTES:
+                self.fail("INDEX_CORRUPT")
+            return raw
+        except OSError:
+            self.fail("INDEX_CORRUPT")
+
+    def _replay_deltas(self, connection, payload, previous=None):
+        start, end, size = payload["base_sequence"], payload["sequence"], payload["tail_bytes"]
+        if (
+            type(start) is not int
+            or type(end) is not int
+            or type(size) is not int
+            or start < 0
+            or not 0 <= end - start <= MAX_DELTAS
+            or not 0 <= size <= MAX_DELTA_BYTES
+        ):
+            self.fail("INDEX_CORRUPT")
+        key = payload["_key"]
+        state = {k: v for k, v in payload.items() if not k.startswith("_")}
+        if previous is None:
+            state.update(
+                commit=payload["base_commit"],
+                generation=payload["base_generation"],
+                sequence=start,
+                tail_bytes=0,
+                previous_state=payload["base_previous_state"],
+                tail_hash=self._base_state(
+                    payload["base_filename"],
+                    payload["database_sha256"],
+                    payload["base_commit"],
+                    payload["base_generation"],
+                    start,
+                ),
+            )
+        else:
+            state = dict(previous)
+            if not start <= state["sequence"] <= end:
+                self.fail("INDEX_STALE")
+        for sequence in range(state["sequence"] + 1, end + 1):
+            previous_raw = _json(
+                dict(payload=state, mac=hmac.digest(key, _json(state), "sha256").hex())
+            )
+            raw = self._delta_bytes(sequence)
+            if state["tail_bytes"] + len(raw) > size:
+                self.fail("INDEX_CORRUPT")
+            envelope = json.loads(raw)
+            delta = envelope["payload"]
+            if (
+                not hmac.compare_digest(
+                    envelope["mac"], hmac.digest(key, _json(delta), "sha256").hex()
+                )
+                or delta["binding"] != self.binding
+                or delta["sequence"] != sequence
+                or delta["previous"] != state["tail_hash"]
+                or delta["previous_state"] != hashlib.sha256(previous_raw).hexdigest()
+                or not isinstance(delta["writes"], list)
+                or raw != _json(dict(payload=delta, mac=envelope["mac"]))
+            ):
+                self.fail("INDEX_CORRUPT")
+            for item in delta["writes"]:
+                if not isinstance(item, list) or len(item) != 2:
+                    self.fail("INDEX_CORRUPT")
+                sql, parameters = checked_write(*item)
+                connection.execute(sql, parameters)
+            state.update(
+                commit=delta["commit"],
+                generation=delta["generation"],
+                sequence=sequence,
+                tail_hash=hashlib.sha256(raw).hexdigest(),
+                tail_bytes=state["tail_bytes"] + len(raw),
+                previous_state=hashlib.sha256(previous_raw).hexdigest(),
+            )
+        if state != {k: v for k, v in payload.items() if not k.startswith("_")}:
+            self.fail("INDEX_CORRUPT")
+
+    def refresh(self) -> None:
+        """Refresh another trusted writer's bounded same-base tail without copying SQLite."""
+        payload = self.anchor()
+        if payload is None:
+            self.fail("INDEX_MISSING")
+        previous = self.accepted
+        base_keys = (
+            "binding",
+            "base_filename",
+            "database_sha256",
+            "base_commit",
+            "base_generation",
+            "base_sequence",
+            "base_previous_state",
+        )
+        if previous is None or any(payload[key] != previous[key] for key in base_keys):
+            # A new immutable base is an explicit maintenance boundary, not an
+            # ordinary writer advancement. Authenticate its complete bytes once.
+            self.load()
+            return
+        if payload["_key"] != self.key or not isinstance(self.connection, ProjectionConnection):
+            self.fail("VERIFICATION_FAILED")
+        connection = self.connection
+        self.in_candidate = True
+        accepted = False
+        try:
+            connection.execute("PRAGMA query_only=OFF")
+            connection.execute("SAVEPOINT projection_refresh")
+            self._replay_deltas(connection, payload, previous)
+            oid = self.store.locate(payload["commit"], GENERATION)
+            if decode(self.store.blobs([oid])[oid]) != payload["generation"]:
+                self.fail("CANONICAL_STATE_CORRUPT")
+            connection.execute("RELEASE projection_refresh")
+            self.accepted = {k: v for k, v in payload.items() if not k.startswith("_")}
+            self.frontier, self.generation = payload["commit"], payload["generation"]
+            self.checkpoint_raw = payload["_raw"]
+            accepted = True
+        except (OSError, sqlite3.Error, ValueError, KeyError, TypeError, IndexError) as exc:
+            raise HistoryIndexError(self.boundary.contracts, "INDEX_CORRUPT") from exc
+        finally:
+            if not accepted:
+                connection.close()
+                self.connection = None
+            else:
+                connection.execute("PRAGMA query_only=ON")
+            self.in_candidate = False
+
+    def _prepare_delta(self, commit, generation, writes):
+        if self.accepted is None or self.checkpoint_raw is None:
+            self.fail("INDEX_MISSING")
+        old = self.accepted
+        delta = dict(
+            binding=self.binding,
+            sequence=old["sequence"] + 1,
+            previous=old["tail_hash"],
+            previous_state=hashlib.sha256(self.checkpoint_raw).hexdigest(),
+            commit=commit,
+            generation=generation,
+            writes=writes,
+        )
+        raw = self._signed(delta)
+        if (
+            old["sequence"] - old["base_sequence"] >= MAX_DELTAS
+            or old["tail_bytes"] + len(raw) > MAX_DELTA_BYTES
+        ):
+            self.fail("INDEX_COMPACTION_REQUIRED")
+        payload = dict(
+            old,
+            commit=commit,
+            generation=generation,
+            sequence=delta["sequence"],
+            tail_hash=hashlib.sha256(raw).hexdigest(),
+            tail_bytes=old["tail_bytes"] + len(raw),
+            previous_state=delta["previous_state"],
+        )
+        return raw, payload
+
+    def _publish_delta(self, connection, commit, generation):
+        self.coherent()
+        pending = self.pending
+        if pending is None:
+            self.fail("INDEX_STALE")
+        raw, payload = pending
+        if payload["commit"] != commit or payload["generation"] != generation:
+            self.fail("INDEX_STALE")
+        _atomic(self._delta_path(payload["sequence"]), raw)
+        checkpoint_raw = self._signed(payload)
+        _atomic(self.checkpoint, checkpoint_raw)
+        connection.writes = None
+        connection.execute("RELEASE projection_candidate")
+        connection.execute("PRAGMA query_only=ON")
+        self.accepted, self.frontier, self.generation = payload, commit, generation
+        self.checkpoint_raw, self.pending = checkpoint_raw, None
 
     def query(self, sql: str, parameters=()):
         if self.connection is None:
@@ -384,39 +626,90 @@ class HistoryIndex:
 
     def ensure(self, *, locked: bool = False) -> None:
         """Healthy lookup never traverses ancestry; only a changed ref catches up."""
+        if self.in_candidate:
+            self.fail("INDEX_STALE")
+        if self.connection is not None:
+            # Compact trust material is checked even when checkpoint bytes match.
+            self.enrollment_state()
+            try:
+                if self.key_path.read_bytes() != self.key:
+                    self.fail("VERIFICATION_FAILED")
+            except OSError:
+                self.fail("VERIFICATION_FAILED")
         self.store.require_complete()
         commit = self.store.resolve()
         if commit is None:
             self.fail("CANONICAL_STATE_CORRUPT")
-        if (
-            self.connection is None
-            or not self.checkpoint.exists()
-            or self.checkpoint.read_bytes() != self.checkpoint_raw
-        ):
+        if self.connection is None:
             self.load()
+        elif not self.checkpoint.exists() or self.checkpoint.read_bytes() != self.checkpoint_raw:
+            self.refresh()
         if commit == self.frontier:
             return
         if not locked:
             with self.store.writer():
                 self.ensure(locked=True)
             return
-        self.coherent()
-        from .verification import TransitionVerifier
+        with self.candidate(commit) as (connection, generation):
+            self.publish(connection, commit, generation)
 
-        changes = self.store.changes(self.frontier, commit)
-        connection = self.fork()
-        generation = TransitionVerifier(self.repository, connection).verify(changes)
-        self.publish(connection, commit, generation)
-
+    @contextmanager
     def candidate(self, commit: str):
         from .verification import TransitionVerifier
 
         self.coherent()
-        connection = self.fork()
-        verifier = TransitionVerifier(self.repository, connection)
-        verifier.index.blob_cache = self.blob_cache
-        generation = verifier.verify(self.store.changes(self.frontier, commit))
-        return connection, generation
+        if self.in_candidate or not isinstance(self.connection, ProjectionConnection):
+            self.fail("INDEX_STALE")
+        if (
+            self.accepted is None
+            or self.accepted["sequence"] - self.accepted["base_sequence"] >= MAX_DELTAS
+        ):
+            self.fail("INDEX_COMPACTION_REQUIRED")
+        connection = self.connection
+        self.in_candidate = True
+        accepted = False
+        try:
+            connection.execute("PRAGMA query_only=OFF")
+            connection.execute("SAVEPOINT projection_candidate")
+            connection.writes = []
+            verifier = TransitionVerifier(self.repository, connection)
+            verifier.index.blob_cache = self.blob_cache
+            generation = verifier.verify(self.store.changes(self.frontier, commit))
+            self.pending = self._prepare_delta(commit, generation, connection.writes)
+            yield connection, generation
+            if self.pending is not None:
+                self.fail("INDEX_STALE")
+            accepted = True
+        finally:
+            connection.writes = None
+            if not accepted:
+                try:
+                    connection.execute("ROLLBACK TO projection_candidate")
+                    connection.execute("RELEASE projection_candidate")
+                except sqlite3.Error:
+                    pass
+                # Even an atomic replace that succeeds then raises must reload its
+                # exact accepted bytes; never reuse a tentative or uncertain view.
+                connection.close()
+                self.connection = None
+            else:
+                connection.execute("PRAGMA query_only=ON")
+            self.pending, self.in_candidate = None, False
+
+    def compact(self) -> dict[str, object]:
+        """Explicit trusted maintenance; never called by an ordinary mutation."""
+        self.ensure(locked=True)
+        self.coherent()
+        if self.connection is None or self.frontier is None or self.generation is None:
+            self.fail("INDEX_MISSING")
+        commit, generation = self.frontier, self.generation
+        self.publish(self.connection, commit, generation)
+        return dict(
+            status="compacted",
+            source_commit=commit,
+            generation=generation,
+            database_bytes=self.database.stat().st_size,
+        )
 
     def rebuild(self) -> dict[str, object]:
         """Explicit trusted caller owns writer lock; existing rollback anchor survives."""
@@ -468,39 +761,38 @@ class HistoryIndex:
         changes = self.store.changes(None, commit)
         generation = TransitionVerifier(self.repository, connection).verify(changes)
         diagnostic = "INDEX_MISSING"
-        if self.database.exists():
-            try:
-                self.load()
-                if self.connection is None:
-                    self.fail("INDEX_MISSING")
-                diagnostic = "INDEX_STALE" if self.frontier != commit else "OK"
-                if self.frontier == commit:
-                    for table in (
-                        "files",
-                        "resources",
-                        "revisions",
-                        "definitions",
-                        "memberships",
-                        "receipts",
-                        "operation_keys",
-                        "replay_scopes",
-                        "endpoints",
-                        "effects",
-                        "legacy",
-                        "immutable",
-                        "commits",
-                    ):
-                        expected = sorted(
-                            connection.execute(f"SELECT * FROM {table}").fetchall(), key=repr
-                        )
-                        actual = sorted(
-                            self.connection.execute(f"SELECT * FROM {table}").fetchall(), key=repr
-                        )
-                        if actual != expected:
-                            diagnostic = "INDEX_CORRUPT"
-                            break
-            except HistoryIndexError as exc:
-                diagnostic = exc.category
+        try:
+            self.load()
+            if self.connection is None:
+                self.fail("INDEX_MISSING")
+            diagnostic = "INDEX_STALE" if self.frontier != commit else "OK"
+            if self.frontier == commit:
+                for table in (
+                    "files",
+                    "resources",
+                    "revisions",
+                    "definitions",
+                    "memberships",
+                    "receipts",
+                    "operation_keys",
+                    "replay_scopes",
+                    "endpoints",
+                    "effects",
+                    "legacy",
+                    "immutable",
+                    "commits",
+                ):
+                    expected = sorted(
+                        connection.execute(f"SELECT * FROM {table}").fetchall(), key=repr
+                    )
+                    actual = sorted(
+                        self.connection.execute(f"SELECT * FROM {table}").fetchall(), key=repr
+                    )
+                    if actual != expected:
+                        diagnostic = "INDEX_CORRUPT"
+                        break
+        except HistoryIndexError as exc:
+            diagnostic = exc.category
         return dict(
             status="verified",
             source_commit=commit,

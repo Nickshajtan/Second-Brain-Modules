@@ -6,15 +6,18 @@ from __future__ import annotations
 # ruff: noqa: B023
 import argparse
 import copy
+import cProfile
 import hashlib
 import json
+import os
 import platform
+import pstats
 import sqlite3
 import subprocess
 import sys
 import tempfile
 import time
-from contextlib import suppress
+from contextlib import ExitStack, suppress
 from dataclasses import replace
 from functools import partial
 from pathlib import Path
@@ -781,6 +784,452 @@ def node_mutation(args):
     save()
 
 
+def hardening_measure(app, name, callback, limit, mode="warm"):
+    """Observe real SQLite serialization, full database hashes and derived writes.
+
+    File bytes are Python write payloads, not hardware-sector writes or fsync
+    durability. CPU is this Python process only, excluding child Git CPU.
+    """
+    writes, descriptors, hashes, components = [], {}, [], {}
+    original_open, original_fdopen, sha256 = os.open, os.fdopen, hashlib.sha256
+    directory = app.history_index.directory.resolve()
+
+    def opened(path, flags, *args, **kwargs):
+        descriptor = original_open(path, flags, *args, **kwargs)
+        if isinstance(path, (str, os.PathLike)):
+            candidate = Path(path).resolve()
+            if candidate.is_relative_to(directory):
+                descriptors[descriptor] = candidate.name
+        return descriptor
+
+    class Writer:
+        def __init__(self, handle, name):
+            self.handle, self.name = handle, name
+
+        def __getattr__(self, name):
+            return getattr(self.handle, name)
+
+        def __enter__(self):
+            self.handle.__enter__()
+            return self
+
+        def __exit__(self, *args):
+            return self.handle.__exit__(*args)
+
+        def write(self, raw):
+            result = self.handle.write(raw)
+            writes.append(dict(file=self.name, bytes=result))
+            return result
+
+    def fdopened(descriptor, *args, **kwargs):
+        handle = original_fdopen(descriptor, *args, **kwargs)
+        name = descriptors.pop(descriptor, None)
+        return Writer(handle, name) if name else handle
+
+    def hashed(raw=b"", *args, **kwargs):
+        if (
+            isinstance(raw, (bytes, bytearray, memoryview))
+            and bytes(raw[:16]) == b"SQLite format 3\x00"
+        ):
+            hashes.append(len(raw))
+        return sha256(raw, *args, **kwargs)
+
+    def timed(owner, method, label):
+        original = getattr(owner, method)
+
+        def observed(*args, **kwargs):
+            wall, cpu = time.perf_counter(), time.process_time()
+            try:
+                return original(*args, **kwargs)
+            finally:
+                metric = components.setdefault(
+                    label, dict(calls=0, wall_seconds=0.0, python_cpu_seconds=0.0)
+                )
+                metric["calls"] += 1
+                metric["wall_seconds"] += time.perf_counter() - wall
+                metric["python_cpu_seconds"] += time.process_time() - cpu
+
+        return patch.object(owner, method, observed)
+
+    profile = cProfile.Profile()
+    original_connection = app.history_index.connection
+    changes_before = original_connection.total_changes if original_connection is not None else None
+    cpu = time.process_time()
+    with (
+        patch.object(os, "open", opened),
+        patch.object(os, "fdopen", fdopened),
+        patch.object(hashlib, "sha256", hashed),
+        ExitStack() as stack,
+    ):
+        from second_brain_core.history_index import HistoryIndex
+
+        for owner, method, label in (
+            (GitStore, "prepare_delta", "git_prepare_delta"),
+            (Core, "_next_generation", "generation_path_digest"),
+            (Core, "_mutation_context", "authorization_dependencies"),
+            (TransitionVerifier, "verify", "incremental_verification"),
+            (HistoryIndex, "publish", "derived_publication"),
+            (HistoryIndex, "coherent", "frontier_coherence"),
+        ):
+            stack.enter_context(timed(owner, method, label))
+        profile.enable()
+        try:
+            row = optimized_measure(app, name, mode, callback, limit)
+        finally:
+            profile.disable()
+    serializations = sum(
+        count
+        for (_, _, function), (_, count, _, _, _) in pstats.Stats(profile).stats.items()
+        if "serialize" in function
+        and "deserialize" not in function
+        and "sqlite3.Connection" in function
+    )
+    copies = sum(
+        count
+        for (_, _, function), (_, count, _, _, _) in pstats.Stats(profile).stats.items()
+        if "backup" in function and "sqlite3.Connection" in function
+    )
+    deserializations = sum(
+        count
+        for (_, _, function), (_, count, _, _, _) in pstats.Stats(profile).stats.items()
+        if "deserialize" in function and "sqlite3.Connection" in function
+    )
+    row.update(
+        python_cpu_seconds=round(time.process_time() - cpu, 6),
+        components=components,
+        full_sqlite_serializations=serializations,
+        full_sqlite_backups=copies,
+        full_sqlite_deserializations=deserializations,
+        projection_rows_changed=(original_connection.total_changes - changes_before)
+        if original_connection is not None
+        and original_connection is app.history_index.connection
+        and changes_before is not None
+        else None,
+        projection_row_count_scope="same private connection; changed connection/rebuild reports null",
+        full_sqlite_hash_calls=len(hashes),
+        full_sqlite_hash_bytes=sum(hashes),
+        derived_bytes_written=sum(write["bytes"] for write in writes),
+        sqlite_snapshot_bytes_written=sum(
+            write["bytes"] for write in writes if ".sqlite3" in write["file"]
+        ),
+        authenticated_delta_bytes_written=sum(
+            write["bytes"] for write in writes if write["file"].startswith("delta-")
+        ),
+        checkpoint_bytes_written=sum(
+            write["bytes"] for write in writes if write["file"].startswith("checkpoint.json")
+        ),
+        derived_writes=writes,
+        derived_directory_bytes=sum(p.stat().st_size for p in directory.rglob("*") if p.is_file()),
+    )
+    return row
+
+
+def mutation_hardening(args):
+    """M2.2.1 fixed corpus and repeated API workloads; no wall-clock gates."""
+    from second_brain_core import maintenance
+
+    contracts, rows = ContractValidator(), []
+    runtime = ROOT / "packages/python/second_brain_core"
+
+    def fingerprint():
+        return hashlib.sha256(
+            b"".join(p.name.encode() + p.read_bytes() for p in sorted(runtime.glob("*.py")))
+        ).hexdigest()
+
+    report = dict(
+        milestone="M2.2.1",
+        comparison_baseline_artifact="docs/engineering/history-performance-m221-baseline.json",
+        comparison_baseline_sha256=hashlib.sha256(
+            (ROOT / "docs/engineering/history-performance-m221-baseline.json").read_bytes()
+        ).hexdigest(),
+        runtime_sha256=fingerprint(),
+        harness_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        contracts_sha256=hashlib.sha256(
+            json.dumps(contracts.schemas, sort_keys=True).encode()
+        ).hexdigest(),
+        python=platform.python_version(),
+        platform=platform.platform(),
+        git=subprocess.check_output(["git", "--version"], text=True).strip(),
+        measurement_notes=[
+            "Instrumented elapsed times; Python CPU excludes Git subprocess CPU.",
+            "Derived write bytes count Python fdopen write payloads, not physical sector writes.",
+            "Peak memory is process-lifetime working set including corpus construction and rebuild.",
+            "p99 requires at least 1000 samples; n=100 supports p50/p95 only.",
+            "Request construction, generation lookup and postcondition reads are outside submit measurement.",
+        ],
+        rows=rows,
+        summaries=[],
+    )
+
+    def save():
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+
+    for size in args.sizes:
+        if size < 20:
+            raise ValueError("Mutation corpus needs at least twenty generations")
+        with tempfile.TemporaryDirectory(prefix="second-brain-m221-benchmark-") as directory:
+            app, cluster = core_fixture.__wrapped__(Path(directory), contracts)
+            principal = app.context.principal
+            app = Core(
+                replace(
+                    app.context,
+                    principal=replace(
+                        principal,
+                        grants=principal.grants
+                        | frozenset(
+                            (cluster, action) for action in ("node.update", "node.history.read")
+                        ),
+                    ),
+                ),
+                app.store,
+                contracts,
+            )
+            first = batch(app, cluster)
+            creation_receipt = app.submit(first)
+            hot = first["operations"][0]["request_id"]
+            records = extend_mutations(app, cluster, size - 2, hot)
+            hot_initial = records["node", hot]["revision"]
+            receipt_count = sum(
+                path.startswith("control/receipts/") for path in app.store.read(app.store.resolve())
+            )
+
+            def record(name, callback, mode="warm", **metadata):
+                row = dict(
+                    commits_at_corpus_start=size,
+                    hot_revisions_at_corpus_start=hot_initial,
+                    receipts_at_corpus_start=receipt_count,
+                    corpus_mix="bootstrap plus first creation batch; every twentieth bulk commit creates two Nodes and Relation, offset ten updates hot Node; other commits generation-only",
+                    **metadata,
+                    **hardening_measure(app, name, callback, args.git_budget, mode),
+                )
+                rows.append(row)
+                save()
+                print(json.dumps(row), flush=True)
+                if row["status"] != "complete":
+                    raise RuntimeError("Benchmark failed; partial evidence saved")
+                return row
+
+            record(
+                "initial_full_rebuild",
+                lambda: rebuild_history_index(app),
+                mode="explicit_full_rebuild",
+            )
+
+            def head(identifier):
+                return app.boundary.dump(
+                    "transaction", app.read(operation(app, "node.read", {"node_id": identifier}))
+                )["records"][0]
+
+            def compact():
+                return maintenance.compact_history_index(app)
+
+            profile_head = head(hot)
+            profile_request = mutation_request(
+                app,
+                hot,
+                dict(profile_head["content"], title="profile measured replacement"),
+                profile_head["revision"],
+                app.generation(),
+            )
+            record(
+                "baseline_matched_update",
+                lambda: app.submit(profile_request),
+                target_revision_before=profile_head["revision"],
+            )
+            record("node_read", lambda: app.read(operation(app, "node.read", {"node_id": hot})))
+            relation = first["operations"][2]["payload"]["relation"]["id"]
+            record(
+                "relation_read",
+                lambda: app.read(operation(app, "relation.read", {"relation_id": relation})),
+            )
+            record("generation", app.generation)
+            create_request = batch(app, cluster)
+            create_request["operations"] = create_request["operations"][:1]
+            record("bounded_create", lambda: app.submit(create_request))
+            record("exact_create_replay", lambda: app.submit(create_request))
+            last_request = last_receipt = None
+            samples = (
+                args.hardening_samples
+                if args.hardening_samples is not None
+                else (1000 if size >= 10000 else 100)
+            )
+            targets = [identifier for (kind, identifier) in records if kind == "node"]
+            for workload, identifiers in (
+                ("hot_node_update", [hot] * samples),
+                ("distributed_node_update", targets[:10]),
+            ):
+                measured = []
+                for position, identifier in enumerate(identifiers):
+                    before = head(identifier)
+                    content = dict(before["content"], title=f"{workload} {position}")
+                    request = mutation_request(
+                        app, identifier, content, before["revision"], app.generation()
+                    )
+                    captured = []
+
+                    def submit():
+                        receipt = app.submit(request)
+                        captured.append(receipt)
+                        return receipt
+
+                    row = record(
+                        workload, submit, sample=position, target_revision_before=before["revision"]
+                    )
+                    assert head(identifier)["revision"] == before["revision"] + 1
+                    measured.append(row)
+                    last_request, last_receipt = request, captured[0]
+                times = sorted(row["elapsed_seconds"] for row in measured)
+                import math
+
+                def percentile(fraction):
+                    return times[math.ceil(len(times) * fraction) - 1]
+
+                report["summaries"].append(
+                    dict(
+                        commits_at_corpus_start=size,
+                        operation=workload,
+                        samples=len(times),
+                        successful_updates_per_second=len(times) / sum(times),
+                        minimum_seconds=min(times),
+                        maximum_seconds=max(times),
+                        p50_seconds=percentile(0.5) if len(times) >= 100 else None,
+                        p95_seconds=percentile(0.95) if len(times) >= 100 else None,
+                        p99_seconds=percentile(0.99) if len(times) >= 1000 else None,
+                        p99_limitation=None if len(times) >= 1000 else "insufficient tail coverage",
+                    )
+                )
+                save()
+            commit = app.store.resolve()
+            record("exact_update_replay", lambda: app.submit(last_request))
+            assert app.submit(last_request) == last_receipt and app.store.resolve() == commit
+            record("creation_replay_after_updates", lambda: app.submit(first))
+            assert app.submit(first) == creation_receipt
+            original = next(
+                r
+                for (kind, _), r in records.items()
+                if kind == "node_revision" and r["node_id"] == hot and r["logical_revision"] == 1
+            )
+            reference = dict(
+                resource=dict(instance_id=app.context.instance_id, resource_kind="node", id=hot),
+                revision_id=original["id"],
+                revision=1,
+            )
+            history_request = operation(app, "node.revision.read", {"revision": reference})
+            record("historical_revision_one", lambda: app.read(history_request))
+            before = head(hot)
+            request = mutation_request(
+                app,
+                hot,
+                dict(before["content"], title="mixed batch replacement"),
+                before["revision"],
+                app.generation(),
+            )
+            create = batch(app, cluster)["operations"][0]
+            request["operations"].append(create)
+            record("mixed_create_update_batch", lambda: app.submit(request))
+            if size >= 10000 and args.hardening_samples is None:
+                from second_brain_core.history_index import MAX_DELTAS
+
+                while (
+                    app.history_index.accepted["sequence"]
+                    - app.history_index.accepted["base_sequence"]
+                ) < MAX_DELTAS:
+                    before = head(hot)
+                    request = mutation_request(
+                        app,
+                        hot,
+                        dict(before["content"], title=f"tail capacity {before['revision']}"),
+                        before["revision"],
+                        app.generation(),
+                    )
+                    record("tail_capacity_fill_update", lambda: app.submit(request))
+                report["maximum_tail_observation"] = dict(
+                    transitions=MAX_DELTAS,
+                    authenticated_tail_bytes=app.history_index.accepted["tail_bytes"],
+                )
+                before = head(hot)
+                request = mutation_request(
+                    app,
+                    hot,
+                    dict(before["content"], title="capacity rejection"),
+                    before["revision"],
+                    app.generation(),
+                )
+                accepted_commit = app.store.resolve()
+
+                def capacity_rejection():
+                    try:
+                        app.submit(request)
+                    except CoreError as exc:
+                        assert exc.code == "REPAIR_REQUIRED", exc.code
+                        assert app.store.resolve() == accepted_commit
+                        return exc.code
+                    raise AssertionError("Full projection tail accepted another mutation")
+
+                record("tail_capacity_rejection", capacity_rejection)
+
+            def restart():
+                nonlocal app
+                app = Core(app.context, GitStore(app.store.repository, app.store.ref), contracts)
+                return app.generation()
+
+            record("cold_restart", restart, mode="cold_restart")
+            record("explicit_compaction", compact, mode="explicit_compaction")
+            record("restart_after_compaction", restart, mode="cold_restart")
+            reader = Core(app.context, GitStore(app.store.repository, app.store.ref), contracts)
+            reader.generation()
+            before = head(hot)
+            accepted_request = mutation_request(
+                app,
+                hot,
+                dict(before["content"], title="accepted frontier catch-up"),
+                before["revision"],
+                app.generation(),
+            )
+            app.submit(accepted_request)
+            writer, app = app, reader
+            record("accepted_frontier_catch_up", app.generation, mode="accepted_frontier_catch_up")
+            assert app.generation() == writer.generation()
+            reader = writer
+            before = head(hot)
+            request = mutation_request(
+                app,
+                hot,
+                dict(before["content"], title="catch-up mutation"),
+                before["revision"],
+                app.generation(),
+            )
+            with patch.object(
+                app.history_index,
+                "publish",
+                side_effect=OSError("benchmark derived publication interruption"),
+            ):
+                try:
+                    app.submit(request)
+                except CoreError as exc:
+                    assert exc.code == "REPAIR_REQUIRED", exc.code
+                else:
+                    raise AssertionError("Injected derived publication interruption was ignored")
+            old_app, app = app, reader
+            record("incremental_catch_up", app.generation, mode="recovery_catch_up")
+            assert app.generation() == old_app.generation()
+            record(
+                "final_full_rebuild",
+                lambda: rebuild_history_index(app),
+                mode="explicit_full_rebuild",
+            )
+    report["runtime_unchanged_during_measurement"] = report["runtime_sha256"] == fingerprint()
+    report["harness_unchanged_during_measurement"] = (
+        report["harness_sha256"] == hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+    )
+    report["contracts_unchanged_during_measurement"] = (
+        report["contracts_sha256"]
+        == hashlib.sha256(json.dumps(contracts.schemas, sort_keys=True).encode()).hexdigest()
+    )
+    save()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--sizes", nargs="+", type=int, default=[100, 1000, 10000])
@@ -788,7 +1237,12 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--optimized", action="store_true")
     parser.add_argument("--node-mutation", action="store_true")
+    parser.add_argument("--mutation-hardening", action="store_true")
+    parser.add_argument("--hardening-samples", type=int, default=None)
     args = parser.parse_args()
+    if args.mutation_hardening:
+        mutation_hardening(args)
+        return
     if args.node_mutation:
         node_mutation(args)
         return

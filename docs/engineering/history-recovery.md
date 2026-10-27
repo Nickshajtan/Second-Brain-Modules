@@ -1,5 +1,85 @@
 # History operations and recovery
 
+Current M2.2.1 projection persistence follows
+[ADR-013](../architecture/decisions/ADR-013-incremental-derived-index.md) and the
+[mutation hardening design](../core/m2-2-1-mutation-hardening.md). The older
+whole-database replacement boundaries below describe M2.1.1; the current procedure
+and supersession are explicit in the following section.
+
+## M2.2.1 bounded projection operation
+
+Git remains canonical. Authentication format 3 stores uniquely named immutable
+`history-<uuid>.sqlite3` bases, `delta-<sequence>.json` derived metadata deltas,
+`checkpoint.json`, `checkpoint.key` and signed `enrollment.json` in the same
+ref-scoped trusted directory. Runtime never opens mutable disk SQLite or WAL;
+it authenticates exact base bytes and every accepted tail delta into private memory.
+No agent filesystem interface or public operation discriminator is added.
+
+Batched Git hashing briefly stages exact canonical bytes in the trusted Core
+account's OS temporary directory. That directory needs the same agent isolation
+as Git and the projection; do not use an agent-visible shared directory or vault.
+Interrupted processes may leave unpublished temporary files. They are not
+historical authority, and logical cleanup does not establish physical erasure.
+
+The signed terminal checkpoint authenticates the complete base and exact accepted
+tail sequence/hash, previous state and source Git generation. Removing a Membership,
+receipt or key row in disk SQLite cannot change trusted private negative lookups;
+restart rejects it. Missing, truncated, reordered or modified anchored deltas are
+not interpreted as absent domain state. A partially written next delta is unaccepted
+and may be replaced only after verified canonical catch-up under the writer lock.
+
+An ordinary successful mutation writes only its captured fixed-table delta and
+compact checkpoint after Git CAS. It never clones, serializes, hashes or rewrites
+the complete projection. Warm reads still pin one verified generation and evaluate
+current capabilities independently. Old immutable disk base/tail corruption does
+not change already authenticated memory; detection occurs at restart, explicit
+audit/rebuild or bounded access to the journal head. This supersedes the older
+pre-write full-file hash timing, without permitting consumption or signing of
+unsigned disk rows.
+
+Other trusted writers' same-base advancements refresh only newly authenticated
+deltas into the existing private connection. Replacing the base through explicit
+compaction/rebuild causes a complete authenticated cold load. Do not pretty-print
+or otherwise rewrite format-3 signed checkpoint/delta files: their canonical exact
+bytes participate in the previous-state chain. Operator edits are rejected rather
+than producing a subsequently unreplayable projection.
+
+The hard online tail budgets are 1,024 projection advancements and 16 MiB encoded
+deltas. Count capacity is checked early and exact candidate size before Git CAS.
+Exhaustion fails with sanitized `REPAIR_REQUIRED`; trusted diagnostics identify
+`INDEX_COMPACTION_REQUIRED` and recommend explicit compaction/rebuild. Exact receipt
+replay may still complete without a new advancement. A large external catch-up
+that exceeds the budget requires explicit full rebuild; no hidden full snapshot
+is performed by reads or mutation.
+
+```python
+from second_brain_core import compact_history_index, rebuild_history_index
+
+result = compact_history_index(core)  # Existing trusted bootstrap/recovery authority.
+# result["status"] == "compacted" on success; canonical Git is untouched.
+# Use explicit full rebuild when the index is damaged or catch-up exceeds capacity.
+recovery = rebuild_history_index(core)
+```
+
+Compaction checks the accepted current Git/source fence, writes and flushes a new
+immutable base, then atomically switches the signed checkpoint. Old referenced
+bases are never overwritten. Crash before the switch retains the old base/tail;
+crash afterward permits loading the complete new base. Old derived files are
+retained rather than automatically removed; monitor disk space and preserve them
+until operator-reviewed disposal. This milestone does not provide a cleanup engine.
+Compaction/startup remain O(base bytes); restart replays at most the bounded tail.
+Rebuild and full audit remain O(retained canonical history).
+
+Existing format-1/2 instances require explicit trusted rebuild, which authenticates
+the old signed binding/key and accepted Git commit fence before full verification
+and format-3 publication. A mixed interrupted upgrade cannot authorize ordinary
+reads; explicit rebuild may retry using the preserved authenticated fence and key.
+Missing key/enrollment/checkpoint is never permission to reset trust or reenroll.
+Backups must retain canonical Git ancestry and protected local trust material;
+SQLite bases/deltas remain disposable with the anchor preserved. Physical flush
+durability, backup coherence, Windows ACL isolation and privileged replacement of
+all Git/key/anchor state remain outside the local process guarantees.
+
 This is trusted-host guidance for the [M2.1.1 design](../core/m2-1-1-history-hardening.md),
 not an agent filesystem interface. Runtime/test status is in the
 [validation report](../core/m2-1-1-validation.md).

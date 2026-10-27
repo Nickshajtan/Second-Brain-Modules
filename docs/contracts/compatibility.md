@@ -1,5 +1,23 @@
 # Compatibility contract
 
+## M2.2.1 derived persistence hardening
+
+The [M2.2.1 design](../core/m2-2-1-mutation-hardening.md) changes derived
+persistence only; public operation shapes, canonical revisions, original receipt
+identities and current authorization semantics remain unchanged. Its format-3
+upgrade must explicitly authenticate the old format-1/2 trust material and retain
+the accepted Git frontier and key before full verification and adoption. Ordinary
+reads must not silently migrate or reenroll. Actual implementation and validation
+status is recorded in the [milestone evidence](../core/m2-2-1-validation.md).
+
+The implemented authenticated immutable base and bounded delta tail preserve the
+private-memory lookup boundary. Warm operations do not hash the whole disk base;
+damage to already authenticated backing bytes is detected on restart or explicit
+verification rather than necessarily at the next warm write. Those disk bytes
+cannot modify the private connection or become a source of newly signed rows.
+This detection-timing change is explicit, not a claim of unchanged operational
+diagnostic timing or protection against privileged replacement of all trust state.
+
 ## M2.2 Node runtime and derived-format compatibility
 
 M2.2 reuses existing `NodeUpdate`, `NodeRevisionRead`, `NodeRevision.previous`,

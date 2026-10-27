@@ -1,0 +1,706 @@
+{
+  "rows": [
+    {
+      "size": 100,
+      "hot_revisions": 6,
+      "rebuild_seconds": 2.152305499999784,
+      "elapsed_seconds": 1.710896499978844,
+      "cpu_seconds": 0.453125,
+      "database_before": 282624,
+      "database_after": 282624,
+      "full_database_serializations": 2,
+      "serialized_bytes": 565248,
+      "full_database_read_hash_bytes": 565248,
+      "writes": [
+        {
+          "name": "history.sqlite3",
+          "bytes": 282624
+        },
+        {
+          "name": "checkpoint.json",
+          "bytes": 838
+        }
+      ],
+      "components": {
+        "coherent_full_disk_hash": {
+          "calls": 2,
+          "wall": 0.004104299994651228,
+          "cpu": 0.0
+        },
+        "authorization_dependencies": {
+          "calls": 1,
+          "wall": 0.3364551999839023,
+          "cpu": 0.09375
+        },
+        "generation_path_digest": {
+          "calls": 1,
+          "wall": 0.00048480002442374825,
+          "cpu": 0.0
+        },
+        "git_prepare_delta": {
+          "calls": 1,
+          "wall": 0.5122396000078879,
+          "cpu": 0.09375
+        },
+        "fork_serialize_deserialize": {
+          "calls": 1,
+          "wall": 0.0002805000403895974,
+          "cpu": 0.0
+        },
+        "incremental_verification": {
+          "calls": 1,
+          "wall": 0.18335240002488717,
+          "cpu": 0.125
+        },
+        "candidate_total": {
+          "calls": 1,
+          "wall": 0.32060710003133863,
+          "cpu": 0.125
+        },
+        "publish_full_projection": {
+          "calls": 1,
+          "wall": 0.09481989999767393,
+          "cpu": 0.015625
+        }
+      },
+      "git_processes": 31,
+      "git": [
+        {
+          "command": "rev-parse",
+          "elapsed": 0.043868400040082633
+        },
+        {
+          "command": "for-each-ref",
+          "elapsed": 0.04199589998461306
+        },
+        {
+          "command": "rev-parse",
+          "elapsed": 0.0447514999541454
+        },
+        {
+          "command": "rev-parse",
+          "elapsed": 0.04326120001496747
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.043340399977751076
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.042432599992025644
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.050686400034464896
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.04278340004384518
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.041147799987811595
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.042561600042972714
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.04082009999547154
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.04088370001409203
+        },
+        {
+          "command": "read-tree",
+          "elapsed": 0.05014770000707358
+        },
+        {
+          "command": "hash-object",
+          "elapsed": 0.046403199958149344
+        },
+        {
+          "command": "hash-object",
+          "elapsed": 0.04888639994896948
+        },
+        {
+          "command": "hash-object",
+          "elapsed": 0.04510749998735264
+        },
+        {
+          "command": "hash-object",
+          "elapsed": 0.04509559995494783
+        },
+        {
+          "command": "hash-object",
+          "elapsed": 0.04579530004411936
+        },
+        {
+          "command": "hash-object",
+          "elapsed": 0.04475489998003468
+        },
+        {
+          "command": "update-index",
+          "elapsed": 0.06114300002809614
+        },
+        {
+          "command": "write-tree",
+          "elapsed": 0.07224399998085573
+        },
+        {
+          "command": "commit-tree",
+          "elapsed": 0.051050999958533794
+        },
+        {
+          "command": "rev-parse",
+          "elapsed": 0.041131700039841235
+        },
+        {
+          "command": "rev-list",
+          "elapsed": 0.046890400000847876
+        },
+        {
+          "command": "diff-tree",
+          "elapsed": 0.044242699979804456
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.04389279999304563
+        },
+        {
+          "command": "for-each-ref",
+          "elapsed": 0.044890399964060634
+        },
+        {
+          "command": "rev-parse",
+          "elapsed": 0.04482309997547418
+        },
+        {
+          "command": "update-ref",
+          "elapsed": 0.06361299997661263
+        },
+        {
+          "command": "for-each-ref",
+          "elapsed": 0.041801100014708936
+        },
+        {
+          "command": "rev-parse",
+          "elapsed": 0.043521600018721074
+        }
+      ],
+      "python_profile": [
+        {
+          "file": "C:\\Python312\\Lib\\pathlib.py",
+          "line": 1015,
+          "name": "read_bytes",
+          "calls": 14,
+          "self_seconds": 5.3200000000000006e-05,
+          "cumulative_seconds": 0.0026794
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'serialize' of 'sqlite3.Connection' objects>",
+          "calls": 2,
+          "self_seconds": 0.00043440000000000004,
+          "cumulative_seconds": 0.00043440000000000004
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'deserialize' of 'sqlite3.Connection' objects>",
+          "calls": 1,
+          "self_seconds": 8.130000000000001e-05,
+          "cumulative_seconds": 8.130000000000001e-05
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<built-in method _hashlib.openssl_sha256>",
+          "calls": 28,
+          "self_seconds": 0.0027441,
+          "cumulative_seconds": 0.0027441
+        }
+      ],
+      "peak_working_set": 61853696,
+      "full_database_publish_hash_bytes": 282624,
+      "full_database_total_hash_bytes": 847872
+    },
+    {
+      "size": 1000,
+      "hot_revisions": 51,
+      "rebuild_seconds": 14.33459360001143,
+      "elapsed_seconds": 1.7698713999707252,
+      "cpu_seconds": 0.375,
+      "database_before": 1613824,
+      "database_after": 1613824,
+      "full_database_serializations": 2,
+      "serialized_bytes": 3227648,
+      "full_database_read_hash_bytes": 3227648,
+      "writes": [
+        {
+          "name": "history.sqlite3",
+          "bytes": 1613824
+        },
+        {
+          "name": "checkpoint.json",
+          "bytes": 838
+        }
+      ],
+      "components": {
+        "coherent_full_disk_hash": {
+          "calls": 2,
+          "wall": 0.013308600056916475,
+          "cpu": 0.015625
+        },
+        "authorization_dependencies": {
+          "calls": 1,
+          "wall": 0.3592476000194438,
+          "cpu": 0.046875
+        },
+        "generation_path_digest": {
+          "calls": 1,
+          "wall": 0.0029728999943472445,
+          "cpu": 0.0
+        },
+        "git_prepare_delta": {
+          "calls": 1,
+          "wall": 0.5014312999555841,
+          "cpu": 0.03125
+        },
+        "fork_serialize_deserialize": {
+          "calls": 1,
+          "wall": 0.00178980000782758,
+          "cpu": 0.0
+        },
+        "incremental_verification": {
+          "calls": 1,
+          "wall": 0.2057572000194341,
+          "cpu": 0.140625
+        },
+        "candidate_total": {
+          "calls": 1,
+          "wall": 0.35650599998189136,
+          "cpu": 0.15625
+        },
+        "publish_full_projection": {
+          "calls": 1,
+          "wall": 0.1038964000181295,
+          "cpu": 0.0
+        }
+      },
+      "git_processes": 31,
+      "git": [
+        {
+          "command": "rev-parse",
+          "elapsed": 0.04089840000960976
+        },
+        {
+          "command": "for-each-ref",
+          "elapsed": 0.041889999993145466
+        },
+        {
+          "command": "rev-parse",
+          "elapsed": 0.04437990003498271
+        },
+        {
+          "command": "rev-parse",
+          "elapsed": 0.04521419998491183
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.042400000034831464
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.0472721999976784
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.05688820005161688
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.04543609998654574
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.04108369996538386
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.045041399949695915
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.044549599988386035
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.045201400003861636
+        },
+        {
+          "command": "read-tree",
+          "elapsed": 0.05340169998817146
+        },
+        {
+          "command": "hash-object",
+          "elapsed": 0.04716550000011921
+        },
+        {
+          "command": "hash-object",
+          "elapsed": 0.04656139999860898
+        },
+        {
+          "command": "hash-object",
+          "elapsed": 0.047983799944631755
+        },
+        {
+          "command": "hash-object",
+          "elapsed": 0.042171399982180446
+        },
+        {
+          "command": "hash-object",
+          "elapsed": 0.044360100000631064
+        },
+        {
+          "command": "hash-object",
+          "elapsed": 0.046241700008977205
+        },
+        {
+          "command": "update-index",
+          "elapsed": 0.045997000008355826
+        },
+        {
+          "command": "write-tree",
+          "elapsed": 0.07284019998041913
+        },
+        {
+          "command": "commit-tree",
+          "elapsed": 0.053147300030104816
+        },
+        {
+          "command": "rev-parse",
+          "elapsed": 0.04272799997124821
+        },
+        {
+          "command": "rev-list",
+          "elapsed": 0.04842469998402521
+        },
+        {
+          "command": "diff-tree",
+          "elapsed": 0.04830919997766614
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.04570309998234734
+        },
+        {
+          "command": "for-each-ref",
+          "elapsed": 0.04445380001561716
+        },
+        {
+          "command": "rev-parse",
+          "elapsed": 0.046182199963368475
+        },
+        {
+          "command": "update-ref",
+          "elapsed": 0.06311059999279678
+        },
+        {
+          "command": "for-each-ref",
+          "elapsed": 0.044622200017329305
+        },
+        {
+          "command": "rev-parse",
+          "elapsed": 0.04323050001403317
+        }
+      ],
+      "python_profile": [
+        {
+          "file": "C:\\Python312\\Lib\\pathlib.py",
+          "line": 1015,
+          "name": "read_bytes",
+          "calls": 14,
+          "self_seconds": 5.19e-05,
+          "cumulative_seconds": 0.003599
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'serialize' of 'sqlite3.Connection' objects>",
+          "calls": 2,
+          "self_seconds": 0.0014091000000000002,
+          "cumulative_seconds": 0.0014091000000000002
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'deserialize' of 'sqlite3.Connection' objects>",
+          "calls": 1,
+          "self_seconds": 0.0004783,
+          "cumulative_seconds": 0.0004783
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<built-in method _hashlib.openssl_sha256>",
+          "calls": 28,
+          "self_seconds": 0.014553900000000002,
+          "cumulative_seconds": 0.014553900000000002
+        }
+      ],
+      "peak_working_set": 71348224,
+      "full_database_publish_hash_bytes": 1613824,
+      "full_database_total_hash_bytes": 4841472
+    },
+    {
+      "size": 10000,
+      "hot_revisions": 501,
+      "rebuild_seconds": 195.58981239999412,
+      "elapsed_seconds": 2.0349533000262454,
+      "cpu_seconds": 0.703125,
+      "database_before": 14450688,
+      "database_after": 14450688,
+      "full_database_serializations": 2,
+      "serialized_bytes": 28901376,
+      "full_database_read_hash_bytes": 28901376,
+      "writes": [
+        {
+          "name": "history.sqlite3",
+          "bytes": 14450688
+        },
+        {
+          "name": "checkpoint.json",
+          "bytes": 838
+        }
+      ],
+      "components": {
+        "coherent_full_disk_hash": {
+          "calls": 2,
+          "wall": 0.08720670000184327,
+          "cpu": 0.09375
+        },
+        "authorization_dependencies": {
+          "calls": 1,
+          "wall": 0.33244259998900816,
+          "cpu": 0.0625
+        },
+        "generation_path_digest": {
+          "calls": 1,
+          "wall": 0.03306470002280548,
+          "cpu": 0.03125
+        },
+        "git_prepare_delta": {
+          "calls": 1,
+          "wall": 0.5650669000460766,
+          "cpu": 0.078125
+        },
+        "fork_serialize_deserialize": {
+          "calls": 1,
+          "wall": 0.013591900002211332,
+          "cpu": 0.015625
+        },
+        "incremental_verification": {
+          "calls": 1,
+          "wall": 0.23215989995514974,
+          "cpu": 0.203125
+        },
+        "candidate_total": {
+          "calls": 1,
+          "wall": 0.44509769999422133,
+          "cpu": 0.296875
+        },
+        "publish_full_projection": {
+          "calls": 1,
+          "wall": 0.1898702000034973,
+          "cpu": 0.0625
+        }
+      },
+      "git_processes": 31,
+      "git": [
+        {
+          "command": "rev-parse",
+          "elapsed": 0.04041840002173558
+        },
+        {
+          "command": "for-each-ref",
+          "elapsed": 0.04042840003967285
+        },
+        {
+          "command": "rev-parse",
+          "elapsed": 0.04611470003146678
+        },
+        {
+          "command": "rev-parse",
+          "elapsed": 0.04075440001906827
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.03960590000497177
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.03939630003878847
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.03880440001375973
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.04152819997398183
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.04282020003302023
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.04716439999174327
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.04553599999053404
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.04448940005386248
+        },
+        {
+          "command": "read-tree",
+          "elapsed": 0.07779150002170354
+        },
+        {
+          "command": "hash-object",
+          "elapsed": 0.06511510000564158
+        },
+        {
+          "command": "hash-object",
+          "elapsed": 0.04744860000209883
+        },
+        {
+          "command": "hash-object",
+          "elapsed": 0.04492099996423349
+        },
+        {
+          "command": "hash-object",
+          "elapsed": 0.041192300035618246
+        },
+        {
+          "command": "hash-object",
+          "elapsed": 0.0465398000087589
+        },
+        {
+          "command": "hash-object",
+          "elapsed": 0.04446179996011779
+        },
+        {
+          "command": "update-index",
+          "elapsed": 0.04911399999400601
+        },
+        {
+          "command": "write-tree",
+          "elapsed": 0.09367149998433888
+        },
+        {
+          "command": "commit-tree",
+          "elapsed": 0.05313630000455305
+        },
+        {
+          "command": "rev-parse",
+          "elapsed": 0.04354919999605045
+        },
+        {
+          "command": "rev-list",
+          "elapsed": 0.04753739997977391
+        },
+        {
+          "command": "diff-tree",
+          "elapsed": 0.06029680004576221
+        },
+        {
+          "command": "cat-file",
+          "elapsed": 0.043770499993115664
+        },
+        {
+          "command": "for-each-ref",
+          "elapsed": 0.04132670001126826
+        },
+        {
+          "command": "rev-parse",
+          "elapsed": 0.044354200013913214
+        },
+        {
+          "command": "update-ref",
+          "elapsed": 0.06260970002040267
+        },
+        {
+          "command": "for-each-ref",
+          "elapsed": 0.061299400054849684
+        },
+        {
+          "command": "rev-parse",
+          "elapsed": 0.04483040003105998
+        }
+      ],
+      "python_profile": [
+        {
+          "file": "C:\\Python312\\Lib\\pathlib.py",
+          "line": 1015,
+          "name": "read_bytes",
+          "calls": 14,
+          "self_seconds": 5.58e-05,
+          "cumulative_seconds": 0.0126662
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'serialize' of 'sqlite3.Connection' objects>",
+          "calls": 2,
+          "self_seconds": 0.011959800000000001,
+          "cumulative_seconds": 0.011959800000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'deserialize' of 'sqlite3.Connection' objects>",
+          "calls": 1,
+          "self_seconds": 0.0033924000000000003,
+          "cumulative_seconds": 0.0033924000000000003
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<built-in method _hashlib.openssl_sha256>",
+          "calls": 28,
+          "self_seconds": 0.11303840000000001,
+          "cumulative_seconds": 0.11303840000000001
+        }
+      ],
+      "peak_working_set": 134852608,
+      "full_database_publish_hash_bytes": 14450688,
+      "full_database_total_hash_bytes": 43352064
+    }
+  ],
+  "milestone": "M2.2.1 Stage A baseline",
+  "baseline_commit": "4b398cca2400cbf9bbf2e04c712e2e01fa80ab0f",
+  "runtime_sha256": "dff467475653c70752bff9db95bf52dd9693141fb8fbf277d02791a1e6715014",
+  "harness_sha256": "61593d66afa4d1898117b694d6c3b0e2f9651b6f875e5624a2e16838e65f153f",
+  "profile_helper_sha256": "be5ab5e146ddcfe055f9b2fcd62277e4544def5289da223b1834ee527abec074",
+  "python": "3.12.6",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "git": "git version 2.46.2.windows.1",
+  "workload": "One cProfile-instrumented warm Core.submit(NodeUpdate) per disposable corpus, requests prepared outside measurement; existing extend_mutations fixture cadence; full rebuild outside measured update",
+  "cpu_scope": "Python process_time excludes child Git process CPU",
+  "profile_helper": ".cache/profile_m221.py",
+  "measurement_limitations": [
+    "Single observation per size, no percentile or throughput claim",
+    "Peak working set includes corpus/rebuild setup",
+    "Component timings are nested and cannot be summed",
+    "Full database byte counts derived from actual pre/post file sizes and profiled serialize/coherent call counts"
+  ],
+  "profile_helper_source": "import sys\nfrom pathlib import Path\nsys.path.insert(0, str(Path.cwd()))\nfrom tools import benchmark_history as b\nfrom contextlib import ExitStack\nfrom dataclasses import replace\nfrom unittest.mock import patch\nimport cProfile, copy, json, sqlite3, tempfile, time, pstats\nfrom second_brain_core.history_index import HistoryIndex\nimport second_brain_core.history_index as hi\n\nOUT=Path('.cache/m221-baseline-profile.json')\nrows=[]\nfor size in (100,1000,10000):\n    with tempfile.TemporaryDirectory(prefix='m221-profile-') as directory:\n        contracts=b.ContractValidator()\n        app,cluster=b.core_fixture.__wrapped__(Path(directory),contracts)\n        p=app.context.principal\n        app=b.Core(replace(app.context,principal=replace(p,grants=p.grants|frozenset((cluster,a) for a in ('node.update','node.history.read')))),app.store,contracts)\n        first=b.batch(app,cluster); app.submit(first)\n        hot=first['operations'][0]['request_id']\n        records=b.extend_mutations(app,cluster,size-2,hot)\n        start=time.perf_counter(); rebuilt=b.rebuild_history_index(app)\n        assert rebuilt['status']=='rebuilt',rebuilt\n        setup=time.perf_counter()-start\n        head=records['node',hot]; content=copy.deepcopy(head['content']);content['title']='profile measured replacement'\n        req=b.mutation_request(app,hot,content,head['revision'],app.generation())\n        metrics={}; writes=[]; git=[]\n        def wrap(owner,name,key):\n            original=getattr(owner,name)\n            def measured(*args,**kwargs):\n                wall=time.perf_counter();cpu=time.process_time()\n                try:return original(*args,**kwargs)\n                finally:\n                    m=metrics.setdefault(key,dict(calls=0,wall=0,cpu=0));m['calls']+=1;m['wall']+=time.perf_counter()-wall;m['cpu']+=time.process_time()-cpu\n            return patch.object(owner,name,measured)\n        atomic=hi._atomic\n        def persist(path,raw):\n            writes.append(dict(name=path.name,bytes=len(raw)))\n            return atomic(path,raw)\n        run=b.GitStore._run_bytes\n        def command(self,*args,**kwargs):\n            start=time.perf_counter()\n            try:return run(self,*args,**kwargs)\n            finally:git.append(dict(command=args[0],elapsed=time.perf_counter()-start))\n        prof=cProfile.Profile()\n        before_bytes=app.history_index.database.stat().st_size\n        with ExitStack() as stack:\n            for owner,name,key in [(HistoryIndex,'coherent','coherent_full_disk_hash'),(HistoryIndex,'fork','fork_serialize_deserialize'),(HistoryIndex,'publish','publish_full_projection'),(HistoryIndex,'candidate','candidate_total'),(b.GitStore,'prepare_delta','git_prepare_delta'),(b.Core,'_next_generation','generation_path_digest'),(b.Core,'_mutation_context','authorization_dependencies'),(b.TransitionVerifier,'verify','incremental_verification')]:\n                stack.enter_context(wrap(owner,name,key))\n            stack.enter_context(patch.object(hi,'_atomic',persist));stack.enter_context(patch.object(b.GitStore,'_run_bytes',command))\n            wall=time.perf_counter();cpu=time.process_time();prof.enable()\n            app.submit(req)\n            prof.disable();elapsed=time.perf_counter()-wall;cpu=time.process_time()-cpu\n        stats=pstats.Stats(prof)\n        selected=[]\n        for (file,line,name),(cc,nc,tt,ct,callers) in stats.stats.items():\n            if name in ('<method \\'serialize\\' of \\'sqlite3.Connection\\' objects>','<method \\'deserialize\\' of \\'sqlite3.Connection\\' objects>') or 'openssl_sha256' in name or name=='read_bytes':\n                selected.append(dict(file=file,line=line,name=name,calls=nc,self_seconds=tt,cumulative_seconds=ct))\n        rows.append(dict(size=size,hot_revisions=head['revision'],rebuild_seconds=setup,elapsed_seconds=elapsed,cpu_seconds=cpu,database_before=before_bytes,database_after=app.history_index.database.stat().st_size,full_database_serializations=2,serialized_bytes=before_bytes+app.history_index.database.stat().st_size,full_database_read_hash_bytes=2*before_bytes,writes=writes,components=metrics,git_processes=len(git),git=git,python_profile=selected,peak_working_set=b.memory_peak()))\n        OUT.write_text(json.dumps(dict(rows=rows),indent=2)+'\\n')\n        print(json.dumps(rows[-1]),flush=True)\n"
+}

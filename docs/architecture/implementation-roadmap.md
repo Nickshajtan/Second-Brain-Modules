@@ -32,8 +32,13 @@ The bounded [M2.2 Node design](../core/m2-2-node-mutation.md) has passed indepen
 design and completed-diff review, the full quality gate and all 42 benchmark rows. It reuses full replacement
 and exact historical-read contracts, preserving original receipts and Memberships.
 The [validation/readiness report](../core/m2-2-validation.md) records actual gates;
-M2.3 is ready as a separate scoped implementation; this does not establish
-production deployment or physical durability. Relation mutation must independently
+That M2.2 readiness assessment is now gated by the Owner's blocking
+[M2.2.1 mutation hardening](../core/m2-2-1-mutation-hardening.md). Its
+[validation report](../core/m2-2-1-validation.md) records actual completion status;
+Its authenticated incremental-persistence, recovery, full benchmark and independent
+review gates passed, permitting the separately scoped M2.3 slice. This does not
+establish production deployment or
+physical durability. Relation mutation must independently
 validate edge revisions, original effects and endpoint authorization after M2.2.
 
 M2.1.1 is the blocking operational foundation before M2.2: authenticated disposable

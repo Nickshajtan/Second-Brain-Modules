@@ -23,6 +23,31 @@ IMMUTABLE = (
 )
 
 
+class PreviousFiles:
+    """Pin changed-path prestates; other paths remain unchanged in this transition."""
+
+    def __init__(self, connection: sqlite3.Connection, changed: dict) -> None:
+        self.connection = connection
+        self.values: dict[str, str | None] = {}
+        for path in changed:
+            self.get(path)
+
+    def get(self, path: str) -> str | None:
+        if path not in self.values:
+            row = self.connection.execute("SELECT oid FROM files WHERE path=?", (path,)).fetchone()
+            self.values[path] = row[0] if row else None
+        return self.values[path]
+
+    def __contains__(self, path: str) -> bool:
+        return self.get(path) is not None
+
+    def __getitem__(self, path: str) -> str:
+        result = self.get(path)
+        if result is None:
+            raise KeyError(path)
+        return result
+
+
 class TransitionVerifier:
     def __init__(self, repository, connection: sqlite3.Connection) -> None:
         self.repository = repository
@@ -96,11 +121,11 @@ class TransitionVerifier:
         schema = self.boundary.contracts.schemas["common"]["$defs"]["GenerationRef"]
         self.boundary.contracts.validators["common"].evolve(schema=schema).validate(generation)
         if content_digest is None:
-            values = {
-                path: sha
-                for path, sha in self.connection.execute("SELECT path,sha FROM files")
-                if path.startswith("knowledge/") or path == "control/metadata.json"
-            }
+            values = dict(
+                self.connection.execute(
+                    "SELECT path,sha FROM files WHERE path GLOB 'knowledge/*' OR path='control/metadata.json'"
+                )
+            )
             content_digest = digest(values)
         if (
             generation["instance_id"] != self.boundary.context.instance_id
@@ -137,12 +162,12 @@ class TransitionVerifier:
             if not rows:
                 self.fail("MISSING_ANCESTOR")
             old_generation = json.loads(rows[0][0])
-        previous = {
-            path: oid for path, oid in self.connection.execute("SELECT path,oid FROM files")
-        }
-        obligations = dict(self.connection.execute("SELECT path,oid FROM immutable"))
+        previous = PreviousFiles(self.connection, delta)
         for path, oid in delta.items():
-            if path in obligations and obligations[path] != oid:
+            obligation = self.connection.execute(
+                "SELECT oid FROM immutable WHERE path=?", (path,)
+            ).fetchone()
+            if obligation and obligation[0] != oid:
                 self.fail(
                     "INVALID_RECEIPT"
                     if path.startswith("control/")

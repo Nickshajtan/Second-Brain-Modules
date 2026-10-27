@@ -4,6 +4,11 @@ Status: adopted for M2.1.1 after independent design stress review. Unreleased
 1.0.0. Implementation validation is recorded separately in the
 [M2.1.1 validation report](../../core/m2-1-1-validation.md).
 
+M2.2.1 [ADR-013](ADR-013-incremental-derived-index.md) supersedes the whole-file
+per-mutation clone/hash/rewrite with authenticated bounded projection deltas.
+The private-memory, current-authorization and protected-local-anchor boundaries
+below remain applicable. This document preserves the historical M2.1.1 decision.
+
 ## Decision
 
 Git remains the only canonical transaction authority. A stdlib SQLite projection

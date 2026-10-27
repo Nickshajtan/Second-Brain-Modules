@@ -123,9 +123,12 @@ def test_warm_create_verifies_only_its_new_transition_and_receipt(core, monkeypa
 
 @pytest.mark.parametrize("table", ["memberships", "receipts", "operation_keys", "commits"])
 def test_restored_stat_row_deletion_cannot_change_trusted_memory_or_restart(core, table):
+    from second_brain_core import compact_history_index
+
     app, cluster = core
     request = batch(app, cluster)
     receipt = app.submit(request)
+    assert compact_history_index(app)["status"] == "compacted"
     path = app.history_index.database
     before = path.stat()
     change_sql(path, f"DELETE FROM {table}")
@@ -133,7 +136,9 @@ def test_restored_stat_row_deletion_cannot_change_trusted_memory_or_restart(core
     # Warm delivery uses the authenticated private DB, never mutable disk rows.
     read_node(app, request["operations"][0]["request_id"])
     error("REPAIR_REQUIRED", restart(app).generation)
-    error("REPAIR_REQUIRED", lambda: app.submit(request))
+    # Publication no longer hashes old base bytes. Exact replay still uses the
+    # complete authenticated private set; it cannot rerun a missing disk row.
+    assert app.submit(request) == receipt
     assert app.store.resolve() == app.history_index.frontier
     assert rebuild_history_index(app)["status"] == "rebuilt"
     assert app.submit(request) == receipt
@@ -141,9 +146,12 @@ def test_restored_stat_row_deletion_cannot_change_trusted_memory_or_restart(core
 
 @pytest.mark.parametrize("defect", ["missing", "truncated", "wrong_generation", "wrong_commit"])
 def test_rebuildable_projection_damage_preserves_canonical_knowledge(core, defect):
+    from second_brain_core import compact_history_index
+
     app, cluster = core
     request = batch(app, cluster)
     receipt = app.submit(request)
+    assert compact_history_index(app)["status"] == "compacted"
     source = app.store.resolve()
     path = app.history_index.database
     if defect == "missing":
@@ -242,7 +250,7 @@ def test_reverse_dependency_transition_is_not_hidden_by_targeted_validation(core
     error("REPAIR_REQUIRED", app.generation)
 
 
-@pytest.mark.parametrize("boundary", ["before_database", "before_checkpoint"])
+@pytest.mark.parametrize("boundary", ["before_delta", "before_checkpoint"])
 def test_published_git_survives_projection_failure_and_explicit_recovery(
     core, monkeypatch, boundary
 ):
@@ -255,8 +263,8 @@ def test_published_git_survives_projection_failure_and_explicit_recovery(
 
     def interrupted(path, raw):
         target = (
-            app.history_index.database
-            if boundary == "before_database"
+            app.history_index._delta_path(1)
+            if boundary == "before_delta"
             else app.history_index.checkpoint
         )
         if path == target:
@@ -270,9 +278,8 @@ def test_published_git_survives_projection_failure_and_explicit_recovery(
     stored = decode(app.store.read(committed)[app.receipts.for_request(request)])
     monkeypatch.setattr(module, "_atomic", atomic)
     recovered = restart(app)
-    if boundary == "before_checkpoint":
-        error("REPAIR_REQUIRED", recovered.generation)
-        assert rebuild_history_index(recovered)["status"] == "rebuilt"
+    # An unanchored immutable delta does not invalidate the old base. Recovery
+    # re-verifies canonical Git and safely replaces that nonaccepted slot.
     assert recovered.contracts.dump("transaction", recovered.submit(request)) == stored
     assert recovered.store.resolve() == committed
 
@@ -540,7 +547,7 @@ def test_rebuild_race_and_interruption_preserve_the_known_good_database(core, mo
     atomic = module._atomic
 
     def interrupted(path, raw):
-        if path == app.history_index.database:
+        if path.suffix == ".sqlite3":
             raise OSError("interrupted before atomic replacement")
         atomic(path, raw)
 

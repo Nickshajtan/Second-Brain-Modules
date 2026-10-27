@@ -201,10 +201,34 @@ class GitStore(CommitStore):
             env = {"GIT_INDEX_FILE": str(Path(temp) / "index")}
             self.run("read-tree", parent, env=env)
             entries = []
-            for name, raw in sorted(files.items()):
+            prepared = []
+            names = []
+            for position, (name, raw) in enumerate(sorted(files.items())):
                 if name.startswith("/") or ".." in name.split("/") or "\0" in name:
                     raise StorageError("Unsafe tree path")
-                oid = self.run("hash-object", "-w", "--stdin", data=raw).strip()
+                path = Path(temp) / f"blob-{position}"
+                path.write_bytes(raw)
+                prepared.append(str(path))
+                names.append(name)
+            hashes = []
+            # Bound argv length on Windows; inputs are fixed generated names and
+            # --no-filters preserves exact bytes independently of Git attributes.
+            chunk, length = [], 0
+            for path in prepared:
+                if chunk and length + len(path) > 12000:
+                    hashes.extend(
+                        self.run("hash-object", "-w", "--no-filters", "--", *chunk).splitlines()
+                    )
+                    chunk, length = [], 0
+                chunk.append(path)
+                length += len(path) + 3
+            if chunk:
+                hashes.extend(
+                    self.run("hash-object", "-w", "--no-filters", "--", *chunk).splitlines()
+                )
+            if len(hashes) != len(names):
+                raise StorageError("Invalid hash response")
+            for name, oid in zip(names, hashes, strict=True):
                 entries.append(f"100644 {oid}\t{name}\0")
             self.run("update-index", "-z", "--index-info", data="".join(entries).encode(), env=env)
             tree = self.run("write-tree", env=env).strip()

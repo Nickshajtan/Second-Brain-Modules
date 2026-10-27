@@ -200,9 +200,9 @@ class Core:
         files[GENERATION] = encode(generation)
         receipt = self.receipts.record(request, generation, results, files)
         candidate = self.store.prepare_delta(files, parent)
-        projection, verified_generation = self.history_index.candidate(candidate)
-        self.store.publish(candidate, parent)
-        self.history_index.publish(projection, candidate, verified_generation)
+        with self.history_index.candidate(candidate) as (projection, verified_generation):
+            self.store.publish(candidate, parent)
+            self.history_index.publish(projection, candidate, verified_generation)
         return receipt
 
     def _replay(self, request) -> CommittedReceipt | None:
@@ -301,11 +301,11 @@ class Core:
                 self.boundary.fail("IDEMPOTENCY_CONFLICT")
 
     def _next_generation(self, files):
-        hashes = {
-            path: sha
-            for path, (_, sha) in self.history_index.files().items()
-            if path.startswith("knowledge/") or path == "control/metadata.json"
-        }
+        hashes = dict(
+            self.history_index.query(
+                "SELECT path,sha FROM files WHERE path GLOB 'knowledge/*' OR path='control/metadata.json'"
+            )
+        )
         hashes.update(
             {
                 path: hashlib.sha256(raw).hexdigest()

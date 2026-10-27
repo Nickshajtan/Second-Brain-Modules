@@ -32,7 +32,13 @@ def _diagnostic(exc: Exception) -> dict[str, object]:
         status="repair_required",
         code=category,
         rebuild_sufficient=rebuild,
-        recommendation="explicit_rebuild" if rebuild else "operator_review_canonical_history",
+        recommendation=(
+            "explicit_compaction_or_rebuild"
+            if category == "INDEX_COMPACTION_REQUIRED"
+            else "explicit_rebuild"
+            if rebuild
+            else "operator_review_canonical_history"
+        ),
     )
 
 
@@ -75,5 +81,23 @@ def rebuild_history_index(core: Core) -> dict[str, object]:
         sqlite3.Error,
         ValidationError,
         SchemaError,
+    ) as exc:
+        return _diagnostic(exc)
+
+
+def compact_history_index(core: Core) -> dict[str, object]:
+    """Explicitly compact accepted authenticated derived state; Git is untouched."""
+    _host(core)
+    try:
+        with core.store.writer():
+            return core.history_index.compact()
+    except (
+        CoreError,
+        StorageError,
+        OSError,
+        ValueError,
+        KeyError,
+        TypeError,
+        sqlite3.Error,
     ) as exc:
         return _diagnostic(exc)

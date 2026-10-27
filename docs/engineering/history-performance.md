@@ -386,3 +386,134 @@ observations have different historical revision mixtures and do not establish
 latency speedups. M2.1.1 create's 36/15 includes an extra generation lookup; M2.2's
 28/11 measures submission only, so its raw difference is not a direct performance
 comparison. The original M2.1.1 JSON evidence remains unchanged.
+
+## M2.2.1 measurement procedure
+
+The existing harness adds `--mutation-hardening`; previous modes and their saved
+artifacts remain unchanged. It uses the same `extend_mutations` fixture cadence
+as the component baseline: one initial creation batch, then every twentieth bulk
+commit creates two Nodes and one Relation, offset ten updates the hot Node, and
+other commits advance generation only. Full canonical rebuild verifies fixtures
+before measured API workloads. Starting generations are 100/1,000/10,000; these
+are not claims of 10,000 revisions of one Node.
+
+The default matrix measures 100 hot updates at the two smaller sizes and 1,000
+at the largest, plus up to ten updates distributed across existing Nodes. It
+reports nearest-rank p50/p95 only for at least 100 samples and p99 only for at
+least 1,000, retaining every observation. Throughput divides successful measured
+submissions by their cumulative API time; request construction, generation
+lookup, postcondition reads and explicit maintenance are outside this boundary.
+Instrumented timings include profiling overhead. Process CPU excludes child Git
+CPU; peak working set includes corpus construction and rebuild and is not an
+allocation measurement for an individual operation.
+
+Serialization/backup counts are observed SQLite C calls. Whole-database hashes
+count actual SHA-256 inputs beginning with the SQLite header. Derived persistence
+bytes count actual Python file-write payloads under the index directory, split
+between SQLite bases, deltas and checkpoints; they do not represent filesystem
+sector amplification or power-loss durability. SQL `total_changes` measures
+affected rows on an unchanged private connection; connection replacement reports
+null rather than attributing another connection's lifetime count. Directory-size
+enumeration occurs after the timed API. Component timings are nested and must
+not be summed as independent work.
+
+The 10,000-generation default workload fills the accepted tail to its configured
+transition limit, checks that the next mutation fails before Git publication,
+then measures restart and explicit compaction. Compaction is a separate workload,
+not hidden inside successful-update latency. Incremental catch-up deliberately
+interrupts derived publication after Git succeeds, then measures a separate Core
+verifying the missing canonical transition. This differs from merely reloading
+an already advanced signed checkpoint. A separate `accepted_frontier_catch_up`
+workload warms two Core instances, publishes normally through one, then measures
+the other's refresh. Its full-base hash/deserialization counters expose any
+whole-projection reload rather than assuming that cross-instance refresh is
+incremental. Old component-baseline evidence and M2.2
+latencies have distinct instrumentation/corpus boundaries; byte amplification
+and operation counts are compared separately from wall-clock observations.
+
+## M2.2.1 measured results
+
+The final matrix completed successfully with 1,293 observations: 127 at each of
+100 and 1,000 starting generations, and 1,039 at 10,000. The hot Node initially
+had 6/51/501 revisions; starting receipt counts were 11/101/1,001. The final
+10,000 corpus contained 11,026 generations and 2,027 receipts. Raw observations,
+component timings, environment and unchanged-source fingerprints are in
+[the M2.2.1 artifact](history-performance-m221.json); the separately retained
+[component baseline](history-performance-m221-baseline.json) includes its helper
+source and fingerprints. The command exited zero:
+
+```bash
+python -m tools.benchmark_history --mutation-hardening --sizes 100 1000 10000 --git-budget 100000 --output docs/engineering/history-performance-m221.json
+```
+
+| Starting generations | Hot-update samples | Submit-only updates/s | p50 seconds | p95 seconds | p99 seconds | Derived bytes per hot update |
+|---|---|---|---|---|---|---|
+| 100 | 100 | 0.607 | 1.638 | 1.759 | Insufficient tail coverage | 7,315–7,322 |
+| 1,000 | 100 | 0.605 | 1.619 | 1.910 | Insufficient tail coverage | 7,316–7,322 |
+| 10,000 | 1,000 | 0.548 | 1.802 | 2.055 | 2.450 | 7,317–7,326 |
+
+These are serial prepared-request submissions, not end-to-end agent throughput.
+The largest observed single hot-update latency was 5.843 seconds. Ten distributed
+updates per corpus produced 0.610/0.476/0.520 submissions/s; no percentiles are
+claimed for those small samples. All measured bounded single-Node updates changed
+18 projection rows, verified one transition and one receipt, requested 13 unique
+blobs and performed zero full SQLite serialization, deserialization, backup,
+full-database hash or SQLite snapshot write. They performed no full-tree read or
+enumeration. Git processes fell from the baseline's 31 to 26 for the matched
+single-update boundary; standard Git hashing was batched, without a persistent
+Git process.
+
+For the baseline-matched first update, old complete SQLite payload writes were
+282,624/1,613,824/14,450,688 bytes; new **total** derived writes, including delta
+and signed checkpoint, were 7,314/7,315/7,316 bytes. Whole-database hashing and
+serialization were absent on that new path. The old profile observed two complete
+serializations and three complete-database hash inputs per update. This establishes
+reduced projection byte work, not a comparable wall-clock speedup: profiler/helper
+instrumentation differs, even though fixture cadence and submit boundary match.
+At 10,000 generations the new single update spent 0.346 seconds in Git preparation,
+0.305 in incremental verification and 0.168 in derived publication; its complete
+submit took 1.968 seconds. Those nested values are not additive.
+
+| Workload seconds | 100 generations | 1,000 generations | 10,000 generations |
+|---|---|---|---|
+| Exact update replay | 0.839 | 0.905 | 0.857 |
+| Exact revision-1 read | 0.766 | 1.109 | 0.823 |
+| Mixed create/update batch | 1.799 | 2.544 | 2.246 |
+| Cold restart before compaction | 1.137 | 1.536 | 7.459 |
+| Explicit compaction | 0.247 | 0.346 | 0.367 |
+| Restart after compaction | 0.475 | 0.692 | 0.668 |
+| Warm accepted-frontier refresh | 0.368 | 0.397 | 0.400 |
+| Git-published, derived-missing catch-up | 1.162 | 1.388 | 1.182 |
+| Initial full rebuild | 4.883 | 36.760 | 377.089 |
+| Final full rebuild after mutations | 22.516 | 56.779 | 559.218 |
+
+The 10,000-generation run reached exactly 1,024 accepted tail transitions containing
+5,935,739 authenticated bytes. The next update was rejected before Git publication
+and wrote no derived bytes. Full-tail restart executed 25,645 SQLite statements;
+compaction wrote one 19,587,072-byte base plus a 1,531-byte checkpoint, then restart
+needed seven statements. These observations support the chosen 1,024-transition
+limit for this workload; the additional 16 MiB cap bounds unusually large deltas.
+They are recovery budgets, not restart latency guarantees. Compaction remains an
+explicit host action, outside normal mutation latency; retained old bases/deltas
+are not automatically deleted. After final rebuild, the largest index directory
+was 59,827,825 bytes including retained derived history; the current base was
+19,591,168 bytes. Peak process-lifetime working set reached 229,548,032 bytes.
+
+Warm accepted-frontier refresh applied only its new authenticated delta: 18 rows,
+zero full-base hash/deserialization and zero persistence. Recovery of a Git commit
+whose derived publication was interrupted verified one canonical transition and
+wrote 7,323/7,323/7,327 derived bytes. The restart rows' `projection_rows_changed`
+value describes the previously instrumented Core connection, not the replacement
+Core's replayed rows; it must not be interpreted as zero restart replay work.
+Their global SQL, hash and deserialization counters do observe the replacement.
+
+All source/harness/contract unchanged flags were true. Artifact checks verified
+sample counts, all 1,293 completion statuses, the frozen fingerprints, bounded
+single-update work and positive serialization/hash controls during compaction.
+The old M2.2 artifact remains intact; different corpus starts and profiling mean
+its latency observations do not establish a before/after speedup. Full rebuild,
+startup base authentication, explicit compaction and retained derived disk usage
+remain proportional to accumulated state. Canonical generation digest and native
+Git tree/index metadata work also remain size-dependent. These results establish
+bounded normal projection persistence, not constant total mutation cost, hardware
+durability or production service capacity.
