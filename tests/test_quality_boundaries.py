@@ -8,7 +8,7 @@ from second_brain_contracts import ContractValidator, decode_json, encode_json
 from second_brain_core import CoreError
 from second_brain_core.codec import decode, encode
 from second_brain_core.git_store import StorageError
-from test_core_m1 import batch
+from test_core_m1 import batch, read_node
 
 
 def test_symbolic_managed_ref_cannot_publish_into_another_branch(core):
@@ -23,18 +23,37 @@ def test_symbolic_managed_ref_cannot_publish_into_another_branch(core):
     assert app.store.run("rev-parse", other_ref).strip() == parent
 
 
-def test_programmer_failure_is_not_misreported_as_corrupt_state(core, monkeypatch):
-    app, _ = core
+@pytest.mark.parametrize("operation", ["read", "submit", "generation"])
+def test_programmer_failure_is_not_misreported_as_corrupt_state(core, monkeypatch, operation):
+    app, cluster = core
+    request = batch(app, cluster)
+    app.submit(request)
 
     def broken_validator(*_):
         raise RuntimeError("private diagnostic must not enter the envelope")
 
-    monkeypatch.setattr(app.domain, "validate", broken_validator)
+    if operation == "generation":
+        monkeypatch.setattr(app, "_generation", broken_validator)
+        invoke = app.generation
+    elif operation == "submit":
+        next_request = batch(app, cluster)
+        monkeypatch.setattr(app.domain, "validate", broken_validator)
+
+        def invoke():
+            return app.submit(next_request)
+    else:
+        monkeypatch.setattr(app.domain, "validate", broken_validator)
+
+        def invoke():
+            return read_node(app, request["operations"][0]["request_id"])
+
+    parent = app.store.resolve()
     with pytest.raises(CoreError) as caught:
-        app.generation()
+        invoke()
     assert caught.value.code == "INTERNAL"
     assert caught.value.error.message == "INTERNAL"
     assert isinstance(caught.value.__cause__, RuntimeError)
+    assert app.store.resolve() == parent
 
 
 def test_invalid_committed_metadata_schema_is_corruption_not_programmer_failure(core):

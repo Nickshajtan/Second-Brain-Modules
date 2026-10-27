@@ -16,7 +16,8 @@ The coordinator supplies a bounded assignment, waits for implementation, then
 supplies the final diff and requirements to a different reviewer agent. Both roles
 must be invoked by configured identity, not merely by a task label.
 
-At most one automatic correction and one recheck are allowed. Follow the root
+At most three automatic correction/recheck cycles are allowed, each comprising
+one implementer correction and one independent reviewer recheck. Follow the root
 protocol for blocking findings and explicit acceptance. `DELEGATION_UNAVAILABLE`
 means a required agent could not be invoked or finish; `EVIDENCE_INCOMPLETE` means
 the available evidence cannot establish completion. Missing optional IDs alone

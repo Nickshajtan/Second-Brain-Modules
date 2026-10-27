@@ -1,5 +1,42 @@
 # Compatibility contract
 
+## M2.1.1 operational compatibility
+
+M2.1.1 changes no canonical schema, generated artifact, public operation variant,
+receipt identity or logical RevisionRef. The existing create/read wire surface
+remains finite; no update or historical-read handler is added. Stdlib SQLite is
+derived locator metadata, not canonical persisted knowledge.
+
+Existing unenrolled M2.1 repositories require explicit trusted
+`rebuild_history_index(core)` enrollment after complete historical verification.
+Fresh trusted bootstrap establishes its initial projection. Missing SQLite with a
+valid checkpoint is rebuildable; lost/invalid key, enrollment or signed checkpoint
+cannot silently establish replacement ancestry. Checkpoints bind exact schema
+source hashes, index format, repository path/ref and instance. Runtime/schema
+upgrades or relocation therefore need operator-reviewed verification/rebuild,
+not silent adoption of older local trust files.
+
+There is an intentional operational distinction: `Core.generation()` now checks
+the exact pinned generation descriptor/tree and verified frontier, rather than
+exhaustively probing every historical object's availability. Requested Node/Relation
+and replay evidence still fail closed when their bytes/origin are unavailable;
+explicit `audit_history` verifies all retained obligations and is required after
+restore or suspected object pruning. See [recovery](../engineering/history-recovery.md)
+and [M2.1.1 validation](../core/m2-1-1-validation.md). This is not a claim of
+continuous full-history corruption detection on each warm lookup.
+
+The final unreleased projection includes minimal scope/lifecycle facts for early
+denial checks. Development projections created before that correction should be
+explicitly rebuilt; canonical schemas, receipts and revision records do not migrate.
+An existing empty enrollment directory now requires operator recovery, preserving
+the distinction between missing disposable SQLite data and lost trust material.
+
+The private authenticated SQLite connection is thread-bound. Separate Core
+instances per process/thread are supported by the shared writer/CAS boundary;
+sharing one Core object across threads is not a verified concurrency model.
+
+## Structural evolution
+
 Current production baseline is **unreleased 1.0.0**. There is no released production predecessor and no backward-compatibility claim against illustrative 0.1.0. Immutable `$id` values identify exact structural meaning; `schema_version` and `operation_version` are explicit. Runtime support is an advertised finite set, initially only 1.0.0. Unknown versions fail with typed `UNSUPPORTED_VERSION` at version selection; invalid nested version values fail canonical structural validation. They never trigger a fetch or silent migration.
 
 | Change | Compatibility consequence for closed, versioned contracts |

@@ -94,11 +94,13 @@ snapshots and explicit legacy backfill; it enables no update/history handlers.
 Never replace original-effect integrity with present-head equality or historical
 grants. Legacy migration is trusted-host-only, explicit, source-fenced and atomic.
 
-Reads intentionally scan/validate the whole committed tree and retained receipts;
-Git reads are per blob, and cross-record scans may be quadratic in this tiny
-corpus. No performance benchmark or scalability claim is made. Future caching
-may reuse a validated immutable snapshot keyed by exact commit and contract
-version; current principal/grant checks still run before delivery. O1–O4 remain
-Owner decisions, not engineering defaults. Coverage percentages were not added:
+The historical M2.1 full-tree/ancestry read strategy is superseded by
+[M2.1.1](../core/m2-1-1-history-hardening.md): authenticated disposable SQLite
+locators, targeted canonical blobs and incremental committed verification.
+Full retained audit/rebuild remains explicit; generation lookup is not a full
+object-availability audit. Current grants are checked before delivery. Actual
+[benchmark evidence](history-performance.md) and [recovery limits](history-recovery.md)
+bound performance and operational claims. O1–O4 remain Owner decisions, not
+engineering defaults. Coverage percentages were not added:
 existing boundary regressions identify concrete failure cases; exhaustive coverage
 and hosted/power-loss guarantees remain unverified.

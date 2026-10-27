@@ -18,3 +18,9 @@ The [coverage matrix](contract-coverage-matrix.md) is the exact operation invent
 | Evolution | Structural and behavioral compatibility assessed separately, no silent read-time migration. New frozen versions require explicit registry/bundle/persisted-record migration support. |
 
 Host `Core.bootstrap` and `Core.generation` are trusted Python APIs, not caller-selectable wire operations. Bootstrap is provisioning-only and cannot substitute for Cluster/grant administration. No MCP/HTTP server, scheduler, event subscription runtime or external fetcher is implemented.
+
+M2.1.1 adds trusted `audit_history` and `rebuild_history_index` functions under
+existing bootstrap/recovery authority. These return bounded maintenance diagnostics,
+not new public request discriminators or generated result contracts. The disposable
+SQLite projection never authorizes a caller or replaces canonical Git. See the
+[coverage matrix](contract-coverage-matrix.md) and [operational recovery](../engineering/history-recovery.md).

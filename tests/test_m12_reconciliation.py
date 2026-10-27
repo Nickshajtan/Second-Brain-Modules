@@ -93,7 +93,7 @@ def test_m12_catalogue_and_canonical_coverage_references():
     covered = set(re.findall(r"\| CAP-\d+ \| `([^`]+)`", matrix))
     assert names <= covered
     ids = re.findall(r"\| (CAP-\d+) \|", matrix)
-    assert len(ids) == len(set(ids)) == 101
+    assert len(ids) == len(set(ids)) == 102
     operations = json.loads((ROOT / "contracts/schemas/v1/operations.schema.json").read_text())
     for definition in operations["$defs"].values():
         operation = definition.get("properties", {}).get("operation", {}).get("const")

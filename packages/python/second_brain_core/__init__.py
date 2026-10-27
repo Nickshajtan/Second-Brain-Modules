@@ -3,6 +3,7 @@
 from .application import Core
 from .boundary import CoreError, InstanceContext, TrustedPrincipal
 from .git_store import GitStore
+from .maintenance import audit_history, rebuild_history_index
 from .migration import apply_history_migration, inspect_history
 
 __all__ = [
@@ -12,5 +13,7 @@ __all__ = [
     "InstanceContext",
     "TrustedPrincipal",
     "apply_history_migration",
+    "audit_history",
     "inspect_history",
+    "rebuild_history_index",
 ]

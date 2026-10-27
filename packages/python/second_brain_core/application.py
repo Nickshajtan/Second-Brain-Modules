@@ -1,5 +1,7 @@
 """Instance composition and one atomic transaction boundary for M1 operations."""
 
+import hashlib
+import sqlite3
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -11,11 +13,12 @@ from second_brain_contracts import ContractValidator
 
 from .access import AccessControl
 from .bootstrap import BootstrapInitializer
-from .boundary import GENERATION, VERSION, ContractBoundary, CoreError, InstanceContext, digest
-from .codec import encode
+from .boundary import GENERATION, VERSION, ContractBoundary, CoreError, InstanceContext, digest, uid
+from .codec import decode, encode
 from .domain import DomainRules
 from .git_store import PublicationConflict, StorageError
 from .history import HistoricalEffects
+from .history_index import HistoryIndex
 from .operations import (
     NodeCreateStrategy,
     NodeReadStrategy,
@@ -62,15 +65,58 @@ class Core:
         self.receipts = ReceiptStore(self.boundary, self.mutations)
         self.repository = KnowledgeRepository(self.boundary, store, self.domain, self.receipts)
         self.receipts.history = HistoricalEffects(self.repository)
+        self.history_index = HistoryIndex(self.repository)
+        self.repository.index = self.history_index
         self.initializer = BootstrapInitializer(self.boundary, store, self.repository, self.domain)
 
     def bootstrap(
         self, records: Iterable[BaseModel | dict[str, object]], metadata_schemas: dict[str, object]
     ) -> dict[str, object]:
-        return self.initializer.initialize(records, metadata_schemas)
+        if not self.context.principal.bootstrap:
+            self.boundary.fail("FORBIDDEN")
+        if self.history_index.directory.exists():
+            # Lost enrollment cannot be bypassed by deleting the managed ref.
+            self.history_index.anchor()
+            self.boundary.fail("REVISION_CONFLICT")
+        result = self.initializer.initialize(records, metadata_schemas)
+        with self.store.writer():
+            self.history_index.rebuild()
+        return result
 
     def generation(self) -> dict[str, object]:
-        return self.repository.snapshot()[2]
+        try:
+            self.history_index.ensure()
+            return self._generation()
+        except CoreError:
+            raise
+        except (
+            StorageError,
+            OSError,
+            ValueError,
+            KeyError,
+            TypeError,
+            sqlite3.Error,
+            ValidationError,
+        ) as exc:
+            raise CoreError(self.contracts, "REPAIR_REQUIRED") from exc
+        except Exception as exc:
+            raise CoreError(self.contracts, "INTERNAL") from exc
+
+    def _generation(self):
+        if self.history_index.frontier is None:
+            raise CoreError(self.contracts, "REPAIR_REQUIRED")
+        actual_oid = self.store.locate(self.history_index.frontier, GENERATION)
+        stored_oid = self.history_index.query("SELECT oid FROM files WHERE path=?", (GENERATION,))[
+            0
+        ][0]
+        if actual_oid != stored_oid:
+            self.boundary.fail("REPAIR_REQUIRED")
+        generation = decode(self.history_index.raw(GENERATION))
+        schema = self.contracts.schemas["common"]["$defs"]["GenerationRef"]
+        self.contracts.validators["common"].evolve(schema=schema).validate(generation)
+        if generation != self.history_index.generation:
+            self.boundary.fail("REPAIR_REQUIRED")
+        return generation
 
     def submit(self, payload: BatchRequest | dict[str, object] | str | bytes) -> CommittedReceipt:
         batch = self.boundary.ingest("transaction", payload)
@@ -83,11 +129,15 @@ class Core:
                 return self._commit(request)
         except PublicationConflict as exc:
             raise CoreError(self.contracts, "REVISION_CONFLICT") from exc
-        except (StorageError, OSError) as exc:
+        except (StorageError, OSError, sqlite3.Error) as exc:
             # Lock-file failures can occur before a Git subprocess is started.
             raise CoreError(self.contracts, "REPAIR_REQUIRED") from exc
         except ValidationError as exc:
             raise CoreError(self.contracts, "VALIDATION_FAILED") from exc
+        except CoreError:
+            raise
+        except Exception as exc:
+            raise CoreError(self.contracts, "INTERNAL") from exc
 
     def _check_batch(self, request):
         if request["instance_id"] != self.context.instance_id:
@@ -100,14 +150,23 @@ class Core:
             if "proposal_id" in operation or "approval_id" in operation:
                 self.boundary.fail("VALIDATION_FAILED")
 
-    def _commit(self, request):
-        parent, files, generation, records, metadata = self.repository.snapshot()
-        replay = self.receipts.replay(request, files, records)
+    def _commit(self, request) -> CommittedReceipt:
+        self.history_index.ensure(locked=True)
+        self.history_index.coherent()
+        parent, generation = self.history_index.frontier, self._generation()
+        if parent is None or self.history_index.connection is None:
+            raise CoreError(self.contracts, "REPAIR_REQUIRED")
+        replay = self._replay(request)
         if replay is not None:
             return replay
+        pending = {}
+        for operation in request["operations"]:
+            self.mutations[operation["operation"]].screen(operation, self.history_index, pending)
         if request["expected_generation"] != generation:
             self.boundary.fail("REVISION_CONFLICT")
-        self.receipts.check_unused(request, files)
+        self._check_unused(request)
+        records, metadata = self._mutation_context(request)
+        files = {}
         seen, results = set(), []
         for operation in request["operations"]:
             if operation["request_id"] in seen:
@@ -115,12 +174,116 @@ class Core:
             seen.add(operation["request_id"])
             results.append(self._create(operation, records, files, metadata))
         self.domain.validate(records, metadata)
-        generation = self.repository.generation(files)
+        generation = self._next_generation(files)
         files[GENERATION] = encode(generation)
         receipt = self.receipts.record(request, generation, results, files)
-        candidate = self.store.prepare(files, parent)
+        candidate = self.store.prepare_delta(files, parent)
+        projection, verified_generation = self.history_index.candidate(candidate)
         self.store.publish(candidate, parent)
+        self.history_index.publish(projection, candidate, verified_generation)
         return receipt
+
+    def _replay(self, request) -> CommittedReceipt | None:
+        if self.history_index.connection is None:
+            raise CoreError(self.contracts, "REPAIR_REQUIRED")
+        path = self.receipts.for_request(request)
+        existing = self.history_index.query("SELECT 1 FROM receipts WHERE path=?", (path,))
+        if not existing:
+            return None
+        effects = self.history_index.query(
+            "SELECT kind,id FROM effects WHERE receipt=? AND kind IN ('node','relation')", (path,)
+        )
+        if not effects:
+            raise CoreError(self.contracts, "REPAIR_REQUIRED")
+        for kind, identifier in effects:
+            if kind == "node":
+                self.access.screen_node(
+                    self.history_index,
+                    identifier,
+                    actions=("node.create", "membership.admit"),
+                    active=False,
+                )
+            else:
+                self.access.screen_relation(
+                    self.history_index, identifier, action="relation.create"
+                )
+        files = {path: self.history_index.raw(path)}
+        request_path = self.receipts.request_path(path)
+        files[request_path] = self.history_index.raw(request_path)
+        self.receipts.validate_pair(path, files)
+        receipt = decode(files[path])
+        origin = self.history_index.query("SELECT origin FROM receipts WHERE path=?", (path,))[0][0]
+        generation_oid = self.store.locate(origin, GENERATION)
+        if decode(self.store.blobs([generation_oid])[generation_oid]) != receipt["generation"]:
+            self.boundary.fail("REPAIR_REQUIRED")
+        targets = [
+            (r["resource_kind"], r["id"])
+            for result in receipt["results"]
+            for r in result["resources"]
+        ]
+        records = self.history_index.closure(targets)
+        replay = self.receipts.replay(request, files, records)
+        if replay is None:
+            raise CoreError(self.contracts, "REPAIR_REQUIRED")
+        from .verification import TransitionVerifier
+
+        original = TransitionVerifier(
+            self.repository, self.history_index.connection
+        ).original_records(path)
+        original_request = decode(files[request_path])
+        for operation, result in zip(
+            original_request["operations"], receipt["results"], strict=True
+        ):
+            self.mutations[operation["operation"]].verify_result(
+                operation, result, receipt, original
+            )
+        return replay
+
+    def _mutation_context(self, request):
+        targets = []
+        for operation in request["operations"]:
+            targets.extend(
+                self.mutations[operation["operation"]].dependencies(operation, self.history_index)
+            )
+            targets.extend(
+                (e["resource"]["resource_kind"], e["resource"]["id"])
+                for e in operation["expectations"]
+            )
+        records = self.history_index.closure(targets)
+        metadata = decode(self.history_index.raw("control/metadata.json"))
+        return records, metadata
+
+    def _check_unused(self, request):
+        keys = self.receipts.operation_keys(request)
+        principal = self.context.principal.principal_id
+        if len(set(keys)) != len(keys) or self.history_index.query(
+            "SELECT 1 FROM receipts WHERE principal=? AND tx=?",
+            (principal, request["transaction_id"]),
+        ):
+            self.boundary.fail("IDEMPOTENCY_CONFLICT")
+        for operation, version, key in keys:
+            if self.history_index.query(
+                "SELECT 1 FROM operation_keys WHERE principal=? AND operation=? AND version=? AND key=?",
+                (principal, operation, version, key),
+            ):
+                self.boundary.fail("IDEMPOTENCY_CONFLICT")
+
+    def _next_generation(self, files):
+        hashes = {
+            path: sha
+            for path, (_, sha) in self.history_index.files().items()
+            if path.startswith("knowledge/") or path == "control/metadata.json"
+        }
+        hashes.update(
+            {
+                path: hashlib.sha256(raw).hexdigest()
+                for path, raw in files.items()
+                if path.startswith("knowledge/") or path == "control/metadata.json"
+            }
+        )
+        return dict(
+            instance_id=self.context.instance_id, generation_id=uid(), digest=digest(hashes)
+        )
 
     def _create(self, operation, records, files, metadata):
         additions, revisions = self.mutations[operation["operation"]].prepare(
@@ -186,15 +349,40 @@ class Core:
         strategy = self.readers.get(wire["operation"])
         if strategy is None:
             self.boundary.fail("VALIDATION_FAILED")
-        _, _, generation, records, _ = self.repository.snapshot()
-        record = strategy.read(wire["payload"], records)
-        result = dict(
-            kind="read_result",
-            schema_version=VERSION,
-            request_id=wire["request_id"],
-            generation=generation,
-            records=[record],
-        )
-        model = self.contracts.parse_as("transaction", result, ReadResult)
-        self.boundary.dump("transaction", model)
-        return model
+        try:
+            self.history_index.ensure()
+            generation = self._generation()
+            kind = "node" if wire["operation"] == "node.read" else "relation"
+            identifier = wire["payload"][kind + "_id"]
+            screens = {"node": self.access.screen_node, "relation": self.access.screen_relation}
+            screens[kind](
+                self.history_index, identifier, wire["payload"].get("selected_cluster_id")
+            )
+            records = self.history_index.closure([(kind, identifier)])
+            metadata = decode(self.history_index.raw("control/metadata.json"))
+            self.domain.validate(records, metadata)
+            record = strategy.read(wire["payload"], records)
+            result = dict(
+                kind="read_result",
+                schema_version=VERSION,
+                request_id=wire["request_id"],
+                generation=generation,
+                records=[record],
+            )
+            model = self.contracts.parse_as("transaction", result, ReadResult)
+            self.boundary.dump("transaction", model)
+            return model
+        except CoreError:
+            raise
+        except (
+            StorageError,
+            OSError,
+            ValueError,
+            KeyError,
+            TypeError,
+            sqlite3.Error,
+            ValidationError,
+        ) as exc:
+            raise CoreError(self.contracts, "REPAIR_REQUIRED") from exc
+        except Exception as exc:
+            raise CoreError(self.contracts, "INTERNAL") from exc

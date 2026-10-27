@@ -25,6 +25,12 @@ def _plan(core, commit=None):
     commit = commit or core.store.resolve()
     if commit is None:
         core.boundary.fail("REPAIR_REQUIRED")
+    anchor = core.history_index.anchor()
+    if anchor is not None:
+        # Explicit inspection of the historical pre-migration source is allowed;
+        # the current managed publication still has to retain the accepted anchor.
+        current = core.store.resolve()
+        core.store.changes(anchor["commit"], current)
     files = core.store.read(commit)
     trees = core.receipts.history.trees(commit)
     # Classify absent/invalid original admission before aggregate validation
@@ -116,7 +122,7 @@ def apply_history_migration(core: Core, plan: dict[str, object]) -> HistoryBasel
         core.boundary.fail("VALIDATION_FAILED")
     try:
         with core.store.writer():
-            commit, files, _, _, _ = core.repository.snapshot()
+            commit, files, _, _, _ = core.repository.snapshot(locked=True)
             if HISTORY in files:
                 marker = decode(files[HISTORY])
                 if marker["mode"] == "migrated" and marker["plan_digest"] == plan.get(

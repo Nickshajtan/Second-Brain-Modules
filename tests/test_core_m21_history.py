@@ -27,42 +27,42 @@ def publish(app, files):
 
 
 def legacy(app, cluster, monkeypatch, metadata_only=True):
-    """Construct an actual old commit chain, not a newer head used as history."""
-    original = app.store.prepare
-    # Re-provision the disposable fixture's bootstrap as an old root commit.
+    """Provision an old committed chain BEFORE enrolling its derived frontier."""
+    from second_brain_core import rebuild_history_index
+
     root = app.store.read(app.store.resolve())
     root.pop(HISTORY)
-    old_root = original(root, None)
-    app.store.publish(old_root, app.store.resolve())
-
-    def old_prepare(files, parent):
-        files = dict(files)
-        for path in list(files):
-            if path.startswith("knowledge/relation_revision/"):
-                del files[path]
-            elif metadata_only and path.startswith("knowledge/node_revision/"):
-                record = decode(files[path])
-                record.pop("snapshot", None)
-                files[path] = encode(record)
-        generation = decode(files[GENERATION])
-        generation["digest"] = app.repository.content_digest(files)
-        files[GENERATION] = encode(generation)
-        for path in files:
-            if path.startswith("control/receipts/"):
-                receipt = decode(files[path])
-                if receipt["generation"]["generation_id"] == generation["generation_id"]:
-                    receipt["generation"] = generation
-                    files[path] = encode(receipt)
-        return original(files, parent)
-
-    monkeypatch.setattr(app.store, "prepare", old_prepare)
-    request = batch(app, cluster)
-    app.submit(request)
-    monkeypatch.setattr(app.store, "prepare", original)
-    # Original method's returned receipt precedes the fixture-only legacy conversion.
-    receipt_path = app.receipts.for_request(request)
-    receipt = decode(app.store.read(app.store.resolve())[receipt_path])
-    return request, receipt
+    path = app.context.repository.parent / "legacy preenrollment"
+    path.mkdir()
+    subprocess.run(["git", "init", "--quiet", str(path)], check=True, capture_output=True)
+    context = replace(app.context, repository=path)
+    old = Core(context, GitStore(path, context.managed_ref), app.contracts)
+    parent = old.store.prepare(root, None)
+    old.store.publish(parent, None)
+    generation, records, metadata = old.repository.parse_tree(root)
+    with monkeypatch.context() as patch:
+        patch.setattr(old, "generation", lambda: generation)
+        request = batch(old, cluster)
+    files = dict(root)
+    results = [
+        old._create(operation, records, files, metadata) for operation in request["operations"]
+    ]
+    for target in list(files):
+        if target.startswith("knowledge/relation_revision/"):
+            del files[target]
+        elif metadata_only and target.startswith("knowledge/node_revision/"):
+            record = decode(files[target])
+            record.pop("snapshot", None)
+            files[target] = encode(record)
+    generation = old.repository.generation(files)
+    files[GENERATION] = encode(generation)
+    receipt = old.receipts.record(request, generation, results, files)
+    old.store.publish(old.store.prepare(files, parent), parent)
+    assert rebuild_history_index(old)["status"] == "rebuilt"
+    # Keep existing test call sites; the original enrolled repository was never reset.
+    app.__dict__.clear()
+    app.__dict__.update(old.__dict__)
+    return request, app.contracts.dump("transaction", receipt)
 
 
 def test_fresh_exact_history_and_replay_after_unrelated_commit(core):

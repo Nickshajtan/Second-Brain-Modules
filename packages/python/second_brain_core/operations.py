@@ -5,6 +5,16 @@ from .boundary import VERSION, ContractBoundary, digest, timestamp, uid
 from .domain import DomainRules
 
 
+def _definition(index, kind, key, version):
+    return [
+        (kind, path.rsplit("/", 1)[1][:-5])
+        for (path,) in index.query(
+            "SELECT path FROM definitions WHERE kind=? AND key=? AND version=?",
+            (kind, key, version),
+        )
+    ]
+
+
 class NodeCreateStrategy:
     def __init__(
         self, boundary: ContractBoundary, access: AccessControl, domain: DomainRules
@@ -12,6 +22,35 @@ class NodeCreateStrategy:
         self.boundary = boundary
         self.access = access
         self.domain = domain
+
+    def screen(self, operation, index, pending):
+        payload = operation["payload"]
+        cluster = payload["target_cluster_id"]
+        self.access.screen_cluster(index, cluster, "node.create")
+        self.access.screen_cluster(index, cluster, "membership.admit")
+        identifier = payload.get("node_id", operation["request_id"])
+        existing = self.access.projected(index, "node", identifier, pending)
+        if existing is not None:
+            self.access.screen_node(index, identifier, pending=pending)
+        self.access.screen_expectations(operation, index, pending)
+        if existing is None:
+            pending["node", identifier] = dict(lifecycle="active", membership_cluster=cluster)
+
+    def dependencies(self, operation, index):
+        payload = operation["payload"]
+        dependencies = [
+            ("cluster", payload["target_cluster_id"]),
+            ("node", payload.get("node_id", operation["request_id"])),
+        ]
+        dependencies.extend(
+            _definition(
+                index,
+                "node_type_definition",
+                payload["content"]["node_type"],
+                payload["content"]["node_type_version"],
+            )
+        )
+        return dependencies
 
     def prepare(self, operation, records, metadata):
         action = operation["operation"]
@@ -116,6 +155,40 @@ class RelationCreateStrategy:
         self.boundary = boundary
         self.access = access
         self.domain = domain
+
+    def screen(self, operation, index, pending):
+        relation = operation["payload"]["relation"]
+        self.access.screen_cluster(index, relation["owner_cluster_id"], "relation.create")
+        for endpoint in (relation["source"], relation["target"]):
+            if endpoint["instance_id"] != self.boundary.context.instance_id:
+                self.boundary.fail("NOT_FOUND")
+            self.access.screen_node(index, endpoint["id"], pending=pending)
+        existing = self.access.projected(index, "relation", relation["id"], pending)
+        if existing is not None:
+            self.access.screen_relation(index, relation["id"], pending=pending)
+        self.access.screen_expectations(operation, index, pending)
+        if existing is None:
+            pending["relation", relation["id"]] = {
+                key: relation[key] for key in ("owner_cluster_id", "source", "target", "lifecycle")
+            }
+
+    def dependencies(self, operation, index):
+        relation = operation["payload"]["relation"]
+        dependencies = [
+            ("relation", relation["id"]),
+            ("cluster", relation["owner_cluster_id"]),
+            ("node", relation["source"]["id"]),
+            ("node", relation["target"]["id"]),
+        ]
+        dependencies.extend(
+            _definition(
+                index,
+                "relation_type_definition",
+                relation["predicate"],
+                relation["predicate_version"],
+            )
+        )
+        return dependencies
 
     def prepare(self, operation, records, metadata):
         action = operation["operation"]

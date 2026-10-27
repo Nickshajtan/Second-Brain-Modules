@@ -1,6 +1,7 @@
 """Canonical record encoding and validated, pinned committed snapshots."""
 
 import hashlib
+from typing import TYPE_CHECKING
 
 from jsonschema.exceptions import SchemaError, ValidationError
 
@@ -10,6 +11,9 @@ from .domain import DomainRules
 from .git_store import StorageError
 from .ports import CommitStore
 from .receipts import ReceiptStore
+
+if TYPE_CHECKING:
+    from .history_index import HistoryIndex
 
 
 class KnowledgeRepository:
@@ -24,6 +28,7 @@ class KnowledgeRepository:
         self.store = store
         self.domain = domain
         self.receipts = receipts
+        self.index: HistoryIndex | None = None
 
     def pack(self, record, files):
         record = decode(encode(record))
@@ -88,14 +93,19 @@ class KnowledgeRepository:
         self.domain.validate(records, metadata)
         return generation, records, metadata
 
-    def snapshot(self):
+    def snapshot(self, *, locked: bool = False):
         try:
-            commit = self.store.resolve()
+            if self.index is not None:
+                self.index.ensure(locked=locked)
+                commit = self.index.frontier
+            else:
+                commit = self.store.resolve()
             if commit is None:
                 self.boundary.fail("REPAIR_REQUIRED")
             files = self.store.read(commit)
             generation, records, metadata = self.parse_tree(files)
-            self.receipts.validate_results(files, records, commit)
+            if self.index is None:
+                self.receipts.validate_results(files, records, commit)
             return commit, files, generation, records, metadata
         except (
             CoreError,

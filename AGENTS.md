@@ -45,7 +45,8 @@ Do not replace independent review with the implementer's self-review. Subagents 
    - P0/P1 findings block completion.
    - Confirmed P2 findings require a fix or explicit documented acceptance.
    - Delegate corrections to the implementer.
-   - Allow at most one automatic implementer correction and one reviewer recheck.
+   - Allow at most three automatic correction/recheck cycles. Each cycle consists
+     of one implementer correction followed by one independent reviewer recheck.
    - Escalate unresolved P0/P1 findings and confirmed P2 findings without explicit
      user acceptance; stop rather than looping.
    - Any substantive post-review change requires review of the final diff. If

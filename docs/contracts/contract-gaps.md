@@ -163,7 +163,7 @@ Each row is an explicit deferral. Its linked profile is part of the row and supp
 | CAP-042 | `freshness.review.ingest` | absent runtime | [DF-M8](#df-m8); operation-specific rights and exact requested effect must pass profile conformance | M8 |
 | CAP-043 | `grant.issue` | absent runtime | [DF-M4](#df-m4); operation-specific rights and exact requested effect must pass profile conformance | M4 |
 | CAP-044 | `grant.revoke` | absent runtime | [DF-M4](#df-m4); operation-specific rights and exact requested effect must pass profile conformance | M4 |
-| CAP-045 | `index.rebuild` | absent runtime | [DF-M5](#df-m5); operation-specific rights and exact requested effect must pass profile conformance | M5 |
+| CAP-045 | `index.rebuild` | bounded trusted-host history projection; public/search API absent | M2.1.1 authenticated frontier/full audit; SearchIndex/FTS and external authorization/protocol remain [DF-M5](#df-m5) / DF-M8 | M2.1.1 host; M5/M8 broader scope |
 | CAP-046 | `knowledge.search` | absent runtime | [DF-M5](#df-m5); operation-specific rights and exact requested effect must pass profile conformance | M5 |
 | CAP-047 | `membership.admit_on_create` | absent runtime | [DF-M6](#df-m6); operation-specific rights and exact requested effect must pass profile conformance | M6 |
 | CAP-048 | `membership.attach` | absent runtime | [DF-M6](#df-m6); operation-specific rights and exact requested effect must pass profile conformance | M6 |
@@ -231,3 +231,18 @@ fence, retained original history and exact plan validation. See
 
 | CAP-100 | `history.inspect`; trusted-host inventory | implemented bounded host API | No public operation; any future agent/service exposure needs M4 authenticated maintenance authority and a separate reviewed protocol | M2.1 host; M8 external |
 | CAP-101 | `history.migrate`; trusted-host backfill | implemented bounded host API | No public operation; any future agent/service exposure needs M4 authority, source fence, exact plan and retained ancestry conformance | M2.1 host; M8 external |
+
+
+## M2.1.1 history operations
+
+The [derived history index](../core/m2-1-1-history-hardening.md) is disposable,
+authenticated locator metadata, not another canonical authority. CAP-045 now has
+the trusted `rebuild_history_index` subset; its external/public/SearchIndex contract
+remains deferred. CAP-102 adds trusted `audit_history` full verification and safe
+structured diagnostics. These are Python host functions under bootstrap/recovery
+authority, not new public operation discriminators or generated protocol models.
+No FTS5, graph search, update or historical-read handler is implied. The
+[M2.1.1 validation gates and readiness limits](../core/m2-1-1-validation.md) are
+recorded as complete for the bounded foundation; M2.2 remains a separate slice.
+
+| CAP-102 | `history.audit`; trusted-host full verification | bounded host API | Public maintenance requires M4 authenticated scopes and M8 versioned protocol; activation must retain diagnostic non-disclosure and canonical/index separation | M2.1.1 host; M4/M8 external |

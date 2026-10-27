@@ -28,4 +28,17 @@ M2.1 future-head fixtures validate unchanged original receipt meaning without
 exposing mutation handlers or relaxing the create-only public profile. Selected
 Relation approval breadth remains O2; multi-membership serving remains O4.
 
+M2.1.1 is the blocking operational foundation before M2.2: authenticated disposable
+SQLite locators, ordered incremental verification, bounded committed reads/replay,
+explicit full audit/rebuild and recovery. See [design](../core/m2-1-1-history-hardening.md),
+[measured performance](../engineering/history-performance.md) and
+[validation/readiness](../core/m2-1-1-validation.md). A passing functional suite
+alone does not open M2.2; the full benchmark matrix and independent final review
+must also pass. SearchIndex/FTS5 and external maintenance protocols remain M5/M8.
+
+M2.1.1's reviewed runtime passed the full quality gate, all 60 benchmark rows and
+the additional bounded-create structural regression. Its
+[readiness decision and limits](../core/m2-1-1-validation.md) allow the separate
+M2.2 development slice; no Node/Relation mutation handler is enabled by M2.1.1.
+
 The single managed Git ref remains the domain publication boundary. Physical durability, hosted platform behavior, real OS agent isolation and backup retention remain separate operational verification requirements.

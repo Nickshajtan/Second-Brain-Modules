@@ -1,5 +1,10 @@
 # M2.1 immutable history and receipt foundation
 
+Historical implementation record: [M2.1.1](m2-1-1-history-hardening.md) supersedes
+the ordinary full-ancestry read strategy with an authenticated derived frontier.
+The immutable evidence/receipt/migration semantics below remain authoritative;
+full retained verification is now explicit audit/rebuild or incremental catch-up.
+
 Status: implemented; Stage A and final independent recheck both PASS WITH WARNINGS.
 Executed checks and limitations are in the validation record. Authority: the Owner's M2.1 implementation specification against
 `524d954ea1c6e26efc8a81d83052bc5ebf0e46a5`. This extends the

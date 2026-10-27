@@ -22,5 +22,6 @@ Recorded 2026-10-20. “Task-mandated” records an explicit requirement from th
 | [009](ADR-009-phase-1-domain-baseline.md) | Owner-confirmed domain baseline; independent Relations and passive Core scope | Partially supersedes ADR-006 embedded-edge ownership; implementation choices remain open |
 | [010](ADR-010-production-contract-baseline.md) | Production structural schemas, generated models and independent validator gates | Implemented unreleased 1.0.0 baseline; O1–O4 remain unresolved |
 | [011](ADR-011-immutable-creation-effects.md) | Retained original generations, immutable creation effects and explicit legacy backfill | Adopted M2.1 foundation; mutation/history handlers remain separate |
+| [012](ADR-012-derived-history-index.md) | Authenticated disposable SQLite locators, ordered verification frontier and explicit audit/recovery | Adopted M2.1.1 design; runtime evidence is reported separately |
 
 Changes supersede an ADR with a new record instead of silently editing a released decision. Review outstanding details in the [question register](../open-questions.md).

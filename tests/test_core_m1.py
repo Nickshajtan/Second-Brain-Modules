@@ -9,6 +9,7 @@ from uuid import uuid4
 import pytest
 from generated.v1.knowledge_schema import Node, Relation
 from second_brain_core import Core, CoreError, GitStore, TrustedPrincipal
+from second_brain_core.boundary import GENERATION
 from second_brain_core.codec import decode, encode
 from second_brain_core.git_store import StorageError
 
@@ -161,6 +162,7 @@ def test_invalid_batch_has_zero_committed_effects(core, mutation, code):
     elif mutation == "wrong_version":
         b["operation_version"] = "2.0.0"
     elif mutation == "duplicate_request":
+        b["payload"]["node_id"] = b["request_id"]
         b["request_id"] = a["request_id"]
     elif mutation == "stale_revision":
         a["expectations"] = [
@@ -230,6 +232,9 @@ def test_stale_generation_and_entity_collision(core):
     error("REVISION_CONFLICT", lambda: app.submit(stale))
     collision = batch(app, cluster)
     collision["operations"][0]["request_id"] = first["operations"][0]["request_id"]
+    collision["operations"][2]["payload"]["relation"]["source"]["id"] = collision["operations"][0][
+        "request_id"
+    ]
     error("REVISION_CONFLICT", lambda: app.submit(collision))
 
 
@@ -293,7 +298,9 @@ def test_expected_old_ref_rejects_competing_writer(core, monkeypatch):
     original = app.store.publish
 
     def race(candidate, expected):
-        competing = app.store.prepare(app.store.read(expected), expected)
+        files = app.store.read(expected)
+        files[GENERATION] = encode(app.repository.generation(files))
+        competing = app.store.prepare(files, expected)
         original(competing, expected)
         original(candidate, expected)
 
@@ -318,7 +325,12 @@ def test_prepared_objects_invisible_and_missing_committed_blob_fails_closed(core
     blob = app.store.common / "objects" / oid[:2] / oid[2:]
     blob.chmod(0o600)  # Git loose objects are read-only on Windows.
     blob.unlink()
-    error("REPAIR_REQUIRED", app.generation)
+    # Generation identity is a bounded descriptor lookup, not a full availability audit.
+    assert app.generation()
+    error("REPAIR_REQUIRED", lambda: read_node(app, request["operations"][0]["request_id"]))
+    from second_brain_core import audit_history
+
+    assert audit_history(app)["code"] == "MISSING_ANCESTOR"
 
 
 @pytest.mark.parametrize(

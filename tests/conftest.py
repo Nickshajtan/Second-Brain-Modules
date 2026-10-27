@@ -18,7 +18,9 @@ def repository(tmp_path):
     shutil.copytree(
         ROOT / "packages", root / "packages", ignore=shutil.ignore_patterns("__pycache__")
     )
-    shutil.copytree(ROOT / "tests/fixtures", root / "tests/fixtures")
+    shutil.copytree(ROOT / "tests", root / "tests", ignore=shutil.ignore_patterns("__pycache__"))
+    (root / "tools").mkdir()
+    shutil.copyfile(ROOT / "tools/benchmark_history.py", root / "tools/benchmark_history.py")
     shutil.copyfile(ROOT / "README.md", root / "README.md")
     shutil.copyfile(ROOT / "LICENSE", root / "LICENSE")
     shutil.copyfile(ROOT / "AGENTS.md", root / "AGENTS.md")
